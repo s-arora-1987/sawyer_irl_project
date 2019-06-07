@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+
+<launch>
+  <arg name="gui" default="True" />
+  <param name="use_gui" value="$(arg gui)"/>
+  
+<!--
+<param name="robot_description" command="$(find xacro)/xacro $(find sawyer_irl_project)/urdf/combined.urdf.xacro"/>
+-->
+
+<!-- <node pkg="intera_interface" type="enable_robot.py" args=" -e" name="sawyer_enable" output="screen"/>
+ <node pkg="intera_interface" type="joint_trajectory_action_server.py" name="sawyer_joint_state_publisher" output="screen" args="_use_gui:=true"/>
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+-->
+
+  <include file="$(find robotiq_2f_gripper_action_server)/launch/robotiq_2f_gripper_action_server_rtu.launch"/> 
+
+
+  <include file="$(find sawyer_moveit_config)/launch/sawyer_moveit.launch"/> 
+
+<!--
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find sawyer_description)config/sawyer.rviz $(find robotiq_2f_85_gripper_visualization)/visualize.rviz" required="true"/>
+-->
+</launch>
