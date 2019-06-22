@@ -1,10 +1,11 @@
 <?xml version="1.0" ?>
 <robot name="sawyer_robotiq" xmlns:xacro="http://www.ros.org/wiki/xacro">
-<!--  <xacro:include filename="$(find sawyer_description)/urdf/sawyer.urdf.xacro">
+<xacro:include filename="$(find sawyer_description)/urdf/sawyer.urdf.xacro">
   </xacro:include>
--->
+<!--  
   <xacro:include filename="$(find robotiq_2f_85_gripper_visualization)/urdf/robotiq_arg2f_85_model.xacro">
   </xacro:include>
+-->
 <!--
   <joint name="robotiq_gripper_base_joint" type="fixed" >
         <origin xyz="0.0 0.0 0.001" rpy="0.0 0.0 1.5707"/>

@@ -99,7 +99,7 @@
     <rosparam command="load" file="$(find sawyer_moveit_config)/config/kinematics.yaml"/>
   </node>
 
-<include file="$(find sawyer_moveit_config)/launch/sawyer_moveit.launch"/>
+<!-- <include file="$(find sawyer_moveit_config)/launch/sawyer_moveit.launch"/> -->
 
 </launch> 
 </robot>
