@@ -56,7 +56,7 @@
 
   <!-- startup simulated world --> 
  <include if="$(arg load_gazebo)" file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find sawyer_gazebo)/worlds/sawyer.world"/>
+    <arg name="world_name" value="$(find sawyer_irl_project)/worlds/sawyer_lab.world"/>
     <arg name="debug" value="$(arg debug)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="paused" value="$(arg paused)"/>
@@ -68,7 +68,8 @@
   <node if="$(arg static)" pkg="tf2_ros" type="static_transform_publisher"
 	name="base_to_world" args="0 0 0 0 0 0 1 world base" />
 
-
+ <!--Run Sawyer joint trajectory action server-->
+  <node name="sawyer_joint_trajectory_action_server" pkg="intera_interface" type="joint_trajectory_action_server.py"/>
 
   <!-- Gripper control -->
   <node name="joint_state_publisher" pkg="robotiq_2f_gripper_joint_state_publisher" type="robotiq_2f_gripper_joint_states">
@@ -77,7 +78,7 @@
   </node>
 
   <include file="$(find robotiq_2f_gripper_action_server)/launch/robotiq_2f_gripper_action_server_gazebo.launch">
-  </include>
+</include>
 
   <!-- ros_control sawyer launch file -->
   <include file="$(find sawyer_sim_controllers)/launch/sawyer_sim_controllers.launch">
@@ -104,6 +105,14 @@
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
 	args="-param robot_description -urdf -z 0.93 -model sawyer $(arg initial_joint_states)" />
 
+  
+<!-- <node name="urdf_spawner_gripper" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+	args="-param gripper_description -urdf -z 0.93 -model gripper" />
+-->
+  <node name="planning_scene_sawyer" pkg="sawyer_irl_project" type="planning_scene_sawyer" respawn="false" output="screen">
+    <rosparam command="load" file="$(find sawyer_moveit_config)/config/kinematics.yaml"/>
+  </node>
+
 <!--  <node name="urdf_spawner_gripper" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
 	args="-param gripper_description -urdf -z 0.93 -model gripper" />
 -->
@@ -111,6 +120,7 @@
       <arg name="electric_gripper" value="true"/>
   </include>
 
+<include file="$(find sawyer_moveit_config)/launch/sawyer_moveit.launch"/>
 
 </launch> 
 </robot>

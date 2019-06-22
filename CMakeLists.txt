@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(sawyer_irl_project)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+ add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   #sawyer_robot
   std_msgs
+  tf2_geometry_msgs
+  moveit_ros_planning_interface
 )
 
 ## System dependencies are found with CMake's conventions
@@ -108,7 +110,7 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES sawyer_irl_project
 #  CATKIN_DEPENDS robotiq roscpp rospy sawyer_robot std_msgs
-#  DEPENDS system_lib
+  DEPENDS roscpp
 )
 
 ###########
@@ -118,7 +120,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+include/${PROJECT_NAME} ${Boost_INCLUDE_DIR}
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -199,3 +201,8 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+
+add_executable(planning_scene_sawyer src/planning_scene_sawyer.cpp)
+target_link_libraries(planning_scene_sawyer ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+install(TARGETS planning_scene_sawyer DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
