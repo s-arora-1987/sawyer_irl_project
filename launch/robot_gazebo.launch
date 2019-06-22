@@ -68,15 +68,24 @@
   <node if="$(arg static)" pkg="tf2_ros" type="static_transform_publisher"
 	name="base_to_world" args="0 0 0 0 0 0 1 world base" />
 
- <!--Run Sawyer joint trajectory action server-->
-  <node name="sawyer_joint_trajectory_action_server" pkg="intera_interface" type="joint_trajectory_action_server.py"/>
 
+
+  <!-- Gripper control -->
+  <node name="joint_state_publisher" pkg="robotiq_2f_gripper_joint_state_publisher" type="robotiq_2f_gripper_joint_states">
+      <remap from="input" to="/gripper/input"/>
+      <remap from="joint_states" to="/robot/joint_states"/>
+  </node>
+
+  <include file="$(find robotiq_2f_gripper_action_server)/launch/robotiq_2f_gripper_action_server_gazebo.launch">
+  </include>
 
   <!-- ros_control sawyer launch file -->
   <include file="$(find sawyer_sim_controllers)/launch/sawyer_sim_controllers.launch">
       <arg name="electric_gripper" value="$(arg electric_gripper)"/>
       <arg name="gui" value="$(arg gui)" />
   </include>
+
+  <node name="sawyer_joint_trajectory_action_server" pkg="intera_interface" type="joint_trajectory_action_server.py"/>
 
   <!-- sawyer cameras launch file -->
   <arg name="wrist_camera" default="right_hand_camera" />
@@ -86,6 +95,7 @@
       <arg name="head_camera" value="$(arg head_camera)" />
   </include>
 
+
   <!-- Publish a static transform between the world and the base of the robot -->
   <node pkg="rosbag" type="play" name="io_robot" args="-l $(find sawyer_gazebo)/share/bags/robot_io.bag" />
 
@@ -94,7 +104,6 @@
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
 	args="-param robot_description -urdf -z 0.93 -model sawyer $(arg initial_joint_states)" />
 
-  
 <!--  <node name="urdf_spawner_gripper" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
 	args="-param gripper_description -urdf -z 0.93 -model gripper" />
 -->
