@@ -61,7 +61,7 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
 
   /* Define the pose of the table. */
   collision_objects[1].primitive_poses.resize(1);
-  collision_objects[1].primitive_poses[0].position.x = -0.15;
+  collision_objects[1].primitive_poses[0].position.x = -1;
   collision_objects[1].primitive_poses[0].position.y = 0;
   collision_objects[1].primitive_poses[0].position.z = 0;
 

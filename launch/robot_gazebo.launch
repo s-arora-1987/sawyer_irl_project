@@ -71,14 +71,6 @@
  <!--Run Sawyer joint trajectory action server-->
   <node name="sawyer_joint_trajectory_action_server" pkg="intera_interface" type="joint_trajectory_action_server.py"/>
 
-  <!-- Gripper control -->
-  <node name="joint_state_publisher" pkg="robotiq_2f_gripper_joint_state_publisher" type="robotiq_2f_gripper_joint_states">
-      <remap from="input" to="/gripper/input"/>
-      <remap from="joint_states" to="/robot/joint_states"/>
-  </node>
-
-  <include file="$(find robotiq_2f_gripper_action_server)/launch/robotiq_2f_gripper_action_server_gazebo.launch">
-</include>
 
   <!-- ros_control sawyer launch file -->
   <include file="$(find sawyer_sim_controllers)/launch/sawyer_sim_controllers.launch">
@@ -93,7 +85,6 @@
       <arg name="wrist_camera" value="$(arg wrist_camera)" />
       <arg name="head_camera" value="$(arg head_camera)" />
   </include>
-
 
   <!-- Publish a static transform between the world and the base of the robot -->
   <node pkg="rosbag" type="play" name="io_robot" args="-l $(find sawyer_gazebo)/share/bags/robot_io.bag" />
