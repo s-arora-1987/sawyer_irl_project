@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<robot name="sawyer_world" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+    <link name="rear_wall" type="fixed" >
+       <visual>
+        <origin rpy="0 0 0" xyz="-0.75 0 0" />
+	 <geometry>
+	    <box size="0 3 3"/>
+	 </geometry>
+	<material name="white"/>
+       </visual>
+       <collision>
+	<origin rpy="0 0 0" xyz="-0.75 0 0" />
+	 <geometry>
+	    <box size="0 3 3"/>
+	 </geometry>
+       </collision>
+    </link>
+   <joint name="rear_wall_joint" type="fixed">
+     <origin rpy="0 0 0" xyz="-0.75 0 0"/>
+     <parent link="base"/>
+     <child link="rear_wall"/>
+  </joint>
+ <!-- 
+ <link name="rear_table" type="fixed" >
+       <visual>
+        <origin rpy="0 -1.57079632679 0" xyz="-0.75 0 0" />
+	 <geometry>
+	    <box size="0 3 0.65"/>
+	 </geometry>
+	<material name="white"/>
+       </visual>
+       <collision>
+	<origin rpy="0 -1.57079632679 0" xyz="-0.75 0 0" />
+	 <geometry>
+	    <box size="0 3 0.65"/>
+	 </geometry>
+       </collision>
+    </link>
+ <joint name="rear_table_joint" type="fixed">
+     <origin rpy="0 0 0" xyz="-0.75 0 0"/>
+     <parent link="rear_wall"/>
+     <child link="rear_table"/>
+  </joint>
+-->
+</robot>

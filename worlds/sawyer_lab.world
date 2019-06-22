@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+   <world name="default">
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <model name="conveyor">
+        <pose>1.0 -0.5 0 0 0 0</pose>
+      <static>true</static>
+      <link name="body">
+        <visual name="visual">
+          <geometry>
+          <mesh><uri>file:///home/psuresh/catkin_ws/src/sawyer_irl_project/meshes/conveyor_box.stl</uri></mesh> 
+	 <!--   <scale>0.001 0.001 0.001</scale> -->
+	 <!--  	<box>
+                  <size>1.5 0.4 0.75</size>
+               </box> -->
+	</geometry>
+        </visual>
+	<collision name="collision">
+	 <geometry>
+	 <!--<mesh><uri>file:///home/psuresh/catkin_ws/src/sawyer_irl_project/meshes/frame_01.stl</uri></mesh> -->
+	   <box>
+                  <size>1.5 0.4 0.75</size>
+           </box>
+         </geometry>
+	</collision>
+      </link>
+    </model>
+
+    <physics type="ode">
+      <real_time_update_rate>1000.0</real_time_update_rate>
+    </physics>
+    
+    <gravity>
+      0.0 0.0 -9.81
+    </gravity>
+
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose frame=''>2.69836 -0.874828 2.04939 0 0.399643 2.75619</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
+
+  </world>
+</sdf>
+
