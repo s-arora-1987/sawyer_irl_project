@@ -15,7 +15,7 @@
       <link name="body">
         <visual name="visual">
           <geometry>
-          <mesh><uri>file:///home/psuresh/catkin_ws/src/sawyer_irl_project/meshes/conveyor_box.stl</uri></mesh> 
+          <mesh><uri>file:///home/psuresh/catkin_ws/src/sawyer_irl_project/meshes/frame_02.stl</uri></mesh> 
 	 <!--   <scale>0.001 0.001 0.001</scale> -->
 	 <!--  	<box>
                   <size>1.5 0.4 0.75</size>
