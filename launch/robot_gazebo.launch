@@ -56,7 +56,7 @@
 
   <!-- startup simulated world --> 
  <include if="$(arg load_gazebo)" file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find sawyer_gazebo)/worlds/sawyer.world"/>
+    <arg name="world_name" value="$(find sawyer_irl_project)/worlds/sawyer_lab.world"/>
     <arg name="debug" value="$(arg debug)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="paused" value="$(arg paused)"/>
@@ -104,9 +104,11 @@
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
 	args="-param robot_description -urdf -z 0.93 -model sawyer $(arg initial_joint_states)" />
 
-<!--  <node name="urdf_spawner_gripper" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-	args="-param gripper_description -urdf -z 0.93 -model gripper" />
--->
+ <!--Collision objects node -->
+  <node name="planning_scene_sawyer" pkg="sawyer_irl_project" type="planning_scene_sawyer" respawn="false" output="screen">
+    <rosparam command="load" file="$(find sawyer_moveit_config)/config/kinematics.yaml"/>
+  </node>
+
   <include file="$(find sawyer_moveit_config)/launch/sawyer_moveit.launch">
       <arg name="electric_gripper" value="true"/>
   </include>

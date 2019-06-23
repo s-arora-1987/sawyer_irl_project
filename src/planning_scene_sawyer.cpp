@@ -15,15 +15,15 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
 {
   // Creating Environment
   // ^^^^^^^^^^^^^^^^^^^^
-  // Create vector to hold 2 collision objects.
+  // Create vector to hold 1 collision objects.
   std::vector<moveit_msgs::CollisionObject> collision_objects;
-  collision_objects.resize(2);
+  collision_objects.resize(7);
 
   // Add the first table where the cube will originally be kept.
-  collision_objects[0].id = "table1";
+  collision_objects[0].id = "conveyor_table";
   collision_objects[0].header.frame_id = "world";
-
-  /* Define the primitive and its dimensions. */
+  ROS_INFO("Table 1 loaded successfully");
+  // Define the primitive and its dimensions. 
   collision_objects[0].primitives.resize(1);
   collision_objects[0].primitives[0].type = collision_objects[0].primitives[0].BOX;
   collision_objects[0].primitives[0].dimensions.resize(3);
@@ -31,11 +31,11 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   collision_objects[0].primitives[0].dimensions[1] = 1.5;
   collision_objects[0].primitives[0].dimensions[2] = 0.75;
 
-  /* Define the pose of the table. */
+  // Define the pose of the table. 
   collision_objects[0].primitive_poses.resize(1);
-  collision_objects[0].primitive_poses[0].position.x = 1.0;
+  collision_objects[0].primitive_poses[0].position.x = 0.75;
   collision_objects[0].primitive_poses[0].position.y = 0;
-  collision_objects[0].primitive_poses[0].position.z = -0.45744;
+  collision_objects[0].primitive_poses[0].position.z = -0.6; //0.545
 
   collision_objects[0].primitive_poses[0].orientation.w = 1.0;
   collision_objects[0].primitive_poses[0].orientation.x = 0;
@@ -44,26 +44,24 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   // END_SUB_TUTORIAL
 
   collision_objects[0].operation = collision_objects[0].ADD;
-  std::vector<moveit_msgs::CollisionObject> collision_vector;
-  collision_objects.push_back(collision_objects[0]);
-
+  
   // Add the rear table behind Sawyer.
-  collision_objects[1].id = "table2";
+  collision_objects[1].id = "rear_table";
   collision_objects[1].header.frame_id = "world";
 
-  /* Define the primitive and its dimensions. */
+  // Define the primitive and its dimensions. 
   collision_objects[1].primitives.resize(1);
   collision_objects[1].primitives[0].type = collision_objects[1].primitives[0].BOX;
   collision_objects[1].primitives[0].dimensions.resize(3);
   collision_objects[1].primitives[0].dimensions[0] = 0.66;
   collision_objects[1].primitives[0].dimensions[1] = 3.0;
-  collision_objects[1].primitives[0].dimensions[2] = 0.05;
+  collision_objects[1].primitives[0].dimensions[2] = 0.04;
 
-  /* Define the pose of the table. */
+  // Define the pose of the rear table. 
   collision_objects[1].primitive_poses.resize(1);
-  collision_objects[1].primitive_poses[0].position.x = -1;
+  collision_objects[1].primitive_poses[0].position.x = -0.45;
   collision_objects[1].primitive_poses[0].position.y = 0;
-  collision_objects[1].primitive_poses[0].position.z = 0;
+  collision_objects[1].primitive_poses[0].position.z = -0.10;
 
   collision_objects[1].primitive_poses[0].orientation.w = 1.0;
   collision_objects[1].primitive_poses[0].orientation.x = 0;
@@ -72,25 +70,161 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   // END_SUB_TUTORIAL
 
   collision_objects[1].operation = collision_objects[1].ADD;
-  std::vector<moveit_msgs::CollisionObject> collision_vector1;
-  collision_objects.push_back(collision_objects[1]);
 
-  planning_scene_interface.applyCollisionObjects(collision_vector);
+  // Add the rear wall behind Sawyer.
+  collision_objects[2].id = "rear_wall";
+  collision_objects[2].header.frame_id = "world";
+
+  // Define the primitive and its dimensions. 
+  collision_objects[2].primitives.resize(1);
+  collision_objects[2].primitives[0].type = collision_objects[1].primitives[0].BOX;
+  collision_objects[2].primitives[0].dimensions.resize(3);
+  collision_objects[2].primitives[0].dimensions[0] = 0.04;
+  collision_objects[2].primitives[0].dimensions[1] = 3.0;
+  collision_objects[2].primitives[0].dimensions[2] = 2.5;
+
+  // Define the pose of the rear wall. 
+  collision_objects[2].primitive_poses.resize(1);
+  collision_objects[2].primitive_poses[0].position.x = -0.77;
+  collision_objects[2].primitive_poses[0].position.y = 0;
+  collision_objects[2].primitive_poses[0].position.z = 0.33;
+
+  collision_objects[2].primitive_poses[0].orientation.w = 1.0;
+  collision_objects[2].primitive_poses[0].orientation.x = 0;
+  collision_objects[2].primitive_poses[0].orientation.y = 0;
+  collision_objects[2].primitive_poses[0].orientation.z = 0;
+  // END_SUB_TUTORIAL
+
+  collision_objects[2].operation = collision_objects[2].ADD;
+
+  // Add the side table to the right of Sawyer.
+  collision_objects[3].id = "right_table";
+  collision_objects[3].header.frame_id = "world";
+
+  // Define the primitive and its dimensions. 
+  collision_objects[3].primitives.resize(1);
+  collision_objects[3].primitives[0].type = collision_objects[1].primitives[0].BOX;
+  collision_objects[3].primitives[0].dimensions.resize(3);
+  collision_objects[3].primitives[0].dimensions[0] = 3.0;
+  collision_objects[3].primitives[0].dimensions[1] = 0.64;
+  collision_objects[3].primitives[0].dimensions[2] = 0.04;
+
+  // Define the pose of the right table. 
+  collision_objects[3].primitive_poses.resize(1);
+  collision_objects[3].primitive_poses[0].position.x = 0.75;
+  collision_objects[3].primitive_poses[0].position.y = -1.2;
+  collision_objects[3].primitive_poses[0].position.z = -0.10;
+
+  collision_objects[3].primitive_poses[0].orientation.w = 1.0;
+  collision_objects[3].primitive_poses[0].orientation.x = 0;
+  collision_objects[3].primitive_poses[0].orientation.y = 0;
+  collision_objects[3].primitive_poses[0].orientation.z = 0;
+  // END_SUB_TUTORIAL
+
+  collision_objects[3].operation = collision_objects[3].ADD;
+
+  // Add the right side wall - Sawyer.
+  collision_objects[4].id = "right_wall";
+  collision_objects[4].header.frame_id = "world";
+
+  // Define the primitive and its dimensions. 
+  collision_objects[4].primitives.resize(1);
+  collision_objects[4].primitives[0].type = collision_objects[1].primitives[0].BOX;
+  collision_objects[4].primitives[0].dimensions.resize(3);
+  collision_objects[4].primitives[0].dimensions[0] = 3.0;
+  collision_objects[4].primitives[0].dimensions[1] = 0.04;
+  collision_objects[4].primitives[0].dimensions[2] = 2.5;
+
+  // Define the pose of the right wall. 
+  collision_objects[4].primitive_poses.resize(1);
+  collision_objects[4].primitive_poses[0].position.x = 0.75;
+  collision_objects[4].primitive_poses[0].position.y = -1.5;
+  collision_objects[4].primitive_poses[0].position.z = 0.33;
+
+  collision_objects[4].primitive_poses[0].orientation.w = 1.0;
+  collision_objects[4].primitive_poses[0].orientation.x = 0;
+  collision_objects[4].primitive_poses[0].orientation.y = 0;
+  collision_objects[4].primitive_poses[0].orientation.z = 0;
+  // END_SUB_TUTORIAL
+
+  collision_objects[4].operation = collision_objects[4].ADD;
+
+  // Add the front pillar.
+  collision_objects[5].id = "front_pillar";
+  collision_objects[5].header.frame_id = "world";
+
+  // Define the primitive and its dimensions. 
+  collision_objects[5].primitives.resize(1);
+  collision_objects[5].primitives[0].type = collision_objects[1].primitives[0].BOX;
+  collision_objects[5].primitives[0].dimensions.resize(3);
+  collision_objects[5].primitives[0].dimensions[0] = 0.425;
+  collision_objects[5].primitives[0].dimensions[1] = 0.36;
+  collision_objects[5].primitives[0].dimensions[2] = 2.5;
+
+  // Define the pose of the front pillar. 
+  collision_objects[5].primitive_poses.resize(1);
+  collision_objects[5].primitive_poses[0].position.x = 1.4;
+  collision_objects[5].primitive_poses[0].position.y = 0.85;
+  collision_objects[5].primitive_poses[0].position.z = 0.33;
+
+  collision_objects[5].primitive_poses[0].orientation.w = 1.0;
+  collision_objects[5].primitive_poses[0].orientation.x = 0;
+  collision_objects[5].primitive_poses[0].orientation.y = 0;
+  collision_objects[5].primitive_poses[0].orientation.z = 0;
+  // END_SUB_TUTORIAL
+
+  collision_objects[5].operation = collision_objects[5].ADD;
+
+  // Add the cross beam.
+  collision_objects[6].id = "cross_beam";
+  collision_objects[6].header.frame_id = "world";
+
+  // Define the primitive and its dimensions. 
+  collision_objects[6].primitives.resize(1);
+  collision_objects[6].primitives[0].type = collision_objects[1].primitives[0].BOX;
+  collision_objects[6].primitives[0].dimensions.resize(3);
+  collision_objects[6].primitives[0].dimensions[0] = 0.18;
+  collision_objects[6].primitives[0].dimensions[1] = 2.3;
+  collision_objects[6].primitives[0].dimensions[2] = 0.3;
+
+  // Define the pose of the cross beam. 
+  collision_objects[6].primitive_poses.resize(1);
+  collision_objects[6].primitive_poses[0].position.x = 1.4;
+  collision_objects[6].primitive_poses[0].position.y = -0.35;
+  collision_objects[6].primitive_poses[0].position.z = 0.9;
+
+  collision_objects[6].primitive_poses[0].orientation.w = 1.0;
+  collision_objects[6].primitive_poses[0].orientation.x = 5.783148476;
+  collision_objects[6].primitive_poses[0].orientation.y = 0;
+  collision_objects[6].primitive_poses[0].orientation.z = 0;
+  // END_SUB_TUTORIAL
+
+  collision_objects[6].operation = collision_objects[6].ADD;
+
+
+  ros::Duration(1.0).sleep();
+  planning_scene_interface.applyCollisionObjects(collision_objects);
+  sleep(4.0);
 }
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "planning_scene_sawyer");
+  ros::init(argc, argv,"planning_scene_sawyer");
   ros::NodeHandle nh;
   ros::AsyncSpinner spinner(1);
   spinner.start();
-
+  ros::Publisher planning_scene_diff_publisher = nh.advertise<moveit_msgs::PlanningScene>("planning_scene", 1);
+  while(planning_scene_diff_publisher.getNumSubscribers() < 1)
+  {
+  ros::WallDuration sleep_t(0.5);
+  sleep_t.sleep();
+  }
   ros::WallDuration(1.0).sleep();
   moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
   moveit::planning_interface::MoveGroupInterface group("right_arm");
   
-  group.setPlanningTime(45.0);
-
+  group.setPlanningTime(60.0);
+  group.setPlannerId(group.getDefaultPlannerId(group.getName()));
   addCollisionObjects(planning_scene_interface);
 
   // Wait a bit for ROS things to initialize
