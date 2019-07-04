@@ -11,18 +11,67 @@
 
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
+using namespace Eigen;
+
 void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& planning_scene_interface)
 {
   // Creating Environment
   // ^^^^^^^^^^^^^^^^^^^^
   // Create vector to hold 1 collision objects.
   std::vector<moveit_msgs::CollisionObject> collision_objects;
-  collision_objects.resize(7);
+  collision_objects.resize(2);
 
   // Add the first table where the cube will originally be kept.
   collision_objects[0].id = "conveyor_table";
   collision_objects[0].header.frame_id = "world";
-  ROS_INFO("Table 1 loaded successfully");
+  ROS_INFO("Conveyor table loaded successfully");
+
+  shapes::Mesh* m = shapes::createMeshFromResource("package://sawyer_irl_project/meshes/conveyor_box.stl"); 
+  ROS_INFO("Conveyor box mesh loaded");
+  shape_msgs::Mesh mesh;
+  shapes::ShapeMsg mesh_msg;  
+  shapes::constructMsgFromShape(m, mesh_msg);
+  mesh = boost::get<shape_msgs::Mesh>(mesh_msg);
+  collision_objects[0].meshes.resize(1); 
+  collision_objects[0].mesh_poses.resize(1);  
+  collision_objects[0].mesh_poses[0].position.x = 0.75;
+  collision_objects[0].mesh_poses[0].position.y = -0.75;
+  collision_objects[0].mesh_poses[0].position.z = -0.91488;
+  collision_objects[0].mesh_poses[0].orientation.w= 1.0; 
+  collision_objects[0].mesh_poses[0].orientation.x= 0.0; 
+  collision_objects[0].mesh_poses[0].orientation.y= 0.0;
+  collision_objects[0].mesh_poses[0].orientation.z= 0.0;   
+  collision_objects[0].meshes.push_back(mesh);
+  collision_objects[0].mesh_poses.push_back(collision_objects[0].mesh_poses[0]);
+  collision_objects[0].operation = collision_objects[0].ADD;
+
+  
+ //Add sawyer_lab as one stl mesh
+  collision_objects[1].id = "sawyer_lab";
+  collision_objects[1].header.frame_id = "world";
+
+  // Define the primitive and its dimensions. 
+  Vector3d b(1, 1, 1);
+  shapes::Mesh* m1 = shapes::createMeshFromResource("package://sawyer_irl_project/meshes/sawyer_lab.stl",b); 
+  ROS_INFO("Sawyer lab mesh loaded");
+  shape_msgs::Mesh mesh1;
+  shapes::ShapeMsg mesh_msg1;  
+  shapes::constructMsgFromShape(m1, mesh_msg1);
+  mesh1 = boost::get<shape_msgs::Mesh>(mesh_msg1);
+  collision_objects[1].meshes.resize(1);
+  collision_objects[1].mesh_poses.resize(1);  
+  collision_objects[1].mesh_poses[0].position.x = -0.8;
+  collision_objects[1].mesh_poses[0].position.y = -1.45;
+  collision_objects[1].mesh_poses[0].position.z = -0.91488;
+  collision_objects[1].mesh_poses[0].orientation.w= 1.0; 
+  collision_objects[1].mesh_poses[0].orientation.x= 0.0; 
+  collision_objects[1].mesh_poses[0].orientation.y= 0.0;
+  collision_objects[1].mesh_poses[0].orientation.z= 0.0;   
+  collision_objects[1].meshes.push_back(mesh1);
+  collision_objects[1].mesh_poses.push_back(collision_objects[1].mesh_poses[0]);
+  collision_objects[1].operation = collision_objects[1].ADD;
+
+/*
   // Define the primitive and its dimensions. 
   collision_objects[0].primitives.resize(1);
   collision_objects[0].primitives[0].type = collision_objects[0].primitives[0].BOX;
@@ -35,7 +84,7 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   collision_objects[0].primitive_poses.resize(1);
   collision_objects[0].primitive_poses[0].position.x = 0.75;
   collision_objects[0].primitive_poses[0].position.y = 0;
-  collision_objects[0].primitive_poses[0].position.z = -0.6; //0.545
+  collision_objects[0].primitive_poses[0].position.z = -0.5; 
 
   collision_objects[0].primitive_poses[0].orientation.w = 1.0;
   collision_objects[0].primitive_poses[0].orientation.x = 0;
@@ -53,7 +102,7 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   collision_objects[1].primitives.resize(1);
   collision_objects[1].primitives[0].type = collision_objects[1].primitives[0].BOX;
   collision_objects[1].primitives[0].dimensions.resize(3);
-  collision_objects[1].primitives[0].dimensions[0] = 0.66;
+  collision_objects[1].primitives[0].dimensions[0] = 0.5; //0.66
   collision_objects[1].primitives[0].dimensions[1] = 3.0;
   collision_objects[1].primitives[0].dimensions[2] = 0.04;
 
@@ -61,7 +110,7 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   collision_objects[1].primitive_poses.resize(1);
   collision_objects[1].primitive_poses[0].position.x = -0.45;
   collision_objects[1].primitive_poses[0].position.y = 0;
-  collision_objects[1].primitive_poses[0].position.z = -0.10;
+  collision_objects[1].primitive_poses[0].position.z = -0.0; //0.10
 
   collision_objects[1].primitive_poses[0].orientation.w = 1.0;
   collision_objects[1].primitive_poses[0].orientation.x = 0;
@@ -193,14 +242,14 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   collision_objects[6].primitive_poses[0].position.y = -0.35;
   collision_objects[6].primitive_poses[0].position.z = 0.9;
 
-  collision_objects[6].primitive_poses[0].orientation.w = 1.0;
-  collision_objects[6].primitive_poses[0].orientation.x = 5.783148476;
+  collision_objects[6].primitive_poses[0].orientation.w = 0.9914449;
+  collision_objects[6].primitive_poses[0].orientation.x = -0.130526;
   collision_objects[6].primitive_poses[0].orientation.y = 0;
   collision_objects[6].primitive_poses[0].orientation.z = 0;
   // END_SUB_TUTORIAL
 
   collision_objects[6].operation = collision_objects[6].ADD;
-
+*/
 
   ros::Duration(1.0).sleep();
   planning_scene_interface.applyCollisionObjects(collision_objects);
@@ -222,6 +271,7 @@ int main(int argc, char** argv)
   ros::WallDuration(1.0).sleep();
   moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
   moveit::planning_interface::MoveGroupInterface group("right_arm");
+  
   
   group.setPlanningTime(60.0);
   group.setPlannerId(group.getDefaultPlannerId(group.getName()));

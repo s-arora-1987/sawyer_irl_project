@@ -53,6 +53,8 @@
 
  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find sawyer_irl_project)/urdf/sawyer_combined.urdf.xacro gazebo:=true electric_gripper:=false pedestal:=true static:=true" />
 
+<!-- Add controller box collision shape to check for link collisions if set to true-->
+  <arg name="controller_box" default="false"/>
 
   <!-- startup simulated world --> 
  <include if="$(arg load_gazebo)" file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -105,7 +107,7 @@
 	args="-param robot_description -urdf -z 0.93 -model sawyer $(arg initial_joint_states)" />
 
  <!--Collision objects node -->
-  <node name="planning_scene_sawyer" pkg="sawyer_irl_project" type="planning_scene_sawyer" respawn="false" output="screen">
+ <node name="planning_scene_sawyer" pkg="sawyer_irl_project" type="planning_scene_sawyer" respawn="false" output="screen">
     <rosparam command="load" file="$(find sawyer_moveit_config)/config/kinematics.yaml"/>
   </node>
 

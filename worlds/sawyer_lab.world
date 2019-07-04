@@ -10,25 +10,35 @@
     </include>
 
     <model name="conveyor">
-        <pose>1.0 -0.75 0 0 0 0</pose>
+        <pose>0.75 -0.75 0 0 0 0</pose>
       <static>true</static>
       <link name="body">
         <visual name="visual">
           <geometry>
-          <mesh><uri>file:///home/psuresh/catkin_ws/src/sawyer_irl_project/meshes/conveyor_box.stl</uri></mesh> 
-	 <!--   <scale>0.001 0.001 0.001</scale> -->
-	   <!--<box>
-                  <size>0.6 1.46 0.75</size>
-               </box> -->
+          <mesh><uri>file:///home/psuresh/catkin_ws/src/sawyer_irl_project/meshes/conveyor_assembly_01.stl</uri></mesh> 
 	</geometry>
         </visual>
 	<collision name="collision">
 	 <geometry>
 	 <mesh><uri>file:///home/psuresh/catkin_ws/src/sawyer_irl_project/meshes/conveyor_box.stl</uri></mesh>
-	  <!--<box>
-                  <size>0.6 1.46 0.75</size>
-           </box>-->
          </geometry>
+	</collision>
+      </link>
+    </model>
+
+   <model name="sawyer_lab">
+        <pose>-0.8 -1.45 0 0 0 0</pose>
+      <static>true</static>
+      <link name="body">
+        <visual name="visual">
+          <geometry>
+          <mesh><uri>file:///home/psuresh/catkin_ws/src/sawyer_irl_project/meshes/sawyer_lab.stl</uri></mesh> 
+	</geometry>
+        </visual>
+	<collision name="collision">
+	 <geometry>
+	 <mesh><uri>file:///home/psuresh/catkin_ws/src/sawyer_irl_project/meshes/sawyer_lab.stl</uri></mesh>
+	  </geometry>
 	</collision>
       </link>
     </model>

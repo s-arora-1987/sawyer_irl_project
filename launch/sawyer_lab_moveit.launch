@@ -1,9 +1,0 @@
-<?xml version="1.0" ?>
-<robot name="sawyer_lab_moveit" xmlns:xacro="http://www.ros.org/wiki/xacro">
-<launch>
-<include file="$(find sawyer_moveit_config)/launch/sawyer_moveit.launch"/>
-
-<arg name="load_world_description" default="true"/>
-
-</launch>
-</robot>
