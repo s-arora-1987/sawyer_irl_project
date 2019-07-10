@@ -276,9 +276,10 @@ int main(int argc, char** argv)
   group.setPlanningTime(60.0);
   group.setPlannerId(group.getDefaultPlannerId(group.getName()));
   addCollisionObjects(planning_scene_interface);
-
+  
   // Wait a bit for ROS things to initialize
   ros::WallDuration(1.0).sleep();
+  ROS_INFO("Now launch ROS Moveit to start planning");
   ros::waitForShutdown();
   return 0;
 }

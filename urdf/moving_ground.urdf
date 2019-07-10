@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<robot name="moving_ground">
+ 
+  <link name="world" />
+  <joint name="world_to_belt" type="continuous">
+    <parent link="world"/>
+    <child link="belt"/>
+  </joint>
+
+  <link name="belt">
+    <inertial>
+      <origin xyz="0 0 0" /> 
+      <mass value="1.0" />
+      <inertia  ixx="1.0" ixy="0.0"  ixz="0.0"  iyy="100.0"  iyz="0.0"  izz="1.0" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="1 1000 0.01" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="1000 1 0.01" />
+      </geometry>
+    </collision>
+  </link>
+  
+  <gazebo reference="belt">
+    <material>Gazebo/FlatBlack</material>
+  </gazebo>
+</robot>

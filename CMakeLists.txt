@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf2_geometry_msgs
   moveit_ros_planning_interface
+  controller_manager
 )
 
 ## System dependencies are found with CMake's conventions
