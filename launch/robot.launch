@@ -4,15 +4,6 @@
   <arg name="gui" default="True" />
   <param name="use_gui" value="$(arg gui)"/>
   
-  <!-- Gripper control 
-  <node name="joint_state_publisher" pkg="robotiq_2f_gripper_joint_state_publisher" type="robotiq_2f_gripper_joint_states">
-      <remap from="input" to="/gripper/input"/>
-      <remap from="joint_states" to="/robot/joint_states"/>
-  </node>
-
-  <include file="$(find robotiq_2f_gripper_action_server)/launch/robotiq_2f_gripper_action_server_gazebo.launch">
-  </include>
-  -->
  <!-- Enable Sawyer -->
  <node name="sawyer_enable" pkg="intera_interface" type="enable_robot.py"/>
 
@@ -24,9 +15,4 @@
     <rosparam command="load" file="$(find sawyer_moveit_config)/config/kinematics.yaml"/>
   </node>
 
- <!-- Launch moveit 
-  <include file="$(find sawyer_moveit_config)/launch/sawyer_moveit.launch">
-      <arg name="electric_gripper" value="false"/>
-  </include>
--->
 </launch>

@@ -19,8 +19,7 @@
       <specular>1 1 1 0</specular>
       <direction>-1 -1 -1</direction>
     </light>
-<!--
-    <model name="conveyor">
+<!--model name="conveyor">
         <pose>0.75 -0.75 0 0 0 0</pose>
       <static>true</static>
       <link name="body">
@@ -35,8 +34,8 @@
          </geometry>
 	</collision>
       </link>
-    </model>
--->
+    </model-->
+
    <model name="sawyer_lab">
         <pose>-0.8 -1.45 0 0 0 0</pose>
       <static>true</static>

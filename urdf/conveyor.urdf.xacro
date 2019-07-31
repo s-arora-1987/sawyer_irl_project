@@ -580,10 +580,10 @@
     </inertial>
     </link>
 
-  <joint name="frame_to_belt" type="revolute">
+  <joint name="frame_to_belt" type="fixed">
     <origin rpy="0 0 0" xyz="0.75 0 0.73" />
-    <axis xyz="1 0 0" />
-    <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
+    <!--axis xyz="1 0 0" />
+    <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/-->
     <parent link="frame"/>
     <child link="belt"/>
 <xacro:if value="$(arg gazebo)">
@@ -614,7 +614,7 @@
     </link>
 
 
-   <transmission name="tran1">
+   <!--transmission name="tran1">
 	<type>transmission_interface/SimpleTransmission</type>
 	<joint name="frame_to_roller1">
 	  <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
@@ -788,6 +788,12 @@
           <mechanicalReduction>1</mechanicalReduction>
 	</actuator>
    </transmission>
+    <gazebo>
+	<static>false</static>
+	<plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+	</plugin>
+	<robotNamespace>conveyor_table</robotNamespace>
+    </gazebo-->
 
 
 
@@ -797,13 +803,6 @@
     
     <gazebo reference="belt">
         <material>Gazebo/FlatBlack</material>
-    </gazebo>
-
-    <gazebo>
-	<static>false</static>
-	<plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-	</plugin>
-	<!--robotNamespace>conveyor_table</robotNamespace-->
     </gazebo>
 
 </robot>
