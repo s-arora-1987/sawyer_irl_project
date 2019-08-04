@@ -1,5 +1,6 @@
 # sawyer_irl_project
-Author: Prasanth Sengadu Suresh
+Author: Prasanth Sengadu Suresh.
+
 Owned By: THINC Lab, Department of Computer Science,
           University of Georgia.
 
