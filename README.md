@@ -53,7 +53,7 @@ The following are the steps to be followed to get this package working:
   
       roslaunch sawyer_irl_project robot_gazebo.launch
   
-      roslaunch kinectv2 kinect_gazebo.launch
+      roslaunch kinect_v2 kinect_gazebo.launch
       
       rosrun robotiq simple_pnp_gazebo.py    (Make sure all files in this folder are set to executable in file properties)
       
