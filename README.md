@@ -14,74 +14,71 @@ The following are the steps to be followed to get this package working:
   
   1.) Install ROS (This package was built on ROS Kinectic, for other versions you might need to make appropriate changes)
   
-      https://wiki.ros.org/kinetic/Installation/Ubuntu   
+   [ROS Kinetic](https://wiki.ros.org/kinetic/Installation/Ubuntu)
       
-      https://wiki.ros.org/catkin/Tutorials/create_a_workspace
+   [Catkin Workspace](https://wiki.ros.org/catkin/Tutorials/create_a_workspace)
       
-      https://moveit.ros.org/install/
+   [Moveit Install](https://moveit.ros.org/install/)
       
   2.) Now that you have a catkin workspace setup, in you src folder, git clone the following packages:
   
-      https://github.com/thinclab/sawyer_moveit/tree/release-5.2.0
+   [Sawyer Moveit](https://github.com/thinclab/sawyer_moveit/tree/release-5.2.0)
       
-      https://github.com/thinclab/sawyer_robot/tree/release-5.2.0
+   [Sawyer Robot](https://github.com/thinclab/sawyer_robot/tree/release-5.2.0)
       
-      https://github.com/thinclab/sawyer_simulator/tree/release-5.2.0
+   [Sawyer Simulator](https://github.com/thinclab/sawyer_simulator/tree/release-5.2.0)
       
-      https://github.com/thinclab/robotiq
+   [Robotiq](https://github.com/thinclab/robotiq)
       
-      https://github.com/RethinkRobotics/intera_sdk/tree/release-5.2.0
+   [Intera SDK](https://github.com/RethinkRobotics/intera_sdk/tree/release-5.2.0)
       
-      https://github.com/RethinkRobotics/intera_common/tree/release-5.2.0
+   [Intera Common](https://github.com/RethinkRobotics/intera_common/tree/release-5.2.0)
       
-      https://github.com/prasuchit/roboticsgroup_gazebo_plugins-1
+   [Gazebo Plugin](https://github.com/prasuchit/roboticsgroup_gazebo_plugins-1)
       
-      https://github.com/pal-robotics/gazebo_ros_link_attacher
+   [Gazebo Link Attacher](https://github.com/pal-robotics/gazebo_ros_link_attacher)
       
-      *ADD THE KINECT PACKAGE HERE*
+   [Kinect V2](https://github.com/prasuchit/kinect_v2_udrf)
       
-      Install all dependencies for these packages: (For kinetic: rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y)
-      Now use catkin_make to compile
+   - Install all dependencies for these packages: (For kinetic: rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y)
+   - Now use catkin_make to compile
       
   3.) You are almost ready to run the simulation. Double check if you have installed all the required plugins for moveit (esp moveit controllers)
   
-      You have to modify one path that is hardcoded for my local directory to yours (PS:I'm working on fixing this!)
+   - You have to modify one path that is hardcoded for my local directory to yours (PS:I'm working on fixing this!)
       
-      In  sawyer_irl_project/worlds/sawyer_lab.world, check under model name="sawyer_lab", modify the mesh location to your local filesystem.
+   - In  sawyer_irl_project/worlds/sawyer_lab.world, check under model name="sawyer_lab", modify the mesh location to your local filesystem.
       
-  4.) Run roslaunch sawyer_irl_project robot_gazebo.launch
+  4.) Run the following commands in seperate terminals:
   
-      Run roslaunch kinectv2 kinect_gazebo.launch
+      roslaunch sawyer_irl_project robot_gazebo.launch
+  
+      roslaunch kinectv2 kinect_gazebo.launch
       
-      Run rosrun robotiq simple_pnp_gazebo.py    (Make sure all files in this folder are set to executable in file properties)
+      rosrun robotiq simple_pnp_gazebo.py    (Make sure all files in this folder are set to executable in file properties)
       
   5.) Now, if you want to run the same on the real Sawyer Robot,
   
-        http://sdk.rethinkrobotics.com/intera/Robot_Setup
+   [Robot Setup](http://sdk.rethinkrobotics.com/intera/Robot_Setup)
         
-        http://sdk.rethinkrobotics.com/intera/Workstation_Setup
+   [Workstation Setup](http://sdk.rethinkrobotics.com/intera/Workstation_Setup)
         
-        Make sure you are able to connect to the gripper using the following steps: (DO ALL THESE STEPS WITHIN THE ./intera.sh ENV IN ALL TERMINALS)
+   - Make sure you are able to connect to the gripper using the following steps: (DO ALL THESE STEPS WITHIN THE ./intera.sh ENV IN ALL NEW TERMINALS)
         
-          sudo chmod 777 /dev/ttyUSB0
+         sudo chmod 777 /dev/ttyUSB0
           
-          roslaunch robotiq_2f_gripper_action_server robotiq_2f_gripper_action_server_rtu.launch    (DRIVER FILE: Keep this running until the gripper is being used)
+         roslaunch robotiq_2f_gripper_action_server robotiq_2f_gripper_action_server_rtu.launch  (DRIVER FILE: Keep this running until the gripper is being used)
           
-          rosrun robotiq_2f_gripper_control Robotiq2FGripperSimpleController.py     (In a new tab)
+         rosrun robotiq_2f_gripper_control Robotiq2FGripperSimpleController.py     
           
-        For Sawyer, do the following steps:
+   - For Sawyer, do the following steps (In new tabs):
         
-          roslaunch sawyer_irl_project robot.launch
+         roslaunch sawyer_irl_project robot.launch
           
-          roslaunch sawyer_irl_project upload_gripper.launch      (In a new tab)
+         roslaunch sawyer_irl_project upload_gripper.launch      
           
-          roslaunch moveit_configs sawyer_moveit.launch
+         roslaunch moveit_configs sawyer_moveit.launch
           
-        For pick and place:
+   - For pick and place:
         
-            rosrun robotiq simple_pnp.py    (Make sure all files in this folder are set to executable in file properties)
-            
-          
-          
-      
-      
+         rosrun robotiq simple_pnp.py    (Make sure all files in this folder are set to executable in file properties)
