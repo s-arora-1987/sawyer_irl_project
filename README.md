@@ -36,7 +36,7 @@ The following are the steps to be followed to get this package working:
       
    [Gazebo Plugin](https://github.com/prasuchit/roboticsgroup_gazebo_plugins-1)
       
-   [Gazebo Link Attacher](https://github.com/pal-robotics/gazebo_ros_link_attacher)
+   [Gazebo Link Attacher](https://github.com/prasuchit/gazebo_ros_link_attacher)
       
    [Kinect V2](https://github.com/prasuchit/kinect_v2_udrf)
       
@@ -55,7 +55,7 @@ The following are the steps to be followed to get this package working:
   
       roslaunch kinect_v2 kinectv2_gazebo.launch
       
-      rosrun robotiq simple_pnp_gazebo.py    (Make sure all files in this folder are set to executable in file properties)
+      robotiq_2f_gripper_control simple_pnp_gazebo.py    (Make sure all files in this folder are set to executable in file properties)
       
   5.) Now, if you want to run the same on the real Sawyer Robot,
   
