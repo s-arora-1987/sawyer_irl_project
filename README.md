@@ -40,12 +40,12 @@ The following are the steps to be followed to get this package working:
       
    [Kinect V2](https://github.com/prasuchit/kinect_v2_udrf)
       
-   - Install all dependencies for these packages: (For kinetic: rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y)
+   - cd into catkin_ws and install all dependencies for these packages: (For kinetic: rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y)
    - Now use catkin_make to compile
       
   3.) You are almost ready to run the simulation. Double check if you have installed all the required plugins for moveit (esp moveit controllers)
   
-   - You have to modify two paths that is hardcoded for my local directory to yours (PS: I'm working on fixing this!)
+   - **You have to modify two paths that is hardcoded for my local directory to yours (PS: I'm working on fixing this!)**
       
    - In  sawyer_irl_project/worlds/sawyer_lab.world, check under model name="sawyer_lab", modify the mesh location to your local filesystem.
    - In robotiq/robotiq_2f_gripper_control/nodes/simple_pnp_gazebo.py, check the method create_cube_request and modify USERNAME to your current username.
