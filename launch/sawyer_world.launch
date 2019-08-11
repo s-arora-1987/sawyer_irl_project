@@ -1,8 +1,7 @@
-<?xml version="1.0" ?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <launch>
 
- <!-- these are the arguments you can pass this launch file, for example paused:=true -->
+  <!-- these are the arguments you can pass this launch file, for example paused:=true -->
   <arg name="paused" default="false"/>
   <arg name="use_sim_time" default="true"/>
   <arg name="gui" default="true"/>
@@ -31,10 +30,15 @@
 
   <param name="img_path_head_display" value="$(arg head_display_img)"/>
 
-  <!-- gripper parameters for gazebo -->
+  <!-- Load the URDF into the ROS Parameter Server -->
+  <!-- This xacro will pull in sawyer.urdf.xacro, and right_end_effector.urdf.xacro
+       Note: if you set this to false, you MUST have set the robot_description prior
+             to launching sawyer_world -->
+  <arg name="load_robot_description" default="true"/>
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find sawyer_irl_project)/urdf/sawyer_combined.urdf.xacro gazebo:=true electric_gripper:=false pedestal:=true static:=true" />
+<!-- gripper parameters for gazebo -->
   <rosparam file="$(find robotiq_2f_85_gripper_visualization)/config/robotiq_2f_85_control.yaml" command="load"/>
-
- <!-- Load Parameters to the ROS Parameter Server -->
+  <!-- Load Parameters to the ROS Parameter Server -->
   <rosparam command="load" file="$(find sawyer_gazebo)/config/config.yaml" />
   <rosparam command="load" file="$(find sawyer_description)/params/named_poses.yaml" />
   <rosparam command="load" file="$(find sawyer_gazebo)/config/acceleration_limits.yaml" />
@@ -50,33 +54,6 @@
   <param unless="$(arg electric_gripper)" name="robot/limb/right/gravity_tip_name"
          value="right_hand" />
 
- <param name="robot_description" command="$(find xacro)/xacro --inorder $(find sawyer_irl_project)/urdf/sawyer_combined.urdf.xacro gazebo:=true electric_gripper:=false pedestal:=true static:=true" />
-
-<!-- Add controller box collision shape to check for link collisions if set to true-->
-  <arg name="controller_box" default="false"/>
-
-  <!-- startup simulated world --> 
- <include if="$(arg load_gazebo)" file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find sawyer_irl_project)/worlds/sawyer_lab.world"/>
-    <arg name="debug" value="$(arg debug)" />
-    <arg name="gui" value="$(arg gui)" />
-    <arg name="paused" value="$(arg paused)"/>
-    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
-    <arg name="headless" value="$(arg headless)"/>
-  </include>
-
- <!-- Publish a static transform between the world and the base of the robot -->
-  <node if="$(arg static)" pkg="tf2_ros" type="static_transform_publisher"
-	name="base_to_world" args="0 0 0 0 0 0 1 world base" />
-
- <!-- ros_control sawyer launch file -->
-  <include file="$(find sawyer_sim_controllers)/launch/sawyer_sim_controllers.launch">
-      <arg name="electric_gripper" value="$(arg electric_gripper)"/>
-      <arg name="gui" value="$(arg gui)" />
-  </include>
-
- <!-- Start joint trajectory action server to publish joint states -->
-  <node name="sawyer_joint_trajectory_action_server" pkg="intera_interface" type="joint_trajectory_action_server.py"/>
 
  <!-- Gripper control -->
   <node name="joint_state_publisher" pkg="robotiq_2f_gripper_joint_state_publisher" type="robotiq_2f_gripper_joint_states">
@@ -87,6 +64,32 @@
   <include file="$(find robotiq_2f_gripper_action_server)/launch/robotiq_2f_gripper_action_server_gazebo.launch">
   </include>
 
+  <!-- We resume the logic in empty_world.launch, changing the name of the world to be launched -->
+  <include if="$(arg load_gazebo)" file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find sawyer_irl_project)/worlds/sawyer.world"/>
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="headless" value="$(arg headless)"/>
+  </include>
+
+  <!-- Publish a static transform between the world and the base of the robot -->
+  <node if="$(arg static)" pkg="tf2_ros" type="static_transform_publisher"
+	name="base_to_world" args="0 0 0 0 0 0 1 world base" />
+
+  <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+	args="-param robot_description -urdf -z 0.93 -model sawyer $(arg initial_joint_states)" />
+
+  <!-- ros_control sawyer launch file -->
+  <include file="$(find sawyer_sim_controllers)/launch/sawyer_sim_controllers.launch">
+      <arg name="electric_gripper" value="$(arg electric_gripper)"/>
+      <arg name="gui" value="$(arg gui)" />
+  </include>
+
+  <node name="sawyer_joint_trajectory_action_server" pkg="intera_interface" type="joint_trajectory_action_server.py"/>
+
   <!-- sawyer cameras launch file -->
   <arg name="wrist_camera" default="right_hand_camera" />
   <arg name="head_camera"  default="head_camera" />
@@ -95,26 +98,17 @@
       <arg name="head_camera" value="$(arg head_camera)" />
   </include>
 
-
   <!-- Publish a static transform between the world and the base of the robot -->
   <node pkg="rosbag" type="play" name="io_robot" args="-l $(find sawyer_gazebo)/share/bags/robot_io.bag" />
 
 
-  <!-- spawn in gazebo -->
-  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-	args="-param robot_description -urdf -z 0.93 -model sawyer $(arg initial_joint_states)" />
-
- <!--Collision objects node -->
+ <!--Collision objects node >
  <node name="planning_scene_sawyer" pkg="sawyer_irl_project" type="planning_scene_sawyer" respawn="false" output="screen">
     <rosparam command="load" file="$(find sawyer_moveit_config)/config/kinematics.yaml"/>
-  </node>
+  </node-->
 
- <!-- Conveyor spawning in gazebo -->
+<!-- Conveyor spawning in gazebo -->
  <param name="conveyor" command="$(find xacro)/xacro.py $(find sawyer_irl_project)/urdf/conveyor.urdf.xacro"/> 
  <node args="-urdf -param conveyor -model conveyor" name="spawn_conveyor" output="screen" pkg="gazebo_ros" respawn="false" type="spawn_model"/>
 
-  <!--include file="$(find sawyer_moveit_config)/launch/sawyer_moveit.launch">
-      <arg name="electric_gripper" value="true"/>
-  </include-->
-
-</launch> 
+</launch>
