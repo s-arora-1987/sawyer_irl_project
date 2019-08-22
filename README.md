@@ -21,25 +21,26 @@ The following are the steps to be followed to get this package working:
    [Moveit Install](https://moveit.ros.org/install/)
       
   2.) Now that you have a catkin workspace setup, in you src folder, git clone the following packages:
-  These packages have changes that are not a part of their default branches. Make sure you clone them from the links below.
   
-   [Sawyer Moveit](https://github.com/thinclab/sawyer_moveit/tree/release-5.2.0)
+   - These packages have changes that are not a part of their default branches. Make sure you clone them from the links below.
+  
+   git clone --branch release-5.2.0 https://github.com/thinclab/sawyer_moveit.git
       
-   [Sawyer Robot](https://github.com/thinclab/sawyer_robot/tree/release-5.2.0)
+   git clone --branch release-5.2.0 https://github.com/thinclab/sawyer_robot.git
       
-   [Sawyer Simulator](https://github.com/thinclab/sawyer_simulator/tree/release-5.2.0)
+   git clone --branch release-5.2.0 https://github.com/thinclab/sawyer_simulator.git
       
-   [Robotiq](https://github.com/thinclab/robotiq)
+   git clone --branch kinetic-devel https://github.com/thinclab/robotiq.git
       
-   [Intera SDK](https://github.com/RethinkRobotics/intera_sdk/tree/release-5.2.0)
+   git clone --branch release-5.2.0 https://github.com/RethinkRobotics/intera_sdk.git
       
-   [Intera Common](https://github.com/RethinkRobotics/intera_common/tree/release-5.2.0)
+   git clone --branch release-5.2.0 https://github.com/RethinkRobotics/intera_common.git
       
-   [Gazebo Plugin](https://github.com/prasuchit/roboticsgroup_gazebo_plugins-1)
+   git clone https://github.com/prasuchit/roboticsgroup_gazebo_plugins-1
       
-   [Gazebo Link Attacher](https://github.com/prasuchit/gazebo_ros_link_attacher)
+   git clone https://github.com/prasuchit/gazebo_ros_link_attacher
       
-   [Kinect V2](https://github.com/prasuchit/kinect_v2_udrf)
+   git clone https://github.com/prasuchit/kinect_v2_udrf
    
    - Use the following command to update all your packages and drivers: sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade
       
