@@ -21,6 +21,7 @@ The following are the steps to be followed to get this package working:
    [Moveit Install](https://moveit.ros.org/install/)
       
   2.) Now that you have a catkin workspace setup, in you src folder, git clone the following packages:
+  These packages have changes that are not a part of their default branches. Make sure you clone them from the links below.
   
    [Sawyer Moveit](https://github.com/thinclab/sawyer_moveit/tree/release-5.2.0)
       
