@@ -57,7 +57,7 @@ The following are the steps to be followed to get this package working:
   
       roslaunch kinect_v2 kinectv2_gazebo.launch
       
-      robotiq_2f_gripper_control simple_pnp_gazebo.py    (Make sure all files in this folder are set to executable in file properties)
+      rosrun robotiq_2f_gripper_control simple_pnp_gazebo.py    (Make sure all files in this folder are set to executable in file properties)
       
   5.) Now, if you want to run the same on the real Sawyer Robot,
   
