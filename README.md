@@ -39,6 +39,8 @@ The following are the steps to be followed to get this package working:
    [Gazebo Link Attacher](https://github.com/prasuchit/gazebo_ros_link_attacher)
       
    [Kinect V2](https://github.com/prasuchit/kinect_v2_udrf)
+   
+   - Use the following command to update all your packages and drivers: sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade
       
    - cd into catkin_ws and install all dependencies for these packages: (For kinetic: rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y)
    - Now use catkin_make to compile
