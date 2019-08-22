@@ -24,34 +24,39 @@ The following are the steps to be followed to get this package working:
   
    - These packages have changes that are not a part of their default branches. Make sure you clone them from the links below.
   
-   git clone --branch release-5.2.0 https://github.com/thinclab/sawyer_moveit.git
+          git clone --branch release-5.2.0 https://github.com/thinclab/sawyer_moveit.git
       
-   git clone --branch release-5.2.0 https://github.com/thinclab/sawyer_robot.git
+          git clone --branch release-5.2.0 https://github.com/thinclab/sawyer_robot.git
       
-   git clone --branch release-5.2.0 https://github.com/thinclab/sawyer_simulator.git
+          git clone --branch release-5.2.0 https://github.com/thinclab/sawyer_simulator.git
       
-   git clone --branch kinetic-devel https://github.com/thinclab/robotiq.git
+          git clone --branch kinetic-devel https://github.com/thinclab/robotiq.git
       
-   git clone --branch release-5.2.0 https://github.com/RethinkRobotics/intera_sdk.git
+          git clone --branch release-5.2.0 https://github.com/RethinkRobotics/intera_sdk.git
       
-   git clone --branch release-5.2.0 https://github.com/RethinkRobotics/intera_common.git
+          git clone --branch release-5.2.0 https://github.com/RethinkRobotics/intera_common.git
       
-   git clone https://github.com/prasuchit/roboticsgroup_gazebo_plugins-1
+          git clone https://github.com/prasuchit/roboticsgroup_gazebo_plugins-1
       
-   git clone https://github.com/prasuchit/gazebo_ros_link_attacher
+          git clone https://github.com/prasuchit/gazebo_ros_link_attacher
       
-   git clone https://github.com/prasuchit/kinect_v2_udrf
+          git clone https://github.com/prasuchit/kinect_v2_udrf
    
-   - Use the following command to update all your packages and drivers: sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade
+   - Use the following command to update all your packages and drivers:
+   
+          sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade
       
-   - cd into catkin_ws and install all dependencies for these packages: (For kinetic: rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y)
+   - cd into catkin_ws and install all dependencies for these packages: 
+   
+          (For kinetic: rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y -i --verbose)
+          
    - Now use catkin_make to compile
       
   3.) You are almost ready to run the simulation. Double check if you have installed all the required plugins for moveit (esp moveit controllers)
   
    - **You have to modify one path that is hardcoded for my local directory to yours (PS: I'm working on fixing this!)**
       
-   - In  sawyer_irl_project/worlds/sawyer_lab.world, check under model name="sawyer_lab", modify the mesh location to your local filesystem.
+     - In  sawyer_irl_project/worlds/sawyer_lab.world, check under model name="sawyer_lab", modify the mesh location to your local filesystem.
    
   4.) Run the following commands in seperate terminals:
   
@@ -67,7 +72,7 @@ The following are the steps to be followed to get this package working:
         
    [Workstation Setup](http://sdk.rethinkrobotics.com/intera/Workstation_Setup)
         
-   - Make sure you are able to connect to the gripper using the following steps: (DO ALL THESE STEPS WITHIN THE ./intera.sh ENV IN ALL NEW TERMINALS)
+   - Make sure you are able to connect to the gripper using the following steps: (DO ALL THESE STEPS WITHIN THE ./intera.sh ENV, ALL IN NEW TERMINALS)
         
          sudo chmod 777 /dev/ttyUSB0
           
