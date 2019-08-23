@@ -91,3 +91,4 @@ The following are the steps to be followed to get this package working:
    - For pick and place:
         
          rosrun robotiq simple_pnp.py    (Make sure all files in this folder are set to executable in file properties)
+
