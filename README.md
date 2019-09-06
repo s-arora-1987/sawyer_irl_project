@@ -30,7 +30,7 @@ The following are the steps to be followed to get this package working:
       
           git clone --branch release-5.2.0 https://github.com/RethinkRobotics/intera_common.git
           
-   - Do a catkin_make at this point. This will generate the intera custom messages that the following packages use.
+   - cd into catkin_ws and do a catkin_make at this point. This will generate the intera custom messages that the following packages use.
   
           git clone --branch release-5.2.0 https://github.com/thinclab/sawyer_moveit.git
       
@@ -60,7 +60,7 @@ The following are the steps to be followed to get this package working:
            rospack depends [name of package]
            
      - This should give you the dependencies you are missing for any given package.
-     - Do a catkin_make to compile.
+     - Do a catkin_make to compile. If you face a soem error, this is a useful link to resolve some related errors: [Soem error](https://github.com/tork-a/minas/issues/64)
      
   3.) You are almost ready to run the simulation. Double check if you have installed all the required plugins for moveit (esp moveit controllers)
   
