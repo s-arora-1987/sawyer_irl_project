@@ -1,4 +1,8 @@
 <?xml version="1.0" ?>
+
+<!-- Author: Prasanth Suresh(ps32611@uga.edu); Description: Hardman Hall Rm 230 lab world for Sawyer Robot -->
+<!-- Do not edit/replicate without permission -->
+
 <sdf version="1.4">
    <world name="default">
     <plugin name="ros_link_attacher_plugin" filename="libgazebo_ros_link_attacher.so"/>
@@ -20,22 +24,6 @@
       <specular>1 1 1 0</specular>
       <direction>-1 -1 -1</direction>
     </light>
-<!--model name="conveyor">
-        <pose>0.75 -0.75 0 0 0 0</pose>
-      <static>true</static>
-      <link name="body">
-        <visual name="visual">
-          <geometry>
-           <mesh><uri>file:///home/psuresh/catkin_ws/src/sawyer_irl_project/meshes/conveyor_assembly_01.stl</uri></mesh>
-	  </geometry>
-        </visual>
-	<collision name="collision">
-	 <geometry>
-	 <mesh><uri>file:///home/psuresh/catkin_ws/src/sawyer_irl_project/meshes/conveyor_box.stl</uri></mesh>
-         </geometry>
-	</collision>
-      </link>
-    </model-->
 
    <model name="sawyer_lab">
         <pose>-0.8 -1.45 0 0 0 0</pose>
@@ -43,12 +31,12 @@
       <link name="body">
         <visual name="visual">
           <geometry>
-          <mesh><uri>file:///home/psuresh/catkin_ws/src/sawyer_irl_project/meshes/sawyer_lab.stl</uri></mesh> 
+          <mesh><uri>model://sawyer_lab.stl</uri></mesh> 
 	</geometry>
         </visual>
 	<collision name="collision">
 	 <geometry>
-	 <mesh><uri>file:///home/psuresh/catkin_ws/src/sawyer_irl_project/meshes/sawyer_lab.stl</uri></mesh>
+	 <mesh><uri>model://sawyer_lab.stl</uri></mesh>
 	  </geometry>
 	</collision>
       </link>

@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
-<robot name="sawyer_lab" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<!-- Author: Prasanth Suresh(ps32611@uga.edu); Description: Hardman Hall Rm 230 lab environment for Sawyer Robot -->
+<!-- Do not edit/replicate without permission -->
 
+<robot name="sawyer_lab" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<!-- Currently not used -->
   <link name="world"/>
 
   <link name="lab">

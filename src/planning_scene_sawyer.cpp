@@ -1,5 +1,9 @@
-#include <ros/ros.h>
+// Author: Prasanth Suresh(ps32611@uga.edu); 
+// Description: Adding surrounding collision objects to sawyer world in Moveit; 
+// Do not edit/copy without permission.
 
+
+#include <ros/ros.h>
 #include <moveit_msgs/CollisionObject.h>
 #include <moveit_msgs/PlanningScene.h>
 #include "geometric_shapes/shape_operations.h"
@@ -7,25 +11,54 @@
 #include "geometric_shapes/mesh_operations.h"
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <moveit/move_group_interface/move_group_interface.h>
-
-
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include "std_msgs/Int32.h"
 
 using namespace Eigen;
+
+//Trying to add dynamic collision objects as they are spawned. Yet to be cleaned up./////////////
+
+/*
+ void callbackAddObject(const std_msgs::Int32::ConstPtr& msg){
+
+   std::string out_string;
+   std::stringstream ss;
+   ss << i;
+   out_string = ss.str();
+
+   shapes::Mesh* m = shapes::createMeshFromResource("file:///home/saurabharora/catkin_ws/src/sawyer_irl_project/meshes/custom_onion.STL"); 
+   shape_msgs::Mesh mesh;
+   shapes::ShapeMsg mesh_msg;  
+   shapes::constructMsgFromShape(m, mesh_msg);
+   mesh = boost::get<shape_msgs::Mesh>(mesh_msg);
+ 
+   moveit_msgs::AttachedCollisionObject attached_object;
+   attached_object.link_name = modelname;
+   attached_object.object.header.frame_id = "world";
+   attached_object.object.id = "onion"+out_string;
+
+   moveit_msgs::PlanningScene planning_scene;
+   planning_scene.world.collision_objects.push_back(attached_object.object);
+   planning_scene.is_diff = true;
+   planning_scene_diff_publisher.publish(planning_scene);
+ }
+*/
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& planning_scene_interface)
 {
   // Creating Environment
   // ^^^^^^^^^^^^^^^^^^^^
-  // Create vector to hold 1 collision objects.
+  // Create vector to hold 3 collision objects.
   std::vector<moveit_msgs::CollisionObject> collision_objects;
-  collision_objects.resize(2);
+  collision_objects.resize(5);
 
-  // Add the first table where the cube will originally be kept.
+  // Add the first table where the object will originally be kept.
   collision_objects[0].id = "conveyor_table";
   collision_objects[0].header.frame_id = "world";
-  ROS_INFO("Conveyor table loaded successfully");
-
   shapes::Mesh* m = shapes::createMeshFromResource("package://sawyer_irl_project/meshes/conveyor_box.stl"); 
   ROS_INFO("Conveyor box mesh loaded");
   shape_msgs::Mesh mesh;
@@ -71,185 +104,73 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   collision_objects[1].mesh_poses.push_back(collision_objects[1].mesh_poses[0]);
   collision_objects[1].operation = collision_objects[1].ADD;
 
-/*
-  // Define the primitive and its dimensions. 
-  collision_objects[0].primitives.resize(1);
-  collision_objects[0].primitives[0].type = collision_objects[0].primitives[0].BOX;
-  collision_objects[0].primitives[0].dimensions.resize(3);
-  collision_objects[0].primitives[0].dimensions[0] = 0.6;
-  collision_objects[0].primitives[0].dimensions[1] = 1.5;
-  collision_objects[0].primitives[0].dimensions[2] = 0.75;
-
-  // Define the pose of the table. 
-  collision_objects[0].primitive_poses.resize(1);
-  collision_objects[0].primitive_poses[0].position.x = 0.75;
-  collision_objects[0].primitive_poses[0].position.y = 0;
-  collision_objects[0].primitive_poses[0].position.z = -0.5; 
-
-  collision_objects[0].primitive_poses[0].orientation.w = 1.0;
-  collision_objects[0].primitive_poses[0].orientation.x = 0;
-  collision_objects[0].primitive_poses[0].orientation.y = 0;
-  collision_objects[0].primitive_poses[0].orientation.z = 0;
-  // END_SUB_TUTORIAL
-
-  collision_objects[0].operation = collision_objects[0].ADD;
-  
-  // Add the rear table behind Sawyer.
-  collision_objects[1].id = "rear_table";
-  collision_objects[1].header.frame_id = "world";
-
-  // Define the primitive and its dimensions. 
-  collision_objects[1].primitives.resize(1);
-  collision_objects[1].primitives[0].type = collision_objects[1].primitives[0].BOX;
-  collision_objects[1].primitives[0].dimensions.resize(3);
-  collision_objects[1].primitives[0].dimensions[0] = 0.5; //0.66
-  collision_objects[1].primitives[0].dimensions[1] = 3.0;
-  collision_objects[1].primitives[0].dimensions[2] = 0.04;
-
-  // Define the pose of the rear table. 
-  collision_objects[1].primitive_poses.resize(1);
-  collision_objects[1].primitive_poses[0].position.x = -0.45;
-  collision_objects[1].primitive_poses[0].position.y = 0;
-  collision_objects[1].primitive_poses[0].position.z = -0.0; //0.10
-
-  collision_objects[1].primitive_poses[0].orientation.w = 1.0;
-  collision_objects[1].primitive_poses[0].orientation.x = 0;
-  collision_objects[1].primitive_poses[0].orientation.y = 0;
-  collision_objects[1].primitive_poses[0].orientation.z = 0;
-  // END_SUB_TUTORIAL
-
-  collision_objects[1].operation = collision_objects[1].ADD;
-
-  // Add the rear wall behind Sawyer.
-  collision_objects[2].id = "rear_wall";
+  // Add the onion_bin where the sorted onions will be kept.
+  collision_objects[2].id = "onion_bin";
   collision_objects[2].header.frame_id = "world";
-
-  // Define the primitive and its dimensions. 
-  collision_objects[2].primitives.resize(1);
-  collision_objects[2].primitives[0].type = collision_objects[1].primitives[0].BOX;
-  collision_objects[2].primitives[0].dimensions.resize(3);
-  collision_objects[2].primitives[0].dimensions[0] = 0.04;
-  collision_objects[2].primitives[0].dimensions[1] = 3.0;
-  collision_objects[2].primitives[0].dimensions[2] = 2.5;
-
-  // Define the pose of the rear wall. 
-  collision_objects[2].primitive_poses.resize(1);
-  collision_objects[2].primitive_poses[0].position.x = -0.77;
-  collision_objects[2].primitive_poses[0].position.y = 0;
-  collision_objects[2].primitive_poses[0].position.z = 0.33;
-
-  collision_objects[2].primitive_poses[0].orientation.w = 1.0;
-  collision_objects[2].primitive_poses[0].orientation.x = 0;
-  collision_objects[2].primitive_poses[0].orientation.y = 0;
-  collision_objects[2].primitive_poses[0].orientation.z = 0;
-  // END_SUB_TUTORIAL
-
+  shapes::Mesh* m2 = shapes::createMeshFromResource("package://sawyer_irl_project/meshes/onion_bin.stl"); 
+  ROS_INFO("Onion bin mesh loaded");
+  shape_msgs::Mesh mesh2;
+  shapes::ShapeMsg mesh_msg2;  
+  shapes::constructMsgFromShape(m2, mesh_msg2);
+  mesh2 = boost::get<shape_msgs::Mesh>(mesh_msg2);
+  collision_objects[2].meshes.resize(1); 
+  collision_objects[2].mesh_poses.resize(1);  
+  collision_objects[2].mesh_poses[0].position.x = 0.1;
+  collision_objects[2].mesh_poses[0].position.y = 0.6;
+  collision_objects[2].mesh_poses[0].position.z = -0.91488;
+  collision_objects[2].mesh_poses[0].orientation.w= 1.0; 
+  collision_objects[2].mesh_poses[0].orientation.x= 0.0; 
+  collision_objects[2].mesh_poses[0].orientation.y= 0.0;
+  collision_objects[2].mesh_poses[0].orientation.z= 0.0;   
+  collision_objects[2].meshes.push_back(mesh2);
+  collision_objects[2].mesh_poses.push_back(collision_objects[2].mesh_poses[0]);
   collision_objects[2].operation = collision_objects[2].ADD;
 
-  // Add the side table to the right of Sawyer.
-  collision_objects[3].id = "right_table";
+  // Add the railing1 above the conveyor.
+  collision_objects[3].id = "railing1";
   collision_objects[3].header.frame_id = "world";
+  /* Define a box to add to the world. */
+  shape_msgs::SolidPrimitive primitive;
+  primitive.type = primitive.BOX;
+  primitive.dimensions.resize(3);
+  primitive.dimensions[0] = 0.01;
+  primitive.dimensions[1] = 1.5;
+  primitive.dimensions[2] = 0.01;
 
-  // Define the primitive and its dimensions. 
-  collision_objects[3].primitives.resize(1);
-  collision_objects[3].primitives[0].type = collision_objects[1].primitives[0].BOX;
-  collision_objects[3].primitives[0].dimensions.resize(3);
-  collision_objects[3].primitives[0].dimensions[0] = 3.0;
-  collision_objects[3].primitives[0].dimensions[1] = 0.64;
-  collision_objects[3].primitives[0].dimensions[2] = 0.04;
+  /* A pose for the box (specified relative to frame_id) */
+  geometry_msgs::Pose box_pose;
+  box_pose.orientation.w = 1.0;
+  box_pose.position.x =  0.6;
+  box_pose.position.y = 0.0;
+  box_pose.position.z = -0.09488;
 
-  // Define the pose of the right table. 
-  collision_objects[3].primitive_poses.resize(1);
-  collision_objects[3].primitive_poses[0].position.x = 0.75;
-  collision_objects[3].primitive_poses[0].position.y = -1.2;
-  collision_objects[3].primitive_poses[0].position.z = -0.10;
-
-  collision_objects[3].primitive_poses[0].orientation.w = 1.0;
-  collision_objects[3].primitive_poses[0].orientation.x = 0;
-  collision_objects[3].primitive_poses[0].orientation.y = 0;
-  collision_objects[3].primitive_poses[0].orientation.z = 0;
-  // END_SUB_TUTORIAL
-
+  collision_objects[3].primitives.push_back(primitive);
+  collision_objects[3].primitive_poses.push_back(box_pose);
   collision_objects[3].operation = collision_objects[3].ADD;
+  ROS_INFO("Railing 1 loaded");
 
-  // Add the right side wall - Sawyer.
-  collision_objects[4].id = "right_wall";
+  // Add the railing2 above the conveyor.
+  collision_objects[4].id = "railing2";
   collision_objects[4].header.frame_id = "world";
+  /* Define a box to add to the world. */
+  shape_msgs::SolidPrimitive primitive1;
+  primitive1.type = primitive1.BOX;
+  primitive1.dimensions.resize(3);
+  primitive1.dimensions[0] = 0.01;
+  primitive1.dimensions[1] = 1.5;
+  primitive1.dimensions[2] = 0.01;
 
-  // Define the primitive and its dimensions. 
-  collision_objects[4].primitives.resize(1);
-  collision_objects[4].primitives[0].type = collision_objects[1].primitives[0].BOX;
-  collision_objects[4].primitives[0].dimensions.resize(3);
-  collision_objects[4].primitives[0].dimensions[0] = 3.0;
-  collision_objects[4].primitives[0].dimensions[1] = 0.04;
-  collision_objects[4].primitives[0].dimensions[2] = 2.5;
+  /* A pose for the box (specified relative to frame_id) */
+  geometry_msgs::Pose box_pose1;
+  box_pose1.orientation.w = 1.0;
+  box_pose1.position.x =  0.9;
+  box_pose1.position.y = 0.0;
+  box_pose1.position.z = -0.09488;
 
-  // Define the pose of the right wall. 
-  collision_objects[4].primitive_poses.resize(1);
-  collision_objects[4].primitive_poses[0].position.x = 0.75;
-  collision_objects[4].primitive_poses[0].position.y = -1.5;
-  collision_objects[4].primitive_poses[0].position.z = 0.33;
-
-  collision_objects[4].primitive_poses[0].orientation.w = 1.0;
-  collision_objects[4].primitive_poses[0].orientation.x = 0;
-  collision_objects[4].primitive_poses[0].orientation.y = 0;
-  collision_objects[4].primitive_poses[0].orientation.z = 0;
-  // END_SUB_TUTORIAL
-
+  collision_objects[4].primitives.push_back(primitive1);
+  collision_objects[4].primitive_poses.push_back(box_pose1);
   collision_objects[4].operation = collision_objects[4].ADD;
-
-  // Add the front pillar.
-  collision_objects[5].id = "front_pillar";
-  collision_objects[5].header.frame_id = "world";
-
-  // Define the primitive and its dimensions. 
-  collision_objects[5].primitives.resize(1);
-  collision_objects[5].primitives[0].type = collision_objects[1].primitives[0].BOX;
-  collision_objects[5].primitives[0].dimensions.resize(3);
-  collision_objects[5].primitives[0].dimensions[0] = 0.425;
-  collision_objects[5].primitives[0].dimensions[1] = 0.36;
-  collision_objects[5].primitives[0].dimensions[2] = 2.5;
-
-  // Define the pose of the front pillar. 
-  collision_objects[5].primitive_poses.resize(1);
-  collision_objects[5].primitive_poses[0].position.x = 1.4;
-  collision_objects[5].primitive_poses[0].position.y = 0.85;
-  collision_objects[5].primitive_poses[0].position.z = 0.33;
-
-  collision_objects[5].primitive_poses[0].orientation.w = 1.0;
-  collision_objects[5].primitive_poses[0].orientation.x = 0;
-  collision_objects[5].primitive_poses[0].orientation.y = 0;
-  collision_objects[5].primitive_poses[0].orientation.z = 0;
-  // END_SUB_TUTORIAL
-
-  collision_objects[5].operation = collision_objects[5].ADD;
-
-  // Add the cross beam.
-  collision_objects[6].id = "cross_beam";
-  collision_objects[6].header.frame_id = "world";
-
-  // Define the primitive and its dimensions. 
-  collision_objects[6].primitives.resize(1);
-  collision_objects[6].primitives[0].type = collision_objects[1].primitives[0].BOX;
-  collision_objects[6].primitives[0].dimensions.resize(3);
-  collision_objects[6].primitives[0].dimensions[0] = 0.18;
-  collision_objects[6].primitives[0].dimensions[1] = 2.3;
-  collision_objects[6].primitives[0].dimensions[2] = 0.3;
-
-  // Define the pose of the cross beam. 
-  collision_objects[6].primitive_poses.resize(1);
-  collision_objects[6].primitive_poses[0].position.x = 1.4;
-  collision_objects[6].primitive_poses[0].position.y = -0.35;
-  collision_objects[6].primitive_poses[0].position.z = 0.9;
-
-  collision_objects[6].primitive_poses[0].orientation.w = 0.9914449;
-  collision_objects[6].primitive_poses[0].orientation.x = -0.130526;
-  collision_objects[6].primitive_poses[0].orientation.y = 0;
-  collision_objects[6].primitive_poses[0].orientation.z = 0;
-  // END_SUB_TUTORIAL
-
-  collision_objects[6].operation = collision_objects[6].ADD;
-*/
+  ROS_INFO("Railing 2 loaded");
 
   ros::Duration(1.0).sleep();
   planning_scene_interface.applyCollisionObjects(collision_objects);
@@ -260,18 +181,19 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv,"planning_scene_sawyer");
   ros::NodeHandle nh;
+
+  moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
+  moveit::planning_interface::MoveGroupInterface group("right_arm");
+  ros::Publisher planning_scene_diff_publisher = nh.advertise<moveit_msgs::PlanningScene>("planning_scene", 1);
+  
   ros::AsyncSpinner spinner(1);
   spinner.start();
-  ros::Publisher planning_scene_diff_publisher = nh.advertise<moveit_msgs::PlanningScene>("planning_scene", 1);
   while(planning_scene_diff_publisher.getNumSubscribers() < 1)
   {
   ros::WallDuration sleep_t(0.5);
   sleep_t.sleep();
   }
-  ros::WallDuration(1.0).sleep();
-  moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
-  moveit::planning_interface::MoveGroupInterface group("right_arm");
-  
+  ros::WallDuration(1.0).sleep();  
   
   group.setPlanningTime(60.0);
   group.setPlannerId(group.getDefaultPlannerId(group.getName()));

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+
+<!-- Author: Saurabh Arora (sa08751@uga.edu); Description: Sawyer Gazebo launch file with some flexible parameters -->
+<!-- Do not edit/replicate without permission -->
+
+  <include file="$(find sawyer_irl_project)/launch/robot_gazebo.launch">
+    <arg name="robotiqgripper" value="true"/>
+    <arg name="launchconveyor" value="true"/>
+    <arg name="use_cylinder_end" value="false"/>
+    <arg name="launchmoveit" value="false"/>
+  </include>
+
+</launch> 

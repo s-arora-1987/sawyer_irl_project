@@ -1,4 +1,7 @@
 <?xml version="1.0" ?>
+<!-- Author: Prasanth Suresh(ps32611@uga.edu); Description: Simple world for Sawyer robot -->
+<!-- Do not edit/replicate without permission -->
+
 <sdf version="1.6">
   <world name="default">
     <plugin name="ros_link_attacher_plugin" filename="libgazebo_ros_link_attacher.so"/>

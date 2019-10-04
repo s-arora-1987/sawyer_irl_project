@@ -1,5 +1,9 @@
 <?xml version="1.0" ?>
 
+<!-- Author: Prasanth Suresh (ps32611@uga.edu); -->
+<!-- Description: Sawyer Physical Robot enabled and launched with joint trajectory action server and collision objects -->
+<!-- Do not edit/replicate without permission -->
+
 <launch>
   <arg name="gui" default="True" />
   <param name="use_gui" value="$(arg gui)"/>

@@ -66,9 +66,9 @@ The following are the steps to be followed to get this package working:
      
   3.) You are almost ready to run the simulation. Double check if you have installed all the required plugins for moveit (esp moveit controllers)
   
-   - Open bashrc with your fav editor: gedit ~/.bashrc
-   - In the end, add this line: export GAZEBO_MODEL_PATH=$HOME/catkin_ws/src/sawyer_irl_project/meshes:$GAZEBO_MODEL_PATH
-   - Make sure you replace the path to your meshes forlder correctly in the previous step.
+   - **You have to modify one path that is hardcoded for my local directory to yours (PS: I'm working on fixing this!)**
+      
+     - In  sawyer_irl_project/worlds/sawyer_lab.world, check under model name="sawyer_lab", modify the mesh location to your local filesystem.
    
   4.) Run the following commands in seperate terminals:
   

@@ -1,4 +1,9 @@
 <?xml version="1.0" ?>
+
+<!-- Author: Prasanth Suresh (ps32611@uga.edu); Description: Sawyer Robot combined with Robotiq Gripper URDF -->
+<!-- Do not edit/replicate without permission -->
+
+
 <robot name="sawyer" xmlns:xacro="http://www.ros.org/wiki/xacro">
   <xacro:arg name="gazebo" default="true"/>
   <xacro:arg name="pedestal" default="true"/>
@@ -13,43 +18,79 @@
     <xacro:arg name="electric_gripper" value="${electric_gripper}"/>
   </xacro:include>
 
+  <link name="world"/>
+
+
+<!-- Use a cylinder in place of the actual gripper. Used for testing and tuning -->
+<xacro:arg name="use_cylinder_end" default="false"/>
+<xacro:if value="$(arg use_cylinder_end)">
+  <joint name="right_gripper_base_joint" type="fixed" >
+        <origin xyz="0.0 0.0 0.1" rpy="0.0 0.0 1.5707"/>
+        <parent link="right_hand" />
+        <child link="cylinder_end" />
+    </joint>
+
+  <link name="cylinder_end">
+    <collision>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.15" radius="0.061"/> 
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.15" radius="0.061"/> 
+      </geometry>
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="2.5"/>
+      <inertia ixx="0.007013" ixy="0" ixz="0" iyy="0.007013" iyz="0" izz="0.004651"/>
+    </inertial>
+  </link> 
+
+</xacro:if>
+
+<xacro:arg name="robotiqgripper" default="false"/>
+<xacro:if value="$(arg robotiqgripper)">
   <xacro:include filename="$(find robotiq_2f_85_gripper_visualization)/urdf/robotiq_arg2f_85_model.xacro">
   </xacro:include>
 
-  <link name="world"/>
-
   <joint name="right_gripper_base_joint" type="fixed" >
-        <origin xyz="0.0 0.0 0.001" rpy="0.0 0.0 1.5707"/>
-        <parent link="right_hand" />
-        <child link="right_gripper_base" />
-    </joint>
+    <origin xyz="0.0 0.0 0.001" rpy="0.0 0.0 1.5707"/>
+    <parent link="right_hand" />
+    <child link="right_gripper_base" />
+  </joint>
 
-    <link name="right_gripper_base"/>
+  <link name="right_gripper_base"/>
 
-    <joint name="robotiq_c_model_adapter" type="fixed" >
-        <origin xyz="0.0 0.0 0.00" rpy="0.0 0.0 0.0"/>
-        <parent link="right_gripper_base" />
-        <child link="robotiq_arg2f_base_link" />
-    </joint>
+  <joint name="robotiq_c_model_adapter" type="fixed" >
+    <origin xyz="0.0 0.0 0.00" rpy="0.0 0.0 0.0"/>
+    <parent link="right_gripper_base" />
+    <child link="robotiq_arg2f_base_link" />
+  </joint>
 
-    <joint name="right_gripper_tip_joint" type="fixed">
-      <origin rpy="0 0 0" xyz="0 0 0.1268"/>
-      <parent link="robotiq_arg2f_base_link"/>
-      <child link="right_gripper_tip"/>
-    </joint>
+  <joint name="right_gripper_tip_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.1268"/>
+    <parent link="robotiq_arg2f_base_link"/>
+    <child link="right_gripper_tip"/>
+  </joint>
 
-    <!-- Electric Gripper Tip link -->
-    <link name="right_gripper_tip">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <mass value="2e-06"/>
-        <inertia ixx="1.1e-09" ixy="0" ixz="0" iyy="1.1e-09" iyz="0" izz="1.1e-09"/>
-      </inertial>
-    </link>
-   
+  <link name="right_gripper_tip">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="2e-06"/>
+      <inertia ixx="1.1e-09" ixy="0" ixz="0" iyy="1.1e-09" iyz="0" izz="1.1e-09"/>
+    </inertial>
+  </link>
+</xacro:if>
 
   <joint name="fixed" type="fixed">
       <parent link="world"/>
       <child link="base"/>
   </joint>
+ 
 </robot>

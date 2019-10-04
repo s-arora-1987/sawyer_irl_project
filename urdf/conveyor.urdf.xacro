@@ -1,6 +1,19 @@
 <?xml version="1.0"?>
 <robot name="conveyor_table" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<!-- Author: Prasanth Suresh (ps32611@uga.edu); Description: Conveyor table to be used by Sawyer -->
+<!-- Do not edit/replicate without permission -->
+
+<!--
+Belt Width:15.7inch ; 
+Belt Thickness:0.07inch ; 
+Conveyor Length:59inch
+Conveyor High:29.5inch  
+-->  
   <xacro:arg name="gazebo" default="false"/>
+  <xacro:arg name="load_rollers" default="false"/>
+  <xacro:arg name="load_motors" default="false"/>
+  <xacro:arg name="load_railings" default="true"/>
   <material name="white">
     <color rgba="1 1 1 1"/>
   </material>
@@ -24,9 +37,9 @@
   <joint name="world_to_frame" type="fixed">
     <parent link="world"/>
     <child link="frame"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
   </joint>
 
     <link name="frame" type="fixed" >
@@ -35,7 +48,6 @@
   	  <geometry>
 		<mesh filename="package://sawyer_irl_project/meshes/frame.stl"/>
 	  </geometry>
-	<!--<material name="sawyer_red"/>-->
        </visual>
 
 	<collision>
@@ -52,18 +64,19 @@
       </inertial>
     </link>
 
+
+<xacro:if value="$(arg load_rollers)">
   <joint name="frame_to_roller1" type="revolute">
     <origin xyz="0.75 -0.7 0.73" rpy="0 0 0"/>
     <axis xyz="1 0 0" />
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller1"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
-
-   <link name="roller1" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller1" type="fixed" > 
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -91,12 +104,12 @@
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller2"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
-   <link name="roller2" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller2" type="fixed" > 
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -124,12 +137,12 @@
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller3"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
-   <link name="roller3" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller3" type="fixed" > 
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -157,12 +170,12 @@
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller4"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
-   <link name="roller4" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller4" type="fixed" > 
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -190,12 +203,12 @@
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller5"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
-   <link name="roller5" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller5" type="fixed" > 
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -223,12 +236,12 @@
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller6"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
-   <link name="roller6" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller6" type="fixed" > 
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -256,12 +269,12 @@
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller7"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
-   <link name="roller7" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller7" type="fixed" > 
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -289,12 +302,12 @@
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller8"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
-   <link name="roller8" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller8" type="fixed" > 
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -322,12 +335,12 @@
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller9"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
-   <link name="roller9" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller9" type="fixed" > 
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -355,12 +368,12 @@
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller10"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
-   <link name="roller10" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller10" type="fixed" > 
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -388,12 +401,12 @@
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller11"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
-   <link name="roller11" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller11" type="fixed" > 
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -421,12 +434,12 @@
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller12"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
-   <link name="roller12" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller12" type="fixed" > 
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -454,12 +467,12 @@
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller13"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
-   <link name="roller13" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller13" type="fixed" > 
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -487,12 +500,12 @@
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller14"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
-   <link name="roller14" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller14" type="fixed" >
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -520,12 +533,12 @@
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller15"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
-   <link name="roller15" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller15" type="fixed" > 
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -553,12 +566,12 @@
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
     <child link="roller16"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
-   <link name="roller16" type="fixed" > <!-- Every roller is 0.1 from previous center -->
+   <link name="roller16" type="fixed" > 
        <visual>
 	<origin rpy="0 0 0" xyz="0 0 0" />
   	  <geometry>
@@ -579,16 +592,17 @@
       <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.09" iyz="0" izz="0.09"/>
     </inertial>
     </link>
+</xacro:if>
+
 
   <joint name="frame_to_belt" type="fixed">
     <origin rpy="0 0 0" xyz="0.75 0 0.73" />
-    <!--axis xyz="1 0 0" />
-    <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/-->
+
     <parent link="frame"/>
     <child link="belt"/>
-<xacro:if value="$(arg gazebo)">
+   <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-</xacro:if>
+   </xacro:if>
    </joint>
 
    <link name="belt" type="fixed" > 
@@ -613,8 +627,92 @@
     </inertial>
     </link>
 
+<xacro:if value="$(arg load_railings)">
 
-   <!--transmission name="tran1">
+<!-- The reason why these are initialized w.r.t the world frame is because
+we want floating joints above the conveyor and w.r.t the frame will not do that -->
+
+
+  <joint name="frame_railing1_joint" type="fixed" >
+        <origin xyz="0.6 0.0 0.82" rpy="0.0 0.0 0.0"/>
+        <parent link="world" />
+        <child link="railing1"/>
+  </joint>
+  <joint name="frame_railing2_joint" type="fixed" >
+        <origin xyz="0.9 0.0 0.82" rpy="0.0 0.0 0.0"/>
+        <parent link="world" />
+        <child link="railing2"/>
+  </joint>
+
+<link name="railing1">
+    <collision>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 1.5 0.01"/>-
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 1.5 0.01"/>-
+      </geometry>
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia
+        ixx="1" ixy="0.0" ixz="0.0"
+        iyy="1" iyz="0.0"
+        izz="1"/>
+    </inertial>
+  </link>
+
+  <gazebo reference="railing1">
+      <mu1>0.0000001</mu1>
+      <mu2>0.0000001</mu2>
+  </gazebo>
+
+  <link name="railing2">
+    <collision>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 1.5 0.01"/>-
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 1.5 0.01"/>-
+      </geometry>
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia
+        ixx="1" ixy="0.0" ixz="0.0"
+        iyy="1" iyz="0.0"
+        izz="1"/>
+    </inertial>
+  </link>
+
+  <gazebo reference="railing2">
+      <mu1>0.0000001</mu1>
+      <mu2>0.0000001</mu2>
+  </gazebo>
+
+</xacro:if>
+
+
+
+
+
+
+<xacro:if value="$(arg load_motors)">
+   <transmission name="tran1">
 	<type>transmission_interface/SimpleTransmission</type>
 	<joint name="frame_to_roller1">
 	  <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
@@ -793,8 +891,8 @@
 	<plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
 	</plugin>
 	<robotNamespace>conveyor_table</robotNamespace>
-    </gazebo-->
-
+    </gazebo>
+</xacro:if>
 
 
     <gazebo reference="frame">
@@ -803,6 +901,8 @@
     
     <gazebo reference="belt">
         <material>Gazebo/FlatBlack</material>
+        <mu1>0.0000001</mu1>
+        <mu2>10.0</mu2>
     </gazebo>
 
 </robot>

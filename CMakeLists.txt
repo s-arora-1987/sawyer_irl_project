@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(sawyer_irl_project)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
- add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -16,11 +16,11 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_geometry_msgs
   moveit_ros_planning_interface
   controller_manager
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
-
+find_package(Boost REQUIRED COMPONENTS system)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -109,8 +109,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES sawyer_irl_project
-#  CATKIN_DEPENDS robotiq roscpp rospy sawyer_robot std_msgs
+#  LIBRARIES ${PROJECT_NAME}
+#  CATKIN_DEPENDS roscpp rospy std_msgs two_scara_collaboration message_runtime
   DEPENDS roscpp
 )
 
