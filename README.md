@@ -47,6 +47,8 @@ The following are the steps to be followed to get this package working:
           git clone https://github.com/prasuchit/kinect_v2_udrf
           
           git clone https://github.com/prasuchit/sawyer_irl_project.git
+          
+          git clone https://github.com/prasuchit/velocity_plugin.git
    
    - Use the following command to update all your packages and drivers:
    
