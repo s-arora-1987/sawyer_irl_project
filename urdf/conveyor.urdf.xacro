@@ -400,7 +400,7 @@ Conveyor High:29.5inch
     <axis xyz="1 0 0" />
     <limit lower="0.0" upper="6.28319" effort="1000.0" velocity="0.5"/>
     <parent link="frame"/>
-    <child link="roller11"/>
+    <child link="roller11"/>SpawnModel: Failure - entity format is invalid.
    <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
    </xacro:if>
@@ -502,7 +502,7 @@ Conveyor High:29.5inch
     <child link="roller14"/>
    <xacro:if value="$(arg gazebo)">
     <dynamics damping="10.0" friction="5.0"/>
-   </xacro:if>
+   </xacro:if>SpawnModel: Failure - entity format is invalid.
    </joint>
 
    <link name="roller14" type="fixed" >
@@ -705,10 +705,6 @@ we want floating joints above the conveyor and w.r.t the frame will not do that 
   </gazebo>
 
 </xacro:if>
-
-
-
-
 
 
 <xacro:if value="$(arg load_motors)">

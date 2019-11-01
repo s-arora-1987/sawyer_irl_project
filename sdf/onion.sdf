@@ -1,0 +1,49 @@
+<?xml version="1.0"?> 
+<sdf version='1.6'>
+  <model name='onion'>
+    <link name='base_link'>
+      <pose frame=''>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose frame=''>0 0 0 0 3.14 0</pose>
+        <mass>0.14</mass>
+        <inertia>
+          <ixx>0.000254</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.000254</iyy>
+          <iyz>0</iyz>
+          <izz>0.000254</izz>
+        </inertia>
+      </inertial>
+      <collision name='base_link_fixed_joint_lump__box_collision_collision'>
+        <pose frame=''>0 0 0 0 3.14 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://custom_onion.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='base_link_visual'>
+        <pose frame=''>0 0 0 0 3.14 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://custom_onion.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>__default__</uri>
+            <name>__default__</name>
+          </script>
+        </material>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>0</self_collide>
+    </link>
+	<plugin name="model_push" filename="libmodel_push.so"/>
+  </model>
+</sdf>
+

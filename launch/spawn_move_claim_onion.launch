@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
-<!--  WRITTEN BY SAURABH ARORA(sa08751@uga.edu). YET TO BE CLEANED UP -->
+<!--  WRITTEN BY Prasanth Suresh(ps32611@uga.edu). -->
 
-
-  <param name="red_cylinder_path" type="str" value="-f $(find two_scara_collaboration)/urdf/red_cylinder.urdf"/>
-  <param name="blue_cylinder_path" type="str" value="-f $(find two_scara_collaboration/urdf/blue_cylinder.urdf"/>
-  <param name="OnionCenter_path" type="str" value="/-f $(find two_scara_collaboration/urdf/OnionCenter.urdf"/>
-  <param name="Onion0_path" type="str" value="-f $(find  two_scara_collaboration/urdf/Onion0.urdf"/>
+  <param name="good_onion_path" type="str" value="$(find sawyer_irl_project)/sdf/onion.sdf"/>
+  <param name="bad_onion_path" type="str" value="$(find sawyer_irl_project)/sdf/bad_onion.sdf"/>
+  <param name="OnionCenter_path" type="str" value="$(find sawyer_irl_project)/sdf/OnionCenter.urdf"/>
+  <param name="Onion0_path" type="str" value="$(find sawyer_irl_project)/sdf/Onion0.urdf"/>
 
   <!-- <param name="SAWYERRANGE_LOWER_LIMIT" value="-0.55" type="double"/> -->
   <param name="SAWYERRANGE_LOWER_LIMIT" value="-0.05" type="double"/>
@@ -16,10 +15,8 @@
   <param name="ObjectPoseZ_RANGE_UPPER_LIMIT" value="0.83" type="double"/>
   <param name="ObjectPoseZ_RANGE_LOWER_LIMIT" value="0.78" type="double"/>
   <param name="initial_pose_y_to_RANGE_LIMIT" value="-0.05" type="double"/>
-
-  <param name="wrench_force_x" value="0.0" type="double"/>
-  <!-- <param name="wrench_force_y" value="6.85" type="double"/> -->
-  <param name="wrench_force_y" value="0.85" type="double"/>
+  <param name="initial_pose_x" value="0.75" type="double"/>
+  <param name="initial_pose_y" value="-0.59" type="double"/>
   <param name="conveyor_center_x" value="0.75" type="double"/>
   <!-- <param name="belt_width" value="0.38" type="double"/> -->
   <param name="belt_width" value="0.3" type="double"/>
@@ -28,19 +25,11 @@
   <param name="spawning_interval" value="11" type="double"/>
   <param name="spawn_multiple" value="1" type="bool"/>
   <param name="object_width" value="0.09" type="double"/>
-  <param name="add_force_y" value="1" type="double"/>
-  <!-- <param name="wrench_duration" value="10000000" type="double"/> -->
-  <node name="onions_spawner" pkg="two_scara_collaboration" type="cylinder_blocks_spawner" output="screen">
+  <node name="onion_blocks_spawner" pkg="sawyer_irl_project" type="onion_blocks_spawner" output="screen">
   </node>
-  <!-- not used -->
-  <param name="wrench_torque_y" value="0.0" type="double"/>
-  <!-- not used -->
-  <param name="initial_pose_x" value="0.75" type="double"/>
-  <!-- not used -->
-  <param name="initial_pose_y" value="-0.59" type="double"/>
 
   <param name="delete_unreachable_objects" value="false" type="bool"/>
-  <node name="onions_poses_publisher" pkg="two_scara_collaboration" type="cylinder_blocks_poses_publisher" output="screen" />
+  <node name="onion_blocks_poses_publisher" pkg="sawyer_irl_project" type="onion_blocks_poses_publisher" output="screen" />
 
   <arg name="launchmoveit" default="true"/>
   <arg name="electric_gripper" default="false"/>
@@ -53,16 +42,7 @@
 
   <include file="$(find sawyer_moveit_config)/launch/sawyer_moveit.launch">
     <arg name="electric_gripper" value="$(arg electric_gripper)"/>
-    <arg name="robotiqgripper" value="$(arg robotiqgripper)"/>
   </include>
   </group>
-
-<!--   
-<node name="onion_active_pool" pkg="two_scara_collaboration" type="cylinder_active_pool" output="screen" >
-  </node>
-
-  <node name="onion_claim_service_node" pkg="two_scara_collaboration" type="claim_n_track_onion" output="screen" >
-  </node>
- -->  
 
 </launch>
