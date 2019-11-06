@@ -148,6 +148,7 @@ ros::init(argc, argv, "onion_blocks_spawner");
             // no matter if it's successfully spawned, or successfully initialized in speed
             current_onions_msg.data.push_back(color_index);
             current_onions_publisher.publish(current_onions_msg);
+			//ROS_INFO_STREAM("Current onion poses: "<< current_onions_msg);
             modelnames_msg.modelnames.push_back(spawn_model_srv_msg.request.model_name);
             modelnames_publisher.publish(modelnames_msg);
             // loop end, increase index by 1
@@ -155,7 +156,7 @@ ros::init(argc, argv, "onion_blocks_spawner");
         }
         ros::Duration(5).sleep();
     //ROS_INFO_STREAM("");	//Debug print statement
-    ros::spin();
+    ros::spinOnce();
     ros::Duration(spawning_interval).sleep(); // frequency control, spawn one onion in each loop
     // delay time decides density of the onions
     }

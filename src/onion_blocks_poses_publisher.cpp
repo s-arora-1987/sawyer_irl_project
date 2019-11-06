@@ -40,6 +40,7 @@ string intToString(int a) {
 
 void currentonionsCallback(const std_msgs::Int8MultiArray& current_onions_blocks) {
     // this topic contains information of what onions blocks have been spawned
+	//ROS_INFO_STREAM("\nNow in onions_blocks_poses_publisher. /current_onions_blocks  received from spawner: "<<current_onions_blocks);
     cout << "\nReceived ros msg on /current_onions_blocks in file onions_blocks_poses_publisher.cpp";
     if (!g_current_onions_callback_started) {
         // set first time started flag to true
@@ -111,9 +112,25 @@ void modelStatesCallback(const gazebo_msgs::ModelStates& current_model_states/*,
                         bool result = model_state_srv_msg.response.success;
                         if (!result)
                             ROS_WARN("service call to set_model_state failed!");
-                        else
-                            ROS_INFO_STREAM("Model state changed: "<<indexed_model_name);    
-                } 
+                        else{
+							//Just a comment
+                            ROS_INFO_STREAM("Model state changed: "<<indexed_model_name);
+								}    
+                }
+			if (onions_poses_completed) {
+            // only pass data to globals when they are completed
+            g_x.resize(g_onions_quantity);
+            g_y.resize(g_onions_quantity);
+            g_z.resize(g_onions_quantity);
+            g_x = onions_x;
+            g_y = onions_y;
+            g_z = onions_z;
+            // std::cout << "g_x, g_y, g_z updated" << std::endl;
+            if (!g_onions_poses_updated) {
+                // reset flag to true, after updating global value of g_x, g_y, g_z
+                g_onions_poses_updated = true;
+            }
+        } 
             }
         }
     }
@@ -134,7 +151,7 @@ int main(int argc, char** argv) {
     ros::Publisher onions_poses_publisher
         = nh.advertise<sawyer_irl_project::onions_blocks_poses>("onions_blocks_poses", 1);
     sawyer_irl_project::onions_blocks_poses current_poses_msg;
-
+	cout<<"\ng_onions_poses_updated: "<<g_onions_poses_updated;
     nh.getParam("/SAWYERRANGE_UPPER_LIMIT", SAWYERRANGE_UPPER_LIMIT);
     nh.getParam("/initial_pose_x", initial_pose_x);
     nh.getParam("/initial_pose_y", initial_pose_y);
@@ -153,10 +170,11 @@ int main(int argc, char** argv) {
             current_poses_msg.x = g_x;
             current_poses_msg.y = g_y;
             current_poses_msg.z = g_z;
+			//ROS_INFO_STREAM("Onion current pose: "<<current_poses_msg);    
             onions_poses_publisher.publish(current_poses_msg);
         }
         // rate_timer.sleep();
-        ros::spin();
+        ros::spinOnce();
     }
     return 0;
 }
