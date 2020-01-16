@@ -50,8 +50,6 @@ The following are the steps to be followed to get this package working:
           
           git clone https://github.com/prasuchit/velocity_plugin.git
           
-   - I highly recommend you do the above one by one, but if you're in a hurry you can install from the sawyer moveit package to the end in one command using:
-           git clone --branch release-5.2.0 https://github.com/thinclab/sawyer_moveit.git && git clone --branch release-5.2.0                                                                 https://github.com/thinclab/sawyer_robot.git && git clone --branch release-5.2.0 https://github.com/thinclab/sawyer_simulator.git && git clone --branch kinetic-devel https://github.com/thinclab/robotiq.git && git clone https://github.com/prasuchit/roboticsgroup_gazebo_plugins-1 && git clone https://github.com/prasuchit/gazebo_ros_link_attacher && git clone https://github.com/prasuchit/kinect_v2_udrf && git clone https://github.com/prasuchit/sawyer_irl_project.git && git clone https://github.com/prasuchit/velocity_plugin.git
    
    - Use the following command to update all your packages and drivers:
    
