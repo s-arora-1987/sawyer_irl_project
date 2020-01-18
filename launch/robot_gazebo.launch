@@ -39,7 +39,7 @@
   <arg name="launchconveyor" default="true"/>
   <arg name="use_cylinder_end" default="false"/>
   <arg name="launchmoveit" default="true"/>
-
+  <arg name="onion_bin" default="true"/>
 
  <!-- Load Parameters to the ROS Parameter Server -->
   <rosparam command="load" file="$(find sawyer_gazebo)/config/config.yaml" />
@@ -122,9 +122,10 @@
   </group>
  
  <!-- Adding a bin to store onions after sorting -->
+  <group if="$(arg onion_bin)">
    <param name="onion_bin" command="$(find xacro)/xacro.py $(find sawyer_irl_project)/urdf/onion_bin.urdf.xacro"/> 
    <node args="-urdf -param onion_bin -model onion_bin" name="spawn_onion_bin" output="screen" pkg="gazebo_ros" respawn="false" type="spawn_model"/>
-
+  </group>
 
  <!-- Start everything needed for moveit -->
  <group if="$(arg launchmoveit)">

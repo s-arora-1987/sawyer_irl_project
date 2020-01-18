@@ -3,7 +3,8 @@
 <!-- Author: Prasanth Suresh (ps32611@uga.edu); Description: Bin to store onions sorted by Sawyer -->
 <!-- Do not edit/replicate without permission -->
 <robot name="onion_bin" xmlns:xacro="http://www.ros.org/wiki/xacro">
-
+<xacro:arg name="onion_bin" default="false"/>
+<!--xacro:if value="$(arg onion_bin)"-->
  <link name="world"/>
  <joint name="world_bin_joint" type="fixed" >
         <origin xyz="0.1 0.6 0" rpy="0.0 0.0 0.0"/>
@@ -41,5 +42,5 @@
   <gazebo reference="onion_bin">
     <material>Gazebo/Green</material>
   </gazebo>
-
+<!--/xacro:if-->
 </robot>

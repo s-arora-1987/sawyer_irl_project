@@ -111,9 +111,9 @@ ros::init(argc, argv, "onion_blocks_spawner");
 
     ros::Duration(2).sleep();
     while (ros::ok()) {
-        //SPAWNING AND MOVING THREE OBJECTS
+        //SPAWNING AND MOVING FOUR OBJECTS
 
-        while(i < 4) {
+        while(i < 1) {
             string index_string = intToString(i);
             ++j;
             spawn_model_srv_msg.request.initial_pose.position.x = 0.87 - j*0.05; //width of sphere is 0.02, well within 0.05
@@ -147,17 +147,20 @@ ros::init(argc, argv, "onion_blocks_spawner");
             // publish current onion blocks status, all onion blocks will be published
             // no matter if it's successfully spawned, or successfully initialized in speed
             current_onions_msg.data.push_back(color_index);
-            current_onions_publisher.publish(current_onions_msg);
+            
 			//ROS_INFO_STREAM("Current onion poses: "<< current_onions_msg);
             modelnames_msg.modelnames.push_back(spawn_model_srv_msg.request.model_name);
-            modelnames_publisher.publish(modelnames_msg);
+            
             // loop end, increase index by 1
             i++;
         }
-        ros::Duration(5).sleep();
-    //ROS_INFO_STREAM("");	//Debug print statement
-    ros::spinOnce();
-    ros::Duration(spawning_interval).sleep(); // frequency control, spawn one onion in each loop
+        current_onions_publisher.publish(current_onions_msg);
+        modelnames_publisher.publish(modelnames_msg);
+        //ros::Duration(5).sleep();
+    ROS_INFO_STREAM("Current onion color indices"<<current_onions_msg);	//Debug print statement
+    ROS_INFO_STREAM("Current Model names"<<modelnames_msg);	//Debug print statement
+    ros::spin();
+    //ros::Duration(spawning_interval).sleep(); // frequency control, spawn one onion in each loop
     // delay time decides density of the onions
     }
 return 0;

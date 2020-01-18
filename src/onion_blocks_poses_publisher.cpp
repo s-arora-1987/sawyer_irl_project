@@ -93,7 +93,8 @@ void modelStatesCallback(const gazebo_msgs::ModelStates& current_model_states/*,
                 onions_z[i] = current_model_states.pose[index].position.z;
 
                 // update global counter for onions in Bin and delete them
-                
+                //We're not doing this yet
+                 
                 // update global counter for onions reaching end of conveyor and delete them
                 if (onions_y[i] >= SAWYERRANGE_UPPER_LIMIT && onions_z[i] <= initial_pose_z + 1) {
 

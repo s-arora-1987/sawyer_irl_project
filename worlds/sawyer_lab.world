@@ -25,7 +25,7 @@
       <direction>-1 -1 -1</direction>
     </light>
 
-   <model name="sawyer_lab">
+   <!--model name="sawyer_lab">
         <pose>-0.8 -1.45 0 0 0 0</pose>
       <static>true</static>
       <link name="body">
@@ -40,7 +40,7 @@
 	  </geometry>
 	</collision>
       </link>
-    </model>
+    </model-->
 
     <physics type="ode">
       <real_time_update_rate>1000.0</real_time_update_rate>
