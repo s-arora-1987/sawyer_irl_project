@@ -105,14 +105,15 @@ ros::init(argc, argv, "onion_blocks_spawner");
         ros::Publisher current_onions_publisher
             = nh.advertise<std_msgs::Int8MultiArray>("current_onions_blocks", 1);
 
-    ros::Duration(2).sleep();
-    while (ros::ok()) {
-
         sawyer_irl_project::StringArray modelnames_msg;
         modelnames_msg.modelnames.clear();
         // publisher for /current_onions
         std_msgs::Int8MultiArray current_onions_msg;
         current_onions_msg.data.clear();
+
+    ros::Duration(2).sleep();
+    while (ros::ok()) {
+
 
         while(i < 2) {
             string index_string = intToString(i);
