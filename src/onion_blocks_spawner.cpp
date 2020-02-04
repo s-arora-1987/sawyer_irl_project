@@ -98,19 +98,22 @@ ros::init(argc, argv, "onion_blocks_spawner");
 
 	//begin spawning onions and give an initial speed on conveyor
 
-    ros::Duration(2).sleep();
-    while (ros::ok()) {
-
         // publisher for /modelnames
         ros::Publisher modelnames_publisher
             = nh.advertise<sawyer_irl_project::StringArray>("modelnames", 1);
+
+        ros::Publisher current_onions_publisher
+            = nh.advertise<std_msgs::Int8MultiArray>("current_onions_blocks", 1);
+
         sawyer_irl_project::StringArray modelnames_msg;
         modelnames_msg.modelnames.clear();
         // publisher for /current_onions
-        ros::Publisher current_onions_publisher
-            = nh.advertise<std_msgs::Int8MultiArray>("current_onions_blocks", 1);
         std_msgs::Int8MultiArray current_onions_msg;
         current_onions_msg.data.clear();
+
+    ros::Duration(2).sleep();
+    while (ros::ok()) {
+
 
         while(i < 2) {
             string index_string = intToString(i);
@@ -158,8 +161,8 @@ ros::init(argc, argv, "onion_blocks_spawner");
         //ros::Duration(5).sleep();
     ROS_INFO_STREAM("Current onion color indices"<<current_onions_msg);	//Debug print statement
     ROS_INFO_STREAM("Current Model names"<<modelnames_msg);	//Debug print statement
-    ros::spin();
-    //ros::Duration(spawning_interval).sleep(); // frequency control, spawn one onion in each loop
+    ros::spinOnce();
+    ros::Duration(spawning_interval).sleep(); // frequency control, spawn one onion in each loop
     // delay time decides density of the onions
     }
 return 0;
