@@ -23,7 +23,7 @@ vector<double> g_z;
 bool g_current_onions_callback_started = false;
 bool g_onions_poses_updated = false;  // act as frequency control of publish loop
 bool call_service;
-double SAWYERRANGE_UPPER_LIMIT,initial_pose_x, initial_pose_y, initial_pose_z;
+double SAWYERRANGE_UPPER_LIMIT,initial_pose_x, initial_pose_y, height_spawning;
 ros::ServiceClient setModelState;
 gazebo_msgs::SetModelState model_state_srv_msg;
 vector<int> indices_deleted;
@@ -96,10 +96,11 @@ void modelStatesCallback(const gazebo_msgs::ModelStates& current_model_states/*,
                 //We're not doing this yet
                  
                 // update global counter for onions reaching end of conveyor and delete them
-                if (onions_y[i] >= SAWYERRANGE_UPPER_LIMIT && onions_z[i] <= initial_pose_z + 1) {
-
+                if (initial_pose_x - 0.3 <= onions_x[i] < initial_pose_x + 0.3 && onions_y[i] >= SAWYERRANGE_UPPER_LIMIT && onions_z[i] >= height_spawning - 0.05) {
+                    ROS_INFO_STREAM("Entered conveyor end if block: ");
                     if (g_current_onions_blocks[i] == 0) {
                         goodonionsConvEnd += 1;
+                        ROS_INFO_STREAM("Number of good onions that reached the end are: "<<goodonionsConvEnd);
                     } else {
                         badonionsConvEnd += 1;
                     }
@@ -107,7 +108,7 @@ void modelStatesCallback(const gazebo_msgs::ModelStates& current_model_states/*,
                     model_state_srv_msg.request.model_state.model_name = indexed_model_name;
                     model_state_srv_msg.request.model_state.pose.position.x = initial_pose_x; 
                     model_state_srv_msg.request.model_state.pose.position.y = initial_pose_y - i*0.009; //Just creating a small difference b/w their positions
-                    model_state_srv_msg.request.model_state.pose.position.z = initial_pose_z;
+                    model_state_srv_msg.request.model_state.pose.position.z = height_spawning;
                     setModelState.call(model_state_srv_msg);
                         //make sure service call was successful
                         bool result = model_state_srv_msg.response.success;
@@ -156,7 +157,7 @@ int main(int argc, char** argv) {
     nh.getParam("/SAWYERRANGE_UPPER_LIMIT", SAWYERRANGE_UPPER_LIMIT);
     nh.getParam("/initial_pose_x", initial_pose_x);
     nh.getParam("/initial_pose_y", initial_pose_y);
-    nh.getParam("/height_spawning", initial_pose_z);
+    nh.getParam("/height_spawning", height_spawning);
     // publishing loop
     while (ros::ok()) {
         if (g_onions_poses_updated) {

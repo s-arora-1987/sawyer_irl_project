@@ -54,18 +54,7 @@ ros::init(argc, argv, "onion_blocks_spawner");
     ros::ServiceClient spawn_model_client
         = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
     gazebo_msgs::SpawnModel spawn_model_srv_msg;  // service message
-    // service client for service /gazebo/apply_body_wrench
-	// publisher for /current_onions
-    ros::Publisher current_onions_publisher
-        = nh.advertise<std_msgs::Int8MultiArray>("current_onions_blocks", 1);
-    std_msgs::Int8MultiArray current_onions_msg;
-    current_onions_msg.data.clear();
 
-    // publisher for /modelnames
-    ros::Publisher modelnames_publisher
-        = nh.advertise<sawyer_irl_project::StringArray>("modelnames", 1);
-    sawyer_irl_project::StringArray modelnames_msg;
-    modelnames_msg.modelnames.clear();
 	// make sure /gazebo/spawn_sdf_model service is ready
     bool service_ready = false;
     while (!service_ready) {
@@ -111,13 +100,23 @@ ros::init(argc, argv, "onion_blocks_spawner");
 
     ros::Duration(2).sleep();
     while (ros::ok()) {
-        //SPAWNING AND MOVING FOUR OBJECTS
 
-        while(i < 1) {
+        // publisher for /modelnames
+        ros::Publisher modelnames_publisher
+            = nh.advertise<sawyer_irl_project::StringArray>("modelnames", 1);
+        sawyer_irl_project::StringArray modelnames_msg;
+        modelnames_msg.modelnames.clear();
+        // publisher for /current_onions
+        ros::Publisher current_onions_publisher
+            = nh.advertise<std_msgs::Int8MultiArray>("current_onions_blocks", 1);
+        std_msgs::Int8MultiArray current_onions_msg;
+        current_onions_msg.data.clear();
+
+        while(i < 2) {
             string index_string = intToString(i);
             ++j;
-            spawn_model_srv_msg.request.initial_pose.position.x = 0.87 - j*0.05; //width of sphere is 0.02, well within 0.05
-            spawn_model_srv_msg.request.initial_pose.position.y = -0.45 - j*0.05; //width of sphere is 0.02, well within 0.05
+            spawn_model_srv_msg.request.initial_pose.position.x = 0.87 - j*0.09; //width of sphere is 0.02, well within 0.05
+            spawn_model_srv_msg.request.initial_pose.position.y = -0.45 - j*0.06; //width of sphere is 0.02, well within 0.05
             ROS_INFO_STREAM("x position of new onion: "
                 << spawn_model_srv_msg.request.initial_pose.position.x);
             ROS_INFO_STREAM("y position of new onion: "

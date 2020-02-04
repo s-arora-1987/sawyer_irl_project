@@ -26,19 +26,19 @@
     </light>
 
    <!--model name="sawyer_lab">
-        <pose>-0.8 -1.45 0 0 0 0</pose>
+      <pose>-0.8 -1.45 0 0 0 0</pose>
       <static>true</static>
       <link name="body">
-        <visual name="visual">
-          <geometry>
+      <visual name="visual">
+        <geometry>
           <mesh><uri>model://sawyer_lab.stl</uri></mesh> 
-	</geometry>
-        </visual>
-	<collision name="collision">
-	 <geometry>
-	 <mesh><uri>model://sawyer_lab.stl</uri></mesh>
-	  </geometry>
-	</collision>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <mesh><uri>model://sawyer_lab.stl</uri></mesh>
+        </geometry>
+      </collision>
       </link>
     </model-->
 
