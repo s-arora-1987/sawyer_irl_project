@@ -96,12 +96,12 @@ The following are the steps to be followed to get this package working:
          rosrun robotiq_2f_gripper_control Robotiq2FGripperSimpleController.py     
           
    - For Sawyer, do the following steps (In new tabs):
+   
+         roslaunch sawyer_moveit_config sawyer_moveit.launch
         
          roslaunch sawyer_irl_project robot.launch
           
-         roslaunch sawyer_irl_project upload_gripper.launch      
-          
-         roslaunch moveit_configs sawyer_moveit.launch
+         roslaunch sawyer_irl_project upload_gripper.launch
           
    - For pick and place:
         
