@@ -53,7 +53,7 @@ The following are the steps to be followed to get this package working:
    
    - Use the following command to update all your packages and drivers:
    
-          sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade
+          sudo apt-grosrun robotiq simple_pnp.pyet update && sudo apt-get upgrade && sudo apt-get dist-upgrade
       
    - cd into catkin_ws and install all dependencies for these packages: 
    
@@ -105,5 +105,5 @@ The following are the steps to be followed to get this package working:
           
    - For pick and place:
         
-         rosrun robotiq simple_pnp.py    (Make sure all files in this folder are set to executable in file properties)
+         rosrun robotiq_2f_gripper_control simple_pnp.py    (Make sure all files in this folder are set to executable in file properties)
 
