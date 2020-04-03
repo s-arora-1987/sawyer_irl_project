@@ -3,7 +3,7 @@
 <!--  WRITTEN BY Prasanth Suresh(ps32611@uga.edu). -->
 
   <param name="good_onion_path" type="str" value="$(find sawyer_irl_project)/sdf/onion.sdf"/>
-  <param name="bad_onion_path" type="str" value="$(find sawyer_irl_project)/sdf/bad_onion.sdf"/>
+  <param name="bad_onion_path" type="str" value="$(find sawyer_irl_project)/sdf/onion_bad.sdf"/>
   <param name="OnionCenter_path" type="str" value="$(find sawyer_irl_project)/sdf/OnionCenter.urdf"/>
   <param name="Onion0_path" type="str" value="$(find sawyer_irl_project)/sdf/Onion0.urdf"/>
 

@@ -11,6 +11,7 @@
 #include <sstream>
 #include <string>
 #include <gazebo_msgs/SpawnModel.h>
+#include <gazebo_msgs/DeleteModel.h>
 #include <std_msgs/Int8MultiArray.h>
 #include <std_srvs/Trigger.h>
 #include <sawyer_irl_project/StringArray.h>
@@ -27,7 +28,8 @@ int main(int argc, char **argv) {
 
 ros::init(argc, argv, "onion_blocks_spawner");
     ros::NodeHandle nh; //("~");
-    int i = 0 /*index the onions*/,j = 0; 
+    int i = 0 /*index the onions*/,j = 0 /*position reference for onions*/; 
+    int onion_gen = 0;
     double initial_pose_x, initial_pose_y, height_spawning, spawning_interval, 
         conveyor_center_x, belt_width,wrench_duration, randpos, object_width;;
     bool spawn_multiple;
@@ -54,6 +56,10 @@ ros::init(argc, argv, "onion_blocks_spawner");
     ros::ServiceClient spawn_model_client
         = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
     gazebo_msgs::SpawnModel spawn_model_srv_msg;  // service message
+    ros::ServiceClient delete_model_client
+        = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
+    gazebo_msgs::DeleteModel delete_model_srv_msg;  // service message
+    
 
 	// make sure /gazebo/spawn_sdf_model service is ready
     bool service_ready = false;
@@ -115,22 +121,49 @@ ros::init(argc, argv, "onion_blocks_spawner");
     while (ros::ok()) {
 
 
-        while(i < 2) {
+        while(i < 4) {
             string index_string = intToString(i);
             ++j;
-            spawn_model_srv_msg.request.initial_pose.position.x = 0.87 - j*0.09; //width of sphere is 0.02, well within 0.05
-            spawn_model_srv_msg.request.initial_pose.position.y = -0.45 - j*0.06; //width of sphere is 0.02, well within 0.05
+            if(i%2 == 0){
+                spawn_model_srv_msg.request.initial_pose.position.x = 0.87 - j*0.05; //width of sphere is 0.02, well within 0.05
+                spawn_model_srv_msg.request.initial_pose.position.y = -0.65 + j*0.05; //width of sphere is 0.02, well within 0.05
+            }
+            else{
+                spawn_model_srv_msg.request.initial_pose.position.x = 0.87 - j*0.05;
+                spawn_model_srv_msg.request.initial_pose.position.y = -0.65;
+            }
             ROS_INFO_STREAM("x position of new onion: "
                 << spawn_model_srv_msg.request.initial_pose.position.x);
             ROS_INFO_STREAM("y position of new onion: "
                 << spawn_model_srv_msg.request.initial_pose.position.y);
-                
+
+            /* initialize random seed: */
+            srand (time(NULL));
+
+            /* generate random number between 1 and 10: */
+            onion_gen = std::rand() % 100;
+
+
+            if((onion_gen % 2) == 0){
+                cout<<"Generating good onion";
                 color_index = 0;
                 model_name = "good_onion_" + index_string;  // initialize model_name
                 spawn_model_srv_msg.request.model_name = model_name;
                 spawn_model_srv_msg.request.robot_namespace = "good_onion_" + index_string;
                 spawn_model_srv_msg.request.model_xml = good_xmlStr;
 
+            }
+
+            else{
+                cout<<"Generating bad onion";
+                color_index = 1;
+                model_name = "bad_onion_" + index_string;  // initialize model_name
+                spawn_model_srv_msg.request.model_name = model_name;
+                spawn_model_srv_msg.request.robot_namespace = "bad_onion_" + index_string;
+                spawn_model_srv_msg.request.model_xml = bad_xmlStr;
+
+            }
+                
             // call spawn model service
             bool call_service = spawn_model_client.call(spawn_model_srv_msg);
             if (call_service) {
@@ -165,5 +198,22 @@ ros::init(argc, argv, "onion_blocks_spawner");
     ros::Duration(spawning_interval).sleep(); // frequency control, spawn one onion in each loop
     // delay time decides density of the onions
     }
+    /*if(!ros::ok()){
+        for(int p = 0; p < i; p++){
+            model_name = "good_onion_" + intToString(p);  // initialize model_name
+            // call delete model service
+            spawn_model_srv_msg.request.model_name = model_name;
+            bool call_service = delete_model_client.call(delete_model_srv_msg);
+            if (call_service) {
+                if (delete_model_srv_msg.response.success) {
+                    ROS_INFO_STREAM("Deleted");
+                }
+                else {
+                    ROS_INFO_STREAM("Delete failed");
+                }
+            }   
+        }
+    }*/
+
 return 0;
 }
