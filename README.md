@@ -57,7 +57,7 @@ The following are the steps to be followed to get this package working:
       
    - cd into catkin_ws and install all dependencies for these packages: 
    
-          (For kinetic: rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y -i --verbose)
+          rosdep install --from-paths src --ignore-src --rosdistro=<YOUR ROS DISTRO> -y -i --verbose
           
      - If you see any uninstalled dependencies, you might have to manually install them using apt-get install or pip install.
      - If you still have errors, use 
@@ -65,21 +65,20 @@ The following are the steps to be followed to get this package working:
            rospack depends [name of package]
            
      - This should give you the dependencies you are missing for any given package.
-     - Do a catkin_make to compile. If you face a soem error, this is a useful link to resolve some related errors: [Soem error](https://github.com/tork-a/minas/issues/64)
+     - Do a catkin_make to compile. If you face a soem error, try the following command (Note: This may not be your error, check before executing this command):
+                  - sudo apt-get install ros-<YOUR ROS DISTRO>-socketcan-interface ros-<YOUR ROS DISTRO>-rospy-message-converter ros-<YOUR ROS DISTRO>-effort-controllers python-pymodbus ros-<YOUR ROS DISTRO>-joystick-drivers ros-<YOUR ROS DISTRO>-soem
+     - If the error persists, check out the below link:
+                    [Soem error](https://github.com/tork-a/minas/issues/64)
      
   3.) You are almost ready to run the simulation. Double check if you have installed all the required plugins for moveit (esp moveit controllers)
   
-   - **You have to modify one path that is hardcoded for my local directory to yours (PS: I'm working on fixing this!)**
-      
-     - In  sawyer_irl_project/worlds/sawyer_lab.world, check under model name="sawyer_lab", modify the mesh location to your local filesystem.
+   - Add this to the end of your ~/.bashrc file: export GAZEBO_MODEL_PATH=$HOME/catkin_ws/src/sawyer_irl_project/meshes:$GAZEBO_MODEL_PATH
    
   4.) Run the following commands in seperate terminals:
   
-      roslaunch sawyer_irl_project robot_gazebo.launch
-  
-      roslaunch kinect_v2 kinectv2_gazebo.launch
-      
-      rosrun robotiq_2f_gripper_control simple_pnp_gazebo.py    (Make sure all files in this folder are set to executable in file properties)
+      roslaunch sawyer_irl_project robot_gazebo_params.launch
+      roslaunch sawyer_irl_project spawn_move_claim_onion.launch
+      roslaunch sawyer_irl_project pnp_node.launch
       
   5.) Now, if you want to run the same on the real Sawyer Robot,
   
