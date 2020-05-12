@@ -30,7 +30,7 @@ The following are the steps to be followed to get this package working:
           git clone --branch release-5.2.0 https://github.com/RethinkRobotics/intera_sdk.git
       
           git clone --branch release-5.2.0 https://github.com/RethinkRobotics/intera_common.git
-    ```   
+   ```   
    - cd into catkin_ws and do a catkin_make at this point. This will generate the intera custom messages that the following packages use.
       ```
           git clone --branch release-5.2.0 https://github.com/thinclab/sawyer_moveit.git
