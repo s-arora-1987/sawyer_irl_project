@@ -92,22 +92,20 @@ The following are the steps to be followed to get this package working:
    [Workstation Setup](http://sdk.rethinkrobotics.com/intera/Workstation_Setup)
         
    - Make sure you are able to connect to the gripper using the following steps: (DO ALL THESE STEPS WITHIN THE ./intera.sh ENV, ALL IN NEW TERMINALS)
-        ```
+        
          sudo chmod 777 /dev/ttyUSB0
           
          roslaunch robotiq_2f_gripper_action_server robotiq_2f_gripper_action_server_rtu.launch  (DRIVER FILE: Keep this running until the gripper is being used)
           
-         rosrun robotiq_2f_gripper_control Robotiq2FGripperSimpleController.py     
-         ``` 
+         rosrun robotiq_2f_gripper_control Robotiq2FGripperSimpleController.py 
+         
    - For Sawyer, do the following steps (In new tabs):
-         ```
+        
          roslaunch sawyer_moveit_config sawyer_moveit.launch
         
          roslaunch sawyer_irl_project robot.launch
           
          roslaunch sawyer_irl_project upload_gripper.launch
-         ```
    - For pick and place:
-        ```
+        
          rosrun robotiq_2f_gripper_control simple_pnp.py    (Make sure all files in this folder are set to executable in file properties)
-          ```
