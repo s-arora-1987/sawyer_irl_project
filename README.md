@@ -7,7 +7,7 @@ Owned By: THINC Lab, Department of Computer Science,
 This package uses Inverse Reinforcement Learning -- Apprenticeship Learning/Learning from Demonstration to teach Sawyer Robot to perform vegetable sorting on a conveyor line alongside a Human Expert.
 
 This package is built upon the Sawyer/Intera ROS packages and uses Robotiq 2F-85 Gripper as the End Effector.
-## The following instructions are written for Ubuntu 16.04, ROS Kinetic. If you are on Melodic, check Melodic migration Readme file.
+## The following instructions are written for Ubuntu 16.04, ROS Kinetic. If you are on Melodic, check the additional changes on Melodic migration Readme file.
 
 The following are the steps to be followed to get this package working:
 
@@ -22,17 +22,30 @@ The following are the steps to be followed to get this package working:
    [Moveit Install](https://moveit.ros.org/install/)
    
    [Moveit Workspace Setup](https://ros-planning.github.io/moveit_tutorials/doc/getting_started/getting_started.html)
+   
+  2.) We need an upgraded IK solver for smooth working of Sawyer:
+  
+   - Use the following command:
+   
+     `sudo apt-get install ros-<YOUR-ROS-DISTRO>-trac-ik-kinematics-plugin`
+     
+     - Then, open ~/catkin_ws/src/sawyer_moveit/sawyer_moveit_config/config/kinematics.yaml and change:
+           
+       `kdl_kinematics_plugin/KDLKinematicsPlugin` to `trac_ik_kinematics_plugin/TRAC_IKKinematicsPlugin`
+  
+   - Here's the wiki [link](http://docs.ros.org/kinetic/api/moveit_tutorials/html/index.html) for reference.
       
-  2.) Now that you have a catkin workspace setup, in you src folder, git clone the following packages:
+  3.) Now that you have a catkin workspace setup, in you src folder, git clone the following packages:
   
    - These packages have changes that are not a part of their default branches. Make sure you clone them from the links below.
-   ```          
+          
           git clone --branch release-5.2.0 https://github.com/RethinkRobotics/intera_sdk.git
       
           git clone --branch release-5.2.0 https://github.com/RethinkRobotics/intera_common.git
-   ```   
+
+      
    - cd into catkin_ws and do a catkin_make at this point. This will generate the intera custom messages that the following packages use.
-      ```
+   
           git clone --branch release-5.2.0 https://github.com/thinclab/sawyer_moveit.git
       
           git clone --branch release-5.2.0 https://github.com/thinclab/sawyer_robot.git
@@ -51,40 +64,39 @@ The following are the steps to be followed to get this package working:
           
           git clone https://github.com/prasuchit/velocity_plugin.git
           
-       ```
    - Use the following command to update all your packages and drivers:
-      ```
+   
           sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade
-      ```
+
    - cd into catkin_ws and install all dependencies for these packages: 
-      ```
+
           rosdep install --from-paths src --ignore-src --rosdistro=<YOUR ROS DISTRO> -y -i --verbose
-      ```
+
      - If you see any uninstalled dependencies, you might have to manually install them using apt-get install or pip install.
      - If you still have errors, use 
-       ```
+
            rospack depends [name of package]
-       ```
+ 
      - This should give you the dependencies you are missing for any given package.
      - Do a catkin_make to compile. If you face a soem error, try the following command (Note: This may not be your error, check before executing this command)
-     ```
-          sudo apt-get install ros-<YOUR ROS DISTRO>-socketcan-interface ros-<YOUR ROS DISTRO>-rospy-message-converter ros-<YOUR ROS DISTRO>-effort-controllers python-pymodbus ros-<YOUR ROS DISTRO>-joystick-drivers ros-<YOUR ROS DISTRO>-soem
-     ```
-     - If the error persists, check out the below link:
+     
+    `sudo apt-get install ros-<YOUR ROS DISTRO>-socketcan-interface ros-<YOUR ROS DISTRO>-rospy-message-converter ros-<YOUR ROS DISTRO>-effort-controllers python-pymodbus ros-<YOUR ROS DISTRO>-joystick-drivers ros-<YOUR ROS DISTRO>-soem`
+    
+   - If the error persists, check out the below link:
                     [Soem error](https://github.com/tork-a/minas/issues/64)
      
   3.) You are almost ready to run the simulation. Double check if you have installed all the required plugins for moveit (esp moveit controllers)
   
    - Add this to the end of your ~/.bashrc file: 
-   ```
-   export GAZEBO_MODEL_PATH=$HOME/catkin_ws/src/sawyer_irl_project/meshes:$GAZEBO_MODEL_PATH
-   ```
+   
+   `export GAZEBO_MODEL_PATH=$HOME/catkin_ws/src/sawyer_irl_project/meshes:$GAZEBO_MODEL_PATH`
+   
   4.) Run the following commands in seperate terminals:
-  ```
+
       roslaunch sawyer_irl_project robot_gazebo_params.launch
       roslaunch sawyer_irl_project spawn_move_claim_onion.launch
       roslaunch sawyer_irl_project pnp_node.launch
-  ```    
+ 
   5.) Now, if you want to run the same on the real Sawyer Robot,
   
    [Robot Setup](http://sdk.rethinkrobotics.com/intera/Robot_Setup)
