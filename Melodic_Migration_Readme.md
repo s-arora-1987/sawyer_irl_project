@@ -1,4 +1,4 @@
-**This file talks about the additional changes to be made that aren't mentioned in the Kinetic version readme
+## This file talks about the additional changes to be made that aren't mentioned in the Kinetic version readme
 
 Assuming you have ROS Melodic properly installed and setup fully. The following are the additional steps you need to do in Melodic:
   - You will also need this package:
@@ -21,4 +21,4 @@ Assuming you have ROS Melodic properly installed and setup fully. The following 
     `sudo apt install ros-melodic-joint-state-publisher-gui`
     
     
-    ***Will keep adding to this as I find any discrepancies
+ ### Will keep adding to this as and when I find any discrepancies
