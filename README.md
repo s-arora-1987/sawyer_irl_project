@@ -33,7 +33,7 @@ The following are the steps to be followed to get this package working:
            
        `kdl_kinematics_plugin/KDLKinematicsPlugin` to `trac_ik_kinematics_plugin/TRAC_IKKinematicsPlugin`
   
-   - Here's the wiki [link](http://docs.ros.org/kinetic/api/moveit_tutorials/html/index.html) for reference.
+   - Here's the wiki [link](https://ros-planning.github.io/moveit_tutorials/doc/trac_ik/trac_ik_tutorial.html) for reference.
       
   3.) Now that you have a catkin workspace setup, in you src folder, git clone the following packages:
   
