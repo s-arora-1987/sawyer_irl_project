@@ -28,10 +28,6 @@ The following are the steps to be followed to get this package working:
    - Use the following command:
    
      `sudo apt-get install ros-<YOUR-ROS-DISTRO>-trac-ik-kinematics-plugin`
-     
-     - Then, open ~/catkin_ws/src/sawyer_moveit/sawyer_moveit_config/config/kinematics.yaml and change:
-           
-       `kdl_kinematics_plugin/KDLKinematicsPlugin` to `trac_ik_kinematics_plugin/TRAC_IKKinematicsPlugin`
   
    - Here's the wiki [link](https://ros-planning.github.io/moveit_tutorials/doc/trac_ik/trac_ik_tutorial.html) for reference.
       
@@ -90,6 +86,10 @@ The following are the steps to be followed to get this package working:
    - Add this to the end of your ~/.bashrc file: 
    
    `export GAZEBO_MODEL_PATH=$HOME/catkin_ws/src/sawyer_irl_project/meshes:$GAZEBO_MODEL_PATH`
+   
+ 3.1) Open ~/catkin_ws/src/sawyer_moveit/sawyer_moveit_config/config/kinematics.yaml and change:
+           
+       `kdl_kinematics_plugin/KDLKinematicsPlugin` to `trac_ik_kinematics_plugin/TRAC_IKKinematicsPlugin`
    
   4.) Run the following commands in seperate terminals:
 
