@@ -108,7 +108,7 @@
   </node-->
 
 <!-- Conveyor spawning in gazebo -->
- <param name="conveyor" command="$(find xacro)/xacro.py $(find sawyer_irl_project)/urdf/conveyor.urdf.xacro"/> 
+ <param name="conveyor" command="$(find xacro)/xacro $(find sawyer_irl_project)/urdf/conveyor.urdf.xacro"/> 
  <node args="-urdf -param conveyor -model conveyor" name="spawn_conveyor" output="screen" pkg="gazebo_ros" respawn="false" type="spawn_model"/>
 
 </launch>

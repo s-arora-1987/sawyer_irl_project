@@ -117,13 +117,13 @@
 
   <!-- Conveyor spawning in gazebo if="$(eval arg('conveyor') ==true)"> -->
   <group if="$(arg launchconveyor)">
-    <param name="conveyor" command="$(find xacro)/xacro.py $(find sawyer_irl_project)/urdf/conveyor.urdf.xacro"/> 
+    <param name="conveyor" command="$(find xacro)/xacro $(find sawyer_irl_project)/urdf/conveyor.urdf.xacro"/> 
     <node args="-urdf -param conveyor -model conveyor" name="spawn_conveyor" output="screen" pkg="gazebo_ros" respawn="false" type="spawn_model"/>
   </group>
  
  <!-- Adding a bin to store onions after sorting -->
   <group if="$(arg onion_bin)">
-   <param name="onion_bin" command="$(find xacro)/xacro.py $(find sawyer_irl_project)/urdf/onion_bin.urdf.xacro"/> 
+   <param name="onion_bin" command="$(find xacro)/xacro $(find sawyer_irl_project)/urdf/onion_bin.urdf.xacro"/> 
    <node args="-urdf -param onion_bin -model onion_bin" name="spawn_onion_bin" output="screen" pkg="gazebo_ros" respawn="false" type="spawn_model"/>
   </group>
 

@@ -65,7 +65,7 @@
   <build_export_depend>moveit_ros_planning_interface</build_export_depend>
   <build_export_depend>controller_manager</build_export_depend>
   <build_depend>message_generation</build_depend>
-  <exec_depend>message_exectime</exec_depend>
+  <!--exec_depend>message_exectime</exec_depend-->
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>gazebo_ros</exec_depend>
   <exec_depend>actionlib</exec_depend>
