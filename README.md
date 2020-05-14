@@ -83,7 +83,7 @@ The following are the steps to be followed to get this package working:
      
   3.) You are almost ready to run the simulation. Double check if you have installed all the required plugins for moveit (esp moveit controllers)
   
-   - Run this command on the terminal: 
+   - Add this line to the end of your ~/.bashrc file(running it on terminal or copying it to bashrc without the 'export' part doesn't work. Copy it as it is.): 
    
    `export GAZEBO_MODEL_PATH=$HOME/catkin_ws/src/sawyer_irl_project/meshes:$GAZEBO_MODEL_PATH`
    
