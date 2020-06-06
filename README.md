@@ -30,8 +30,13 @@ The following are the steps to be followed to get this package working:
    - Use the following command:
    
      `sudo apt-get install ros-<YOUR-ROS-DISTRO>-trac-ik-kinematics-plugin`
+     
+   - Then you need to find the kinematics.yaml file within sawyer_moveit_config folder and update this line: 
+   `kinematics_solver: kdl_kinematics_plugin/KDLKinematicsPlugin` to `kinematics_solver: trac_ik_kinematics_plugin/TRAC_IKKinematicsPlugin`
   
    - Here's the wiki [link](https://ros-planning.github.io/moveit_tutorials/doc/trac_ik/trac_ik_tutorial.html) for reference.
+   
+  2.1) This is still a work in progress, but if you want to add STOMP path planning library as a smoothing filter over OMPL, check these [instructions](https://github.com/prasuchit/sawyer_irl_project/blob/master/OMPL-STOMP_smoothing_filter.md)
       
   3.) Now that you have a catkin workspace setup, in you src folder, git clone the following packages:
   
