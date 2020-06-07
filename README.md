@@ -25,6 +25,9 @@ The following are the steps to be followed to get this package working:
    
    [Moveit Workspace Setup](https://ros-planning.github.io/moveit_tutorials/doc/getting_started/getting_started.html)
    
+   For some unknown reason, moveit controllers don't get installed when you install moveit itself. Install them using:
+          `sudo apt install ros-<YOUR ROS DISTRO>-ros-controllers`
+   
   2.) We need an upgraded IK solver for smooth working of Sawyer:
   
    - Use the following command:
