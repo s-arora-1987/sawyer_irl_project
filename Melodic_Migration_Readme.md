@@ -20,5 +20,8 @@ Assuming you have ROS Melodic properly installed and setup fully (if not, check 
   
     `sudo apt install ros-melodic-joint-state-publisher-gui`
     
+  - For working on the physical robot, the only change needed is to modify the ROS Distro name in the intera.sh
+      - Then, don't forget to use ./intera.sh in terminals relevant to Sawyer to enter the intera environment before starting ros nodes.
+    
     
  ### Will keep adding to this as and when I find any discrepancies

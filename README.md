@@ -9,6 +9,8 @@ This package uses Inverse Reinforcement Learning -- Apprenticeship Learning/Lear
 This package is built upon the Sawyer/Intera ROS packages and uses Robotiq 2F-85 Gripper as the End Effector.
 ## The following instructions are written for Ubuntu 16.04, ROS Kinetic. If you are on Melodic, check the additional changes on [Melodic migration Readme file](https://github.com/prasuchit/sawyer_irl_project/blob/master/Melodic_Migration_Readme.md).
 
+If you need to install the packages for Kinect V2 with Ubuntu, check out this [link](https://github.com/prasuchit/sawyer_irl_project/blob/master/Kinect_install_readme.md).
+
 The following are the steps to be followed to get this package working:
 
   Assuming you have a working version of Ubuntu (This package has been built and tested on Ubuntu 16.04)
@@ -23,21 +25,29 @@ The following are the steps to be followed to get this package working:
    
    [Moveit Workspace Setup](https://ros-planning.github.io/moveit_tutorials/doc/getting_started/getting_started.html)
    
+   Also install:
+          `sudo apt install ros-<YOUR ROS DISTRO>-ros-controllers`
+   
   2.) We need an upgraded IK solver for smooth working of Sawyer:
   
    - Use the following command:
    
      `sudo apt-get install ros-<YOUR-ROS-DISTRO>-trac-ik-kinematics-plugin`
+     
+   - Then you need to find the kinematics.yaml file within sawyer_moveit_config folder and update this line: 
+   `kinematics_solver: kdl_kinematics_plugin/KDLKinematicsPlugin` to `kinematics_solver: trac_ik_kinematics_plugin/TRAC_IKKinematicsPlugin`
   
    - Here's the wiki [link](https://ros-planning.github.io/moveit_tutorials/doc/trac_ik/trac_ik_tutorial.html) for reference.
+   
+  2.1) This is still a work in progress, but if you want to add STOMP path planning library as a smoothing filter over OMPL, check these [instructions](https://github.com/prasuchit/sawyer_irl_project/blob/master/OMPL-STOMP_smoothing_filter.md)
       
   3.) Now that you have a catkin workspace setup, in you src folder, git clone the following packages:
   
    - These packages have changes that are not a part of their default branches. Make sure you clone them from the links below.
           
-          git clone --branch release-5.2.0 https://github.com/RethinkRobotics/intera_sdk.git
+          git clone --branch release-5.2.0 https://github.com/RethinkRobotics/thinclab/intera_sdk.git
       
-          git clone --branch release-5.2.0 https://github.com/RethinkRobotics/intera_common.git
+          git clone --branch release-5.2.0 https://github.com/RethinkRobotics/thinclab/intera_common.git
 
       
    - cd into catkin_ws and do a catkin_make at this point. This will generate the intera custom messages that the following packages use.
@@ -83,7 +93,7 @@ The following are the steps to be followed to get this package working:
      
   3.) You are almost ready to run the simulation. Double check if you have installed all the required plugins for moveit (esp moveit controllers)
   
-   - Add this to the end of your ~/.bashrc file: 
+   - Add this line to the end of your ~/.bashrc file(running it on terminal or copying it to bashrc without the 'export' part doesn't work. Copy it as it is.): 
    
    `export GAZEBO_MODEL_PATH=$HOME/catkin_ws/src/sawyer_irl_project/meshes:$GAZEBO_MODEL_PATH`
    
