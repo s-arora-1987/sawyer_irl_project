@@ -141,7 +141,8 @@ ros::init(argc, argv, "onion_blocks_spawner");
             srand (time(NULL));
 
             /* generate random number between 1 and 10: */
-            onion_gen = std::rand() % 100;
+            //onion_gen = std::rand() % 100;
+	    onion_gen = 3;
 
 
             if((onion_gen % 2) == 0){

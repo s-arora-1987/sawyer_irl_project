@@ -52,9 +52,10 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
 {
   // Creating Environment
   // ^^^^^^^^^^^^^^^^^^^^
-  // Create vector to hold 3 collision objects.
+  // Create vector to hold num_objects number of collision objects.
+  int num_objects = 5;
   std::vector<moveit_msgs::CollisionObject> collision_objects;
-  collision_objects.resize(5);
+  collision_objects.resize(num_objects);
 
   // Add the first table where the object will originally be kept.
   collision_objects[0].id = "conveyor_table";
@@ -69,7 +70,7 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   collision_objects[0].mesh_poses.resize(1);  
   collision_objects[0].mesh_poses[0].position.x = 0.75;
   collision_objects[0].mesh_poses[0].position.y = -0.75;
-  collision_objects[0].mesh_poses[0].position.z = -0.91488;
+  collision_objects[0].mesh_poses[0].position.z = -0.87; // This value is different from the rest of the z values because the robot kept hitting the conveyor, so I hyad to move it up a bit
   collision_objects[0].mesh_poses[0].orientation.w= 1.0; 
   collision_objects[0].mesh_poses[0].orientation.x= 0.0; 
   collision_objects[0].mesh_poses[0].orientation.y= 0.0;
