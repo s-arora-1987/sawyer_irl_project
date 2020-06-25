@@ -97,10 +97,6 @@ The following are the steps to be followed to get this package working:
    
    `export GAZEBO_MODEL_PATH=$HOME/catkin_ws/src/sawyer_irl_project/meshes:$GAZEBO_MODEL_PATH`
    
- 3.1) Open ~/catkin_ws/src/sawyer_moveit/sawyer_moveit_config/config/kinematics.yaml and change:
-           
-       `kdl_kinematics_plugin/KDLKinematicsPlugin` to `trac_ik_kinematics_plugin/TRAC_IKKinematicsPlugin`
-   
   4.) Run the following commands in seperate terminals:
 
       roslaunch sawyer_irl_project robot_gazebo_params.launch
