@@ -70,7 +70,7 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   collision_objects[0].mesh_poses.resize(1);  
   collision_objects[0].mesh_poses[0].position.x = 0.75;
   collision_objects[0].mesh_poses[0].position.y = -0.75;
-  collision_objects[0].mesh_poses[0].position.z = -0.87; // This value is different from the rest of the z values because the robot kept hitting the conveyor, so I hyad to move it up a bit
+  collision_objects[0].mesh_poses[0].position.z = -0.91488;
   collision_objects[0].mesh_poses[0].orientation.w= 1.0; 
   collision_objects[0].mesh_poses[0].orientation.x= 0.0; 
   collision_objects[0].mesh_poses[0].orientation.y= 0.0;
