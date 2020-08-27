@@ -632,7 +632,7 @@ def callback_poses(onions_poses_msg):
         sys.exit(0)
     else:
         if(onion_index == len(onions_poses_msg.x)):
-            return
+            sys.exit(0)
         else:
             current_onions_x = onions_poses_msg.x
             current_onions_y = onions_poses_msg.y
@@ -654,6 +654,7 @@ def callback_onion_pick(color_indices_msg):
             pnp.onion_index = pnp.onion_index + 1
         else:
             pnp.onion_index = -1
+            sys.exit(0)
         return
     else:
         pnp.req.model_name_1 = "bad_onion_" + str(pnp.onion_index)
@@ -706,14 +707,14 @@ def callback_onion_pick(color_indices_msg):
                 pnp.onion_index = -1
                 pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
                 print("Reached the end of onion list")
-                return
+                sys.exit(0)
             else:
                 pnp.onion_index = pnp.onion_index + 1
                 print("Updated onion index is:", pnp.onion_index)
         ##############################################
     else:
         print("Num onions is zero!")
-        return
+        sys.exit(0)
 
 
 def callback_onion_roll(color_indices_msg):
@@ -727,6 +728,7 @@ def callback_onion_roll(color_indices_msg):
             pnp.onion_index = pnp.onion_index + 1
         else:
             pnp.onion_index = -1
+            sys.exit(0)
         return
     else:
         pnp.req.model_name_1 = "bad_onion_" + str(pnp.onion_index)
@@ -767,7 +769,7 @@ def callback_onion_roll(color_indices_msg):
                 pnp.onion_index = -1
                 pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
                 print("Reached the end of onion list.")
-                return
+                sys.exit(0)
             else:
                 pnp.onion_index = pnp.onion_index + 1
                 print("Updated onion index is:", pnp.onion_index)
