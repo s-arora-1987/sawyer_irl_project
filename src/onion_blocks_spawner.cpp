@@ -147,7 +147,7 @@ ros::init(argc, argv, "onion_blocks_spawner");
 
             if((onion_gen % 2) == 0){
                 cout<<"Generating good onion";
-                color_index = 0;
+                color_index = 1;
                 model_name = "good_onion_" + index_string;  // initialize model_name
                 spawn_model_srv_msg.request.model_name = model_name;
                 spawn_model_srv_msg.request.robot_namespace = "good_onion_" + index_string;
@@ -157,7 +157,7 @@ ros::init(argc, argv, "onion_blocks_spawner");
 
             else{
                 cout<<"Generating bad onion";
-                color_index = 1;
+                color_index = 0;
                 model_name = "bad_onion_" + index_string;  // initialize model_name
                 spawn_model_srv_msg.request.model_name = model_name;
                 spawn_model_srv_msg.request.robot_namespace = "bad_onion_" + index_string;

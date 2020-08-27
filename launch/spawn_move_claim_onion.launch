@@ -25,11 +25,6 @@
   <param name="spawning_interval" value="11" type="double"/>
   <param name="spawn_multiple" value="1" type="bool"/>
   <param name="object_width" value="0.09" type="double"/>
-  <node name="onion_blocks_spawner" pkg="sawyer_irl_project" type="onion_blocks_spawner" output="screen">
-  </node>
-
-  <param name="delete_unreachable_objects" value="false" type="bool"/>
-  <node name="onion_blocks_poses_publisher" pkg="sawyer_irl_project" type="onion_blocks_poses_publisher" output="screen" />
 
   <arg name="launchmoveit" default="true"/>
   <arg name="electric_gripper" default="false"/>
@@ -39,6 +34,12 @@
   <node name="planning_scene_sawyer" pkg="sawyer_irl_project" type="planning_scene_sawyer" respawn="false" output="screen">
     <rosparam command="load" file="$(find sawyer_moveit_config)/config/kinematics.yaml"/>
   </node>
+
+  <node name="onion_blocks_spawner" pkg="sawyer_irl_project" type="onion_blocks_spawner" output="screen">
+  </node>
+
+  <param name="delete_unreachable_objects" value="false" type="bool"/>
+  <node name="onion_blocks_poses_publisher" pkg="sawyer_irl_project" type="onion_blocks_poses_publisher" output="screen" />
 
   <include file="$(find sawyer_moveit_config)/launch/sawyer_moveit.launch">
     <arg name="electric_gripper" value="$(arg electric_gripper)"/>

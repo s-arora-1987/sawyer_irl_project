@@ -78,7 +78,7 @@ void modelStatesCallback(const gazebo_msgs::ModelStates &current_model_states /*
 
             // get index of ith onions
             string indexed_model_name;
-            if (g_current_onions_blocks[i] == 0)
+            if (g_current_onions_blocks[i] == 1)
             { //If color variable is 0, good onion else bad
                 indexed_model_name = "good_onion_" + intToString(i);
             }

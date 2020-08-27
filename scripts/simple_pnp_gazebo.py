@@ -30,10 +30,7 @@ from gazebo_ros_link_attacher.srv import Attach, AttachRequest, AttachResponse
 
 
 joint_state_topic = ['joint_states:=/robot/joint_states']
-
-# a global class object
 limb = 'right'
-# intermediate variable needed for avoiding collisions
 tip_name = "right_gripper_tip"
 target_location_x = -100
 target_location_y = -100
@@ -321,6 +318,7 @@ class PickAndPlace(object):
                                     target_location_y + 0.1, # Going to hover location .1 from the onion
                                     current_pose.position.z,
                                     allow_replanning, planning_time)
+                                   
         rospy.sleep(0.05)
         dip = self.dip()
         return dip
@@ -459,7 +457,6 @@ class PickAndPlace(object):
                 rospy.sleep(0.05)
 
             print "diff:"+str(diff)
-
         print("reached viewpoint")
         return True
     
@@ -560,6 +557,9 @@ class PickAndPlace(object):
         current_pose = group.get_current_pose().pose
         print "Current gripper pose: ", current_pose
         print "Reached bin: ", reached
+        # current_pose = group.get_current_pose().pose
+        # print "current_pose: " + str((current_pose))
+        # rospy.sleep(50000000)
         return reached
 
     def roll(self,tolerance=0.01, goal_tol=0.02, orientation_tol=0.02):
@@ -653,7 +653,7 @@ def callback_poses(onions_poses_msg):
 def callback_onion_pick(color_indices_msg):
     global req, onion_index, bad_onion_index, num_onions, flag, bad_onions
     max_index = len(color_indices_msg.data)
-    if (color_indices_msg.data[onion_index] == 0):
+    if (color_indices_msg.data[onion_index] == 1):
         req.model_name_1 = "good_onion_" + str(onion_index)
         print "Onion name set in IF as: ", req.model_name_1 
         if(onion_index is not max_index - 1):
@@ -692,6 +692,12 @@ def callback_onion_pick(color_indices_msg):
             rospy.sleep(0.01)
             pnp.liftgripper()
             rospy.sleep(0.01)
+            current_pose = pnp.group.get_current_pose().pose
+            print "current_pose: " + str((current_pose))
+            pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
+            current_pose = pnp.group.get_current_pose().pose
+            print "current_pose: " + str((current_pose))
+            rospy.sleep(50000000)
             pnp.view(0.3)
             rospy.sleep(0.01)
             pnp.rotategripper(0.3)
@@ -720,7 +726,7 @@ def callback_onion_roll(color_indices_msg):
     global req, onion_index, bad_onion_index, num_onions, flag, bad_onions
     max_index = len(color_indices_msg.data)
 
-    if (color_indices_msg.data[onion_index] == 0):
+    if (color_indices_msg.data[onion_index] == 1):
         req.model_name_1 = "good_onion_" + str(onion_index)
         print "Onion name set in IF as: ", req.model_name_1 
         if(onion_index is not max_index - 1):
