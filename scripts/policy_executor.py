@@ -9,6 +9,12 @@ import random
 from gazebo_msgs.msg import ModelState
 from gazebo_msgs.srv import GetModelState
 import csv
+import sys
+import rospy
+import moveit_commander
+import moveit_msgs.msg
+import geometry_msgs.msg
+from std_msgs.msg import String, Int8MultiArray
 
 ''' Picked/AtHome - means Sawyer is in hover plane at home position
     Placed - means placed back on conveyor after inspecting and finding status as good
@@ -20,34 +26,9 @@ import csv
     actList = {0: 'InspectAfterPicking', 1: 'PlaceOnConveyor', 2: 'PlaceInBin', 3: 'Pick',
         4: 'ClaimNewOnion', 5: 'InspectWithoutPicking', 6: 'ClaimNextInList'} '''
 
-
 # Global initializations
 pnp = PickAndPlace(limb, tip_name)
-
-req = AttachRequest()
-initialized = False
-num_onions = 0
 flag = False
-joint_state_topic = ['joint_states:=/robot/joint_states']
-limb = 'right'
-tip_name = "right_gripper_tip"
-target_location_x = -100
-target_location_y = -100
-onion_index = 0
-bad_onion_index = 0
-# at HOME position, orientation of gripper frame w.r.t world x=0.7, y=0.7, z=0.0, w=0.0 or [ rollx: -3.1415927, pitchy: 0, yawz: -1.5707963 ]
-# (roll about an X-axis w.r.t home) / (subsequent pitch about the Y-axis) / (subsequent yaw about the Z-axis)
-rollx = 3.30
-pitchy = 0.0
-yawz = -1.57
-# use q with moveit because giving quaternion.x doesn't work.
-q = quaternion_from_euler(rollx, pitchy, yawz)
-overhead_orientation_moveit = Quaternion(
-    x=q[0],
-    y=q[1],
-    z=q[2],
-    w=q[3])
-bad_onions = []
 
 
 def sid2vals(s, nOnionLoc=5, nEEFLoc=4, nPredict=3, nlistIDStatus=3):
@@ -97,82 +78,132 @@ def getState(onionName, predic):
     elif onion_coordinates.position.x > 0 and current_pose.position.x < 0.15/
             current_pose.position.y > 0.5 and current_pose.position.y < 0.8:
         onionLoc = 2    # In Bin
-    elif onion_coordinates.position.x > 0.3 and current_pose.position.x < 0.5/
-            current_pose.position.z > 0.1 and current_pose.position.z < 0.5:
+    elif onion_coordinates.position.x > 0.35 and current_pose.position.x < 0.5/
+            current_pose.position.z > 0.1 and current_pose.position.z < 0.95:
         onionLoc = 3    # In Hover Plane
     prediction = predic
     listIDstatus = 2
 
     return vals2sid(onionLoc, eefLoc, prediction, listIDstatus)
 
-def executePolicyAct(action):
-    if action == 0:
-        pass
+def executePolicyAct(action, onionName, attach_srv, detach_srv, max_index):
+    global pnp
+    if action == 0:     # Inspect after picking
+        pnp.view(0.3)
+        rospy.sleep(0.01)
+        pnp.rotategripper(0.3)
+    elif action == 1:   # Place on conveyor
+        pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
+        rospy.sleep(0.01)
+        pnp.placeOnConveyor()
+        rospy.sleep(0.01)
+        detach_srv.call(pnp.req)
+        pnp.num_onions = pnp.num_onions - 1
+    elif action == 2:   # Place in bin
+        pnp.goto_bin()
+        rospy.sleep(0.01)
+        detach_srv.call(pnp.req)
+        pnp.num_onions = pnp.num_onions - 1
+    elif action == 3:   # Pick
+        pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
+        status = pnp.waitToPick()
+        if(status):
+            attach_srv.call(pnp.req)
+            rospy.sleep(0.01)
+            pnp.liftgripper()
+            rospy.sleep(0.01)
+    elif action == 4:   # Claim new onion
+        if (pnp.onion_index == max_index - 1):
+                print("Onion index is: ", pnp.onion_index)
+                pnp.onion_index = -1
+                pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
+                print("Reached the end of onion list")
+                sys.exit(0)
+        else:
+            pnp.onion_index = pnp.onion_index + 1
+            print("Updated onion index is:", pnp.onion_index)
+    elif action == 5:   # Inspect without picking
+        if not flag:
+            print "goto_home()"
+            pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
+            rospy.sleep(0.01)
+            roll = pnp.roll(0.3)
+            flag = True
+    else:   # Claim next in list
+    ''' For the simulation purpose both this action and action 4 
+        will be doing the same thing because we already know about all the
+        bad onions, but when implementing in real world, create a list and 
+        handle it seperately '''
+        if (pnp.onion_index == max_index - 1):
+                print("Onion index is: ", pnp.onion_index)
+                pnp.onion_index = -1
+                pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
+                print("Reached the end of onion list")
+                sys.exit(0)
+        else:
+            pnp.onion_index = pnp.onion_index + 1
+            print("Updated onion index is:", pnp.onion_index)
     return
 
     
 def callback_poses(onions_poses_msg):
-    global req, target_location_x, target_location_y, target_location_z, onion_index
-    if "good" in req.model_name_1:
-        # print("I'm waiting for a bad onion!")
-        return
-    if(onion_index == -1):
+    # if "good" in pnp.req.model_name_1:
+    #     # print("I'm waiting for a bad onion!")
+    #     return
+    if(pnp.onion_index == -1):
         print("No more onions to sort!")
         return
     else:
-        if(onion_index == len(onions_poses_msg.x)):
+        if(pnp.onion_index == len(onions_poses_msg.x)):
             return
         else:
             current_onions_x = onions_poses_msg.x
             current_onions_y = onions_poses_msg.y
             current_onions_z = onions_poses_msg.z
-            target_location_x = current_onions_x[onion_index]
-            target_location_y = current_onions_y[onion_index]
-            target_location_z = current_onions_z[onion_index]
-    # print "target_location_x,target_location_y"+str((target_location_x,target_location_y))
+            pnp.target_location_x_x = current_onions_x[pnp.onion_index]
+            pnp.target_location_x_y = current_onions_y[pnp.onion_index]
+            pnp.target_location_x_z = current_onions_z[pnp.onion_index]
+    # print "pnp.target_location_x_x,pnp.target_location_x_y"+str((pnp.target_location_x_x,pnp.target_location_x_y))
     return
 
 
 def callback_exec_policy(color_indices_msg):
-    global req, onion_index, bad_onion_index, num_onions, flag, bad_onions
     max_index = len(color_indices_msg.data)
-    if (color_indices_msg.data[onion_index] == 0):
-        req.model_name_1 = "good_onion_" + str(onion_index)
-        print "Onion name set in IF as: ", req.model_name_1
-        if(onion_index is not max_index - 1):
-            onion_index = onion_index + 1
-        else:
-            onion_index = -1
-        return
+    if (color_indices_msg.data[pnp.onion_index] == 0):
+        pnp.req.model_name_1 = "good_onion_" + str(pnp.onion_index)
+        print "Onion name set in IF as: ", pnp.req.model_name_1
+        # if(pnp.onion_index is not max_index - 1):
+        #     pnp.onion_index = pnp.onion_index + 1
+        # else:
+        #     pnp.onion_index = -1
+        # return
     else:
-        req.model_name_1 = "bad_onion_" + str(onion_index)
-        print "Onion name set in ELSE as: ", req.model_name_1
-        bad_onions.append(onion_index)
+        pnp.req.model_name_1 = "bad_onion_" + str(pnp.onion_index)
+        print "Onion name set in ELSE as: ", pnp.req.model_name_1
+        bad_onions.append(pnp.onion_index)
 
     # attach and detach service
     attach_srv = rospy.ServiceProxy('/link_attacher_node/attach', Attach)
     attach_srv.wait_for_service()
     detach_srv = rospy.ServiceProxy('/link_attacher_node/detach', Attach)
     detach_srv.wait_for_service()
-    req.link_name_1 = "base_link"
-    req.model_name_2 = "sawyer"
-    req.link_name_2 = "right_l6"
-    if not flag:
-        num_onions = len(color_indices_msg.data)
-        flag = True
+    pnp.req.link_name_1 = "base_link"
+    pnp.req.model_name_2 = "sawyer"
+    pnp.req.link_name_2 = "right_l6"
+    pnp.num_onions = len(color_indices_msg.data)
 
-    if(num_onions > 0):
+    if(pnp.num_onions > 0):
 
-        print "(model_1,link_1,model_2,link_2)", req.model_name_1, req.link_name_1, req.model_name_2, req.link_name_2
+        print "(model_1,link_1,model_2,link_2)", pnp.req.model_name_1, pnp.req.link_name_1, pnp.req.model_name_2, pnp.req.link_name_2
         ##############################################
         print "goto_home()"
         pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
-        s = getState(req.model_name_1, color_indices_msg.data[onion_index])
+        s = getState(pnp.req.model_name_1, color_indices_msg.data[pnp.onion_index])
         with open ('policy.csv', newline='') as csvfile:
             policy = csv.reader(csvfile, delimiter=' ', quotechar='|')
             policy = np.array(policy)
             a = policy[s]
-        executePolicyAct(a)
+        executePolicyAct(a, pnp.req.model_name_1, attach_srv, detach_srv, max_index)
 
 def main():
 
