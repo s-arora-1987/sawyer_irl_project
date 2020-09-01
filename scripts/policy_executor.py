@@ -28,7 +28,7 @@ import numpy as np
 # Global initializations
 flag = False
 pnp = PickAndPlace()
-
+policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/policy.csv', delimiter=' ')
 
 def sid2vals(s, nOnionLoc=5, nEEFLoc=4, nPredict=3, nlistIDStatus=3):
     sid = s
@@ -56,7 +56,7 @@ def getState(onionName, predic):
         eefLoc = 1  # In Front
     elif current_pose.position.x > 0 and current_pose.position.x < 0.15 and current_pose.position.y > 0.5 and current_pose.position.y < 0.8:
         eefLoc = 2  # In Bin
-    elif current_pose.position.x > 0.45 and current_pose.position.x < 0.9 and current_pose.position.y > -0.5 and current_pose.position.y < 0.5 and current_pose.position.z > 0.15 and current_pose.position.z < 0.45:
+    elif current_pose.position.x > 0.45 and current_pose.position.x < 0.9 and current_pose.position.y > -0.5 and current_pose.position.y < 0.5 and current_pose.position.z > 0.15 and current_pose.position.z < 0.5:
         eefLoc = 3  # In the Hover plane
     else:
         print("Couldn't find valid eef state!")
@@ -82,7 +82,7 @@ def getState(onionName, predic):
     elif onion_coordinates.position.x > 0.35 and onion_coordinates.position.x < 0.9 and onion_coordinates.position.z > 0.9 and onion_coordinates.position.z < 1.5:
         onionLoc = 3    # In Hover Plane
         print("OnionLoc is: In Hover plane {0}".format(onionLoc))
-    elif onion_coordinates.position.x > 0.5 and onion_coordinates.position.x < 0.9 and onion_coordinates.position.y > 0.3 and onion_coordinates.position.y < 0.5 and onion_coordinates.position.z > 0.8 and onion_coordinates.position.z < 0.9:
+    elif onion_coordinates.position.x > 0.5 and onion_coordinates.position.x < 0.9 and onion_coordinates.position.y > 0.3 and onion_coordinates.position.y < 0.6 and onion_coordinates.position.z > 0.8 and onion_coordinates.position.z < 0.9:
         onionLoc = 4    # Placed on Conveyor
         print("OnionLoc is: Placed on conveyor {0}".format(onionLoc))
     else:
@@ -109,8 +109,8 @@ def executePolicyAct(action, onionName, attach_srv, detach_srv, max_index):
         flag = True
     elif action == 1:   # Place on conveyor
         print("Place on conveyor")
-        pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
-        rospy.sleep(0.01)
+        # pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
+        # rospy.sleep(0.01)
         pnp.placeOnConveyor()
         rospy.sleep(0.01)
         detach_srv.call(pnp.req)
@@ -196,7 +196,7 @@ def callback_poses(onions_poses_msg):
 
 
 def callback_exec_policy(color_indices_msg):
-    global pnp
+    global pnp, policy
     # print("Entered exec policy callback!")
     max_index = len(color_indices_msg.data)
     if (color_indices_msg.data[pnp.onion_index] == 0):
@@ -229,9 +229,7 @@ def callback_exec_policy(color_indices_msg):
             s = getState(pnp.req.model_name_1,
                          color_indices_msg.data[pnp.onion_index])
         else:
-            s = getState(pnp.req.model_name_1, 2)
-        policy = np.genfromtxt(
-            '/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/policy.csv', delimiter=' ')
+            s = getState(pnp.req.model_name_1, 2)   
         # print("Policy: \n",policy)
         print("State id: ", s)
         a = policy[s]
