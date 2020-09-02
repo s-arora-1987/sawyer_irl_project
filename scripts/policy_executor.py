@@ -28,7 +28,9 @@ import numpy as np
 # Global initializations
 flag = False
 pnp = PickAndPlace()
-policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/policy.csv', delimiter=' ')
+# policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/learned_policy.csv', delimiter=' ')
+# policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/expert_policy.csv', delimiter=' ')
+policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/test_expert_policy.csv', delimiter=' ')
 
 def sid2vals(s, nOnionLoc=5, nEEFLoc=4, nPredict=3, nlistIDStatus=3):
     sid = s
@@ -92,7 +94,12 @@ def getState(onionName, predic):
     prediction = predic
     print("EEfloc is: ", eefLoc)
     print("prediction is: ", predic)
-    listIDstatus = 2
+    if len(pnp.bad_onions) > 0:
+        listIDstatus = 1
+    elif len(pnp.bad_onions) == 0:
+        listIDstatus = 0
+    else:
+        listIDstatus = 2
     print("List status is: ", listIDstatus)
 
     return vals2sid(ol=onionLoc, eefl=eefLoc, pred=prediction, listst=listIDstatus)
@@ -199,6 +206,7 @@ def callback_exec_policy(color_indices_msg):
     global pnp, policy
     # print("Entered exec policy callback!")
     max_index = len(color_indices_msg.data)
+    pnp.bad_onions = []
     if (color_indices_msg.data[pnp.onion_index] == 0):
         pnp.req.model_name_1 = "bad_onion_" + str(pnp.onion_index)
         print "Onion name set in IF as: ", pnp.req.model_name_1
@@ -208,7 +216,6 @@ def callback_exec_policy(color_indices_msg):
     else:
         pnp.req.model_name_1 = "good_onion_" + str(pnp.onion_index)
         print "Onion name set in ELSE as: ", pnp.req.model_name_1
-        # bad_onions.append(pnp.onion_index)
 
     # attach and detach service
     attach_srv = rospy.ServiceProxy('/link_attacher_node/attach', Attach)
@@ -226,6 +233,7 @@ def callback_exec_policy(color_indices_msg):
         print("Sending onion name: {}, prediction: {} to state check".format(
             pnp.req.model_name_1, color_indices_msg.data[pnp.onion_index]))
         if flag:
+            pnp.bad_onions = [i for i in range(max_index) if (color_indices_msg.data[i] == 0)]
             s = getState(pnp.req.model_name_1,
                          color_indices_msg.data[pnp.onion_index])
         else:

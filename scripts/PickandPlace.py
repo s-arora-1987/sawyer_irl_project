@@ -605,7 +605,7 @@ class PickAndPlace(object):
         planning_time = 2.5
         group = self.group
         while not onConveyor:
-            onConveyor = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], 0.85, 0.3, 0.09,
+            onConveyor = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], 0.85, 0.3, 0.15,
                                               allow_replanning, planning_time)
             rospy.sleep(0.02)
         # current_pose = group.get_current_pose().pose
