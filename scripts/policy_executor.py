@@ -28,6 +28,7 @@ import numpy as np
 # Global initializations
 flag = False
 pnp = PickAndPlace()
+idx = -1
 # policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/learned_policy.csv', delimiter=' ')
 # policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/expert_policy.csv', delimiter=' ')
 policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/test_expert_policy.csv', delimiter=' ')
@@ -106,7 +107,7 @@ def getState(onionName, predic):
 
 
 def executePolicyAct(action, onionName, attach_srv, detach_srv, max_index):
-    global pnp, flag
+    global pnp, flag, idx
     if action == 0:     # Inspect after picking
         print("Inspect after picking")
         pnp.view(0.3)
@@ -130,7 +131,7 @@ def executePolicyAct(action, onionName, attach_srv, detach_srv, max_index):
         rospy.sleep(0.01)
         detach_srv.call(pnp.req)
         pnp.num_onions = pnp.num_onions - 1
-        flag = False
+        # flag = False
     elif action == 3:   # Pick
         print("Pick")
         pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
@@ -142,7 +143,7 @@ def executePolicyAct(action, onionName, attach_srv, detach_srv, max_index):
             rospy.sleep(0.01)
     elif action == 4:   # Claim new onion
         print("Claim new onion")
-        if (pnp.onion_index == max_index - 1):
+        if (pnp.onion_index == max_index):
             print("Onion index is: ", pnp.onion_index)
             pnp.onion_index = -1
             pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
@@ -162,19 +163,16 @@ def executePolicyAct(action, onionName, attach_srv, detach_srv, max_index):
             pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
             flag = True
     else:   # Claim next in list
-        ''' For the simulation purpose both this action and action 4 
-        will be doing the same thing because we already know about all the
-        bad onions, but when implementing in real world, create a list and 
-        handle it seperately '''
         print("Claim next in list")
-        if (pnp.onion_index == max_index - 1):
+        if (pnp.onion_index == max_index):
             print("Onion index is: ", pnp.onion_index)
             pnp.onion_index = -1
             pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
             print("Reached the end of onion list")
             sys.exit(0)
         else:
-            pnp.onion_index = pnp.onion_index + 1
+            idx += 1
+            pnp.onion_index = pnp.bad_onions[idx]
             print("Updated onion index is:", pnp.onion_index)
     return
 
@@ -214,6 +212,9 @@ def callback_exec_policy(color_indices_msg):
             pnp.onion_index = -1
             rospy.signal_shutdown("Shutting down node, work is done")
     else:
+        if pnp.onion_index not in pnp.bad_onions:
+            pnp.onion_index += 1
+            return
         pnp.req.model_name_1 = "good_onion_" + str(pnp.onion_index)
         print "Onion name set in ELSE as: ", pnp.req.model_name_1
 
@@ -234,6 +235,7 @@ def callback_exec_policy(color_indices_msg):
             pnp.req.model_name_1, color_indices_msg.data[pnp.onion_index]))
         if flag:
             pnp.bad_onions = [i for i in range(max_index) if (color_indices_msg.data[i] == 0)]
+            print("Bad onion indices are: ", pnp.bad_onions)
             s = getState(pnp.req.model_name_1,
                          color_indices_msg.data[pnp.onion_index])
         else:
