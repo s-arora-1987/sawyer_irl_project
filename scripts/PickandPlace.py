@@ -587,12 +587,12 @@ class PickAndPlace(object):
         rolls = 0
         while rolls < 2:
             rolling = self.go_to_pose_goal(new_q[0], new_q[1], new_q[2], new_q[3], self.target_location_x - 0.05,
-                                           self.target_location_y + 0.1,  # Going to hover location .1 from the onion
-                                           current_pose.position.z - 0.02,
+                                           self.target_location_y + 0.2,  # Going to hover location .1 from the onion
+                                           current_pose.position.z - 0.01,
                                            allow_replanning, planning_time)
             rolling1 = self.go_to_pose_goal(new_q[0], new_q[1], new_q[2], new_q[3], self.target_location_x - 0.05,
-                                            self.target_location_y - 0.1,  # Going to hover location .1 from the onion
-                                            current_pose.position.z - 0.02,
+                                            self.target_location_y - 0.2,  # Going to hover location .1 from the onion
+                                            current_pose.position.z - 0.01,
                                             allow_replanning, planning_time)
             rolls = rolls + 1
         print("Finished rolling!")

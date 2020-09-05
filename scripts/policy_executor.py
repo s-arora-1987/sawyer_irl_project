@@ -29,9 +29,9 @@ import numpy as np
 flag = False
 pnp = PickAndPlace()
 idx = -1
-# policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/learned_policy.csv', delimiter=' ')
+policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/learned_policy.csv', delimiter=' ')
 # policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/expert_policy.csv', delimiter=' ')
-policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/test_expert_policy.csv', delimiter=' ')
+# policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/test_expert_policy.csv', delimiter=' ')
 
 def sid2vals(s, nOnionLoc=5, nEEFLoc=4, nPredict=3, nlistIDStatus=3):
     sid = s
@@ -54,13 +54,13 @@ def getState(onionName, predic):
     print("Getting state")
     current_pose = pnp.group.get_current_pose().pose
     if current_pose.position.x > 0.5 and current_pose.position.x < 0.9 and current_pose.position.y > -0.5 and current_pose.position.y < 0.5 and current_pose.position.z > 0 and current_pose.position.z < 0.2:
-        eefLoc = 0  # On Conveyor
+        pnp.eefLoc = 0  # On Conveyor
     elif current_pose.position.x > 0.4 and current_pose.position.x < 0.5 and current_pose.position.y > -0.1 and current_pose.position.y < 0.15 and current_pose.position.z > 0.44 and current_pose.position.z < 0.6:
-        eefLoc = 1  # In Front
+        pnp.eefLoc = 1  # In Front
     elif current_pose.position.x > 0 and current_pose.position.x < 0.15 and current_pose.position.y > 0.5 and current_pose.position.y < 0.8:
-        eefLoc = 2  # In Bin
+        pnp.eefLoc = 2  # In Bin
     elif current_pose.position.x > 0.45 and current_pose.position.x < 0.9 and current_pose.position.y > -0.5 and current_pose.position.y < 0.5 and current_pose.position.z > 0.15 and current_pose.position.z < 0.5:
-        eefLoc = 3  # In the Hover plane
+        pnp.eefLoc = 3  # In the Hover plane
     else:
         print("Couldn't find valid eef state!")
         print("EEF coordinates: ", current_pose)
@@ -72,38 +72,38 @@ def getState(onionName, predic):
         onion_coordinates = model_coordinates(onionName, "").pose
     except rospy.ServiceException, e:
         print "Service call failed: %s" % e
-    # 0.7, -0.65, 0.065,
+
     if onion_coordinates.position.x > 0.5 and onion_coordinates.position.x < 0.9 and onion_coordinates.position.y > -0.6 and onion_coordinates.position.y < 0.3 and onion_coordinates.position.z > 0.8 and onion_coordinates.position.z < 0.9:
-        onionLoc = 0    # On Conveyor
-        print("OnionLoc is: On conveyor {0}".format(onionLoc))
+        pnp.onionLoc =  0    # On Conveyor
+        print("OnionLoc is: On conveyor {0}".format(pnp.onionLoc))
     elif onion_coordinates.position.x > 0.15 and onion_coordinates.position.x < 0.3 and onion_coordinates.position.z > 1 and onion_coordinates.position.z < 2:
-        onionLoc = 1    # In Front
-        print("OnionLoc is: In Front {0}".format(onionLoc))
+        pnp.onionLoc =  1    # In Front
+        print("OnionLoc is: In Front {0}".format(pnp.onionLoc))
     elif onion_coordinates.position.x > 0 and onion_coordinates.position.x < 0.15 and onion_coordinates.position.y > 0.5 and onion_coordinates.position.y < 0.8:
-        onionLoc = 2    # In Bin
-        print("OnionLoc is: In Bin {0}".format(onionLoc))
+        pnp.onionLoc =  2    # In Bin
+        print("OnionLoc is: In Bin {0}".format(pnp.onionLoc))
     elif onion_coordinates.position.x > 0.35 and onion_coordinates.position.x < 0.9 and onion_coordinates.position.z > 0.9 and onion_coordinates.position.z < 1.5:
-        onionLoc = 3    # In Hover Plane
-        print("OnionLoc is: In Hover plane {0}".format(onionLoc))
+        pnp.onionLoc =  3    # In Hover Plane
+        print("OnionLoc is: In Hover plane {0}".format(pnp.onionLoc))
     elif onion_coordinates.position.x > 0.5 and onion_coordinates.position.x < 0.9 and onion_coordinates.position.y > 0.3 and onion_coordinates.position.y < 0.6 and onion_coordinates.position.z > 0.8 and onion_coordinates.position.z < 0.9:
-        onionLoc = 4    # Placed on Conveyor
-        print("OnionLoc is: Placed on conveyor {0}".format(onionLoc))
+        pnp.onionLoc =  4    # Placed on Conveyor
+        print("OnionLoc is: Placed on conveyor {0}".format(pnp.onionLoc))
     else:
         print("Couldn't find valid onion state!")
         print("Onion coordinates: ", onion_coordinates)
 
-    prediction = predic
-    print("EEfloc is: ", eefLoc)
+    pnp.prediction = predic
+    print("EEfloc is: ", pnp.eefLoc)
     print("prediction is: ", predic)
     if len(pnp.bad_onions) > 0:
-        listIDstatus = 1
+        pnp.listIDstatus = 1
     elif len(pnp.bad_onions) == 0:
-        listIDstatus = 0
+        pnp.listIDstatus = 0
     else:
-        listIDstatus = 2
-    print("List status is: ", listIDstatus)
+        pnp.listIDstatus = 2
+    print("List status is: ", pnp.listIDstatus)
 
-    return vals2sid(ol=onionLoc, eefl=eefLoc, pred=prediction, listst=listIDstatus)
+    return vals2sid(ol=pnp.onionLoc, eefl=pnp.eefLoc, pred=pnp.prediction, listst=pnp.listIDstatus)
 
 
 def executePolicyAct(action, onionName, attach_srv, detach_srv, max_index):
@@ -113,25 +113,25 @@ def executePolicyAct(action, onionName, attach_srv, detach_srv, max_index):
         pnp.view(0.3)
         rospy.sleep(0.01)
         pnp.rotategripper(0.3)
-        # pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
-        flag = True
+        if pnp.listIDstatus == 2:
+            flag = True
     elif action == 1:   # Place on conveyor
         print("Place on conveyor")
-        # pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
-        # rospy.sleep(0.01)
         pnp.placeOnConveyor()
         rospy.sleep(0.01)
         detach_srv.call(pnp.req)
         pnp.liftgripper()
         pnp.num_onions = pnp.num_onions - 1
-        flag = False
+        if pnp.listIDstatus == 2:
+            flag = False
     elif action == 2:   # Place in bin
         print("Place in bin")
         pnp.goto_bin()
         rospy.sleep(0.01)
         detach_srv.call(pnp.req)
         pnp.num_onions = pnp.num_onions - 1
-        # flag = False
+        if pnp.listIDstatus == 2:
+            flag = False
     elif action == 3:   # Pick
         print("Pick")
         pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
@@ -164,7 +164,7 @@ def executePolicyAct(action, onionName, attach_srv, detach_srv, max_index):
             flag = True
     else:   # Claim next in list
         print("Claim next in list")
-        if (pnp.onion_index == max_index):
+        if (pnp.onion_index == pnp.bad_onions[-1]):
             print("Onion index is: ", pnp.onion_index)
             pnp.onion_index = -1
             pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
@@ -179,10 +179,6 @@ def executePolicyAct(action, onionName, attach_srv, detach_srv, max_index):
 
 def callback_poses(onions_poses_msg):
     global pnp
-    # if "good" in pnp.req.model_name_1:
-    #     # print("I'm waiting for a bad onion!")
-    #     return
-    # print("Entered poses callback!")
     if(pnp.onion_index == -1):
         print("No more onions to sort!")
         rospy.signal_shutdown("Shutting down node, work is done")
@@ -190,6 +186,7 @@ def callback_poses(onions_poses_msg):
         if(pnp.onion_index == len(onions_poses_msg.x)):
             return
         else:
+            # print("Setting target coordinates for onion_index = ",pnp.onion_index)
             current_onions_x = onions_poses_msg.x
             current_onions_y = onions_poses_msg.y
             current_onions_z = onions_poses_msg.z
@@ -202,7 +199,6 @@ def callback_poses(onions_poses_msg):
 
 def callback_exec_policy(color_indices_msg):
     global pnp, policy
-    # print("Entered exec policy callback!")
     max_index = len(color_indices_msg.data)
     pnp.bad_onions = []
     if (color_indices_msg.data[pnp.onion_index] == 0):
@@ -228,28 +224,27 @@ def callback_exec_policy(color_indices_msg):
     pnp.req.link_name_2 = "right_l6"
     pnp.num_onions = len(color_indices_msg.data)
 
-    if(pnp.num_onions > 0):
+    if(pnp.onion_index != max_index):
 
         print "(model_1,link_1,model_2,link_2)", pnp.req.model_name_1, pnp.req.link_name_1, pnp.req.model_name_2, pnp.req.link_name_2
         print("Sending onion name: {}, prediction: {} to state check".format(
             pnp.req.model_name_1, color_indices_msg.data[pnp.onion_index]))
         if flag:
-            pnp.bad_onions = [i for i in range(max_index) if (color_indices_msg.data[i] == 0)]
+            pnp.bad_onions = [i for i in range(pnp.onion_index, max_index) if (color_indices_msg.data[i] == 0)]
             print("Bad onion indices are: ", pnp.bad_onions)
             s = getState(pnp.req.model_name_1,
                          color_indices_msg.data[pnp.onion_index])
         else:
-            s = getState(pnp.req.model_name_1, 2)   
-        # print("Policy: \n",policy)
+            s = getState(pnp.req.model_name_1, 2)
         print("State id: ", s)
         a = policy[s]
         executePolicyAct(a, pnp.req.model_name_1,
                          attach_srv, detach_srv, max_index)
-
+    else:
+        print("Finished considering all onions. Stopping node!")
+        sys.exit(0)
 
 def main():
-    # print("Entered main!")
-    ##############################################
     global pnp
     print "goto_home()"
     pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
@@ -267,7 +262,6 @@ def main():
 
 
 if __name__ == '__main__':
-    # print("Calling main")
     try:
         main()
     except rospy.ROSInterruptException:
