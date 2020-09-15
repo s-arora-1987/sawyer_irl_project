@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_ros_planning_interface
   controller_manager
   message_generation
+  robotiq_2f_gripper_control
 )
 find_package(gazebo REQUIRED)
 link_directories(${GAZEBO_LIBRARY_DIRS})
@@ -51,8 +52,12 @@ add_executable(onion_blocks_spawner src/onion_blocks_spawner.cpp)
 add_dependencies(onion_blocks_spawner sawyer_irl_project_generate_messages_cpp)
 add_executable(onion_blocks_poses_publisher src/onion_blocks_poses_publisher.cpp)
 add_dependencies(onion_blocks_poses_publisher sawyer_irl_project_generate_messages_cpp)
+add_executable(onion_blocks_poses_publisher_physical src/onion_blocks_poses_publisher_physical.cpp)
+add_dependencies(onion_blocks_poses_publisher_physical sawyer_irl_project_generate_messages_cpp)
 add_executable(planning_scene_sawyer src/planning_scene_sawyer.cpp)
+add_dependencies(robotiq_2f_gripper_control_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 target_link_libraries(planning_scene_sawyer ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 target_link_libraries(onion_blocks_spawner ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GAZEBO_LIBRARIES})
 target_link_libraries(onion_blocks_poses_publisher ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GAZEBO_LIBRARIES})
+target_link_libraries(onion_blocks_poses_publisher_physical ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GAZEBO_LIBRARIES})
 install(TARGETS planning_scene_sawyer DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

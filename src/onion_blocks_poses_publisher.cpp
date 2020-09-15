@@ -106,7 +106,7 @@ void modelStatesCallback(const gazebo_msgs::ModelStates &current_model_states /*
                 // update global counter for onions in Bin and delete them
                 //We're not doing this yet
                 // ROS_INFO_STREAM("Index not -1");
-                // update global counter for onions reaching end of conveyor and delete them
+                // update global counter for onions reaching end of conveyor
                 if (0.65 <= onions_x[i] && onions_x[i] < 0.94)
                 {   
                     // ROS_INFO_STREAM("X satisfied");

@@ -102,7 +102,7 @@ ros::init(argc, argv, "onion_blocks_spawner");
     spawn_model_srv_msg.request.initial_pose.orientation.w = 1.0;
     spawn_model_srv_msg.request.reference_frame = "world";
 
-	//begin spawning onions and give an initial speed on conveyor
+	//begin spawning onions
 
         // publisher for /modelnames
         ros::Publisher modelnames_publisher
@@ -117,7 +117,7 @@ ros::init(argc, argv, "onion_blocks_spawner");
         std_msgs::Int8MultiArray current_onions_msg;
         current_onions_msg.data.clear();
 
-    ros::Duration(2).sleep();
+    ros::Duration(1).sleep();
     while (ros::ok()) {
 
 
