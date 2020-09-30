@@ -120,7 +120,7 @@ def executePolicyAct(action, onionName, attach_srv, detach_srv, max_index):
         pnp.placeOnConveyor()
         rospy.sleep(0.01)
         detach_srv.call(pnp.req)
-        pnp.liftgripper()
+        # pnp.liftgripper()
         pnp.num_onions = pnp.num_onions - 1
         if pnp.listIDstatus == 2:
             flag = False
