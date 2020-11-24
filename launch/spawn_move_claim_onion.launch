@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
-<!--  WRITTEN BY Prasanth Suresh(ps32611@uga.edu). -->
+<!--  EDITED BY Prasanth Suresh(ps32611@uga.edu). -->
 
   <param name="good_onion_path" type="str" value="$(find sawyer_irl_project)/sdf/onion.sdf"/>
   <param name="bad_onion_path" type="str" value="$(find sawyer_irl_project)/sdf/onion_bad.sdf"/>
-  <param name="OnionCenter_path" type="str" value="$(find sawyer_irl_project)/sdf/OnionCenter.urdf"/>
-  <param name="Onion0_path" type="str" value="$(find sawyer_irl_project)/sdf/Onion0.urdf"/>
-
   <!-- <param name="SAWYERRANGE_LOWER_LIMIT" value="-0.55" type="double"/> -->
   <param name="SAWYERRANGE_LOWER_LIMIT" value="-0.05" type="double"/>
   <param name="SAWYERRANGE_UPPER_LIMIT" value="0.55" type="double"/>
@@ -15,8 +12,8 @@
   <param name="ObjectPoseZ_RANGE_UPPER_LIMIT" value="0.83" type="double"/>
   <param name="ObjectPoseZ_RANGE_LOWER_LIMIT" value="0.78" type="double"/>
   <param name="initial_pose_y_to_RANGE_LIMIT" value="-0.05" type="double"/>
-  <param name="initial_pose_x" value="0.75" type="double"/>
-  <param name="initial_pose_y" value="-0.59" type="double"/>
+  <param name="initial_pose_x" value="0.85" type="double"/>
+  <param name="initial_pose_y" value="0.0" type="double"/>
   <param name="conveyor_center_x" value="0.75" type="double"/>
   <!-- <param name="belt_width" value="0.38" type="double"/> -->
   <param name="belt_width" value="0.3" type="double"/>

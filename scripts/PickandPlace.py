@@ -564,9 +564,7 @@ class PickAndPlace(object):
 
         while diff:
             # measure after movement
-            current_joints = group.get_current_joint_values()
-
-            diff = abs(roll_home['right_j0']-current_joints[0]) > tol or \
+            current_joints = group.head_pan,ight_j0']-current_joints[0]) > tol or \
                 abs(roll_home['right_j1']-current_joints[1]) > tol or \
                 abs(roll_home['right_j2']-current_joints[2]) > tol or \
                 abs(roll_home['right_j3']-current_joints[3]) > tol or \
@@ -587,12 +585,12 @@ class PickAndPlace(object):
         rolls = 0
         while rolls < 2:
             rolling = self.go_to_pose_goal(new_q[0], new_q[1], new_q[2], new_q[3], self.target_location_x - 0.05,
-                                           self.target_location_y + 0.2,  # Going to hover location .1 from the onion
-                                           current_pose.position.z - 0.01,
+                                           self.target_location_y + 0.15,  # Going to hover location .1 from the onion
+                                           current_pose.position.z - 0.02,
                                            allow_replanning, planning_time)
             rolling1 = self.go_to_pose_goal(new_q[0], new_q[1], new_q[2], new_q[3], self.target_location_x - 0.05,
-                                            self.target_location_y - 0.2,  # Going to hover location .1 from the onion
-                                            current_pose.position.z - 0.01,
+                                            self.target_location_y - 0.15,  # Going to hover location .1 from the onion
+                                            current_pose.position.z - 0.02,
                                             allow_replanning, planning_time)
             rolls = rolls + 1
         print("Finished rolling!")

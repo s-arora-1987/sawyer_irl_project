@@ -13,7 +13,19 @@
       <link name="body">
         <visual name="visual">
           <geometry>
-            <mesh><uri>model://head.DAE</uri></mesh>
+            <mesh><uri>model://onion_crate.STL</uri></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+
+   <model name="onion">
+      <pose>0.05725 -0.05745 0.051775  0 0 0.714</pose>
+      <static>true</static>
+      <link name="body">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://custom_onion.dae</uri></mesh>
           </geometry>
         </visual>
       </link>
