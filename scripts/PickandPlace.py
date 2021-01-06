@@ -83,6 +83,11 @@ class PickAndPlace(object):
         self.target_location_z = -100
         self.onion_index = 0
         self.num_onions = 0
+        self.bad_onions = []
+        self.onionLoc = None
+        self.eefLoc = None
+        self.prediction = None
+        self.listIDstatus = None
 
     def all_close(self, goal, actual, tolerance):
         """
@@ -191,16 +196,7 @@ class PickAndPlace(object):
         return True
 
     def go_to_pose_goal(self, ox, oy, oz, ow, px, py, pz, allow_replanning=True, planning_time=5.0):
-        """
-        Movement method to go to desired end effector pose
-        @param: ox: Pose orientation for the x-axis (part of Quaternion)
-        @param: oy: Pose orientation for the y-axis (part of Quaternion)
-        @param: oz: Pose orientation for the z-axis (part of Quaternion)
-        @param: ow: Pos)
-        # while current_pose.position.x - 0.1 >= tolerance:
-        reached = pnp.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], 0.1, 0.6, 0,
-                       rdinate on the z-axis
-        """
+
         group = self.group
         # Allow some leeway in position(meters) and orientation (radians)
         group.set_goal_position_tolerance(0.001)
@@ -260,7 +256,7 @@ class PickAndPlace(object):
         planning_time = 5
         if current_pose.position.y > self.target_location_y and current_pose.position.y < self.target_location_y + 0.005:
             print "Now performing dip"
-            dip = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], self.target_location_x - 0.03,
+            dip = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], self.target_location_x - 0.025,  # Account for tol
                                        self.target_location_y + 0.02,  # accounting for tolerance error
                                        current_pose.position.z - 0.075,  # This is where we dip
                                        allow_replanning, planning_time)
@@ -268,14 +264,15 @@ class PickAndPlace(object):
 
             print "Successfully dipped! z pos: ", current_pose.position.z
 
-            """ # This block of code tries to add the object to moveit collision objects 
+            """ 
+            # This block of code tries to add the object to moveit collision objects 
             # box_pose = geometry_msgs.msg.PoseStamped()
             # box_pose.header.frame_id = "right_l6"
             # box_pose.pose.orientation.w = 1.0
             # # box_pose.pose.position.x = self.target_location_x
             # # box_pose.pose.position.y = self.target_location_y
             # box_pose.pose.position.z = current_pose.position.z + 0.005
-            # box_name = "good_onion_0"
+            # box_name = "onion_0"
             # self.scene.add_box(box_name, box_pose, size=(0.065, 0.065, 0.065))
             # grasping_group = 'right_arm'
             # group = self.group
@@ -299,15 +296,75 @@ class PickAndPlace(object):
             rospy.sleep(0.05)
         current_pose = group.get_current_pose().pose
         allow_replanning = True
-        planning_time = 5
+        planning_time = 10
+        print "Attempting to reach {},{},{}".format(self.target_location_x,
+                                       self.target_location_y,
+                                       current_pose.position.z)
         waiting = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], self.target_location_x,
                                        self.target_location_y + 0.1,  # Going to hover location .1 from the onion
                                        current_pose.position.z,
                                        allow_replanning, planning_time)
-
         rospy.sleep(0.05)
         dip = self.dip()
         return dip
+
+    def staticDip(self):
+        group = self.group
+        while self.target_location_x == -100:
+            rospy.sleep(0.05)
+        current_pose = group.get_current_pose().pose
+        allow_replanning = True
+        planning_time = 5
+        print "Now performing dip"
+        dip = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], self.target_location_x - 0.025,  # Account for tol
+                                    self.target_location_y + 0.02,  # accounting for tolerance error
+                                    current_pose.position.z - 0.075,  # This is where we dip
+                                    allow_replanning, planning_time)
+        rospy.sleep(0.05)
+        """ 
+        # This block of code tries to add the object to moveit collision objects 
+        # box_pose = geometry_msgs.msg.PoseStamped()
+        # box_pose.header.frame_id = "right_l6"
+        # box_pose.pose.orientation.w = 1.0
+        # # box_pose.pose.position.x = self.target_location_x
+        # # box_pose.pose.position.y = self.target_location_y
+        # box_pose.pose.position.z = current_pose.position.z + 0.005
+        # box_name = "onion_0"
+        # self.scene.add_box(box_name, box_pose, size=(0.065, 0.065, 0.065))
+        # grasping_group = 'right_arm'
+        # group = self.group
+        # robot = self.robot
+        # touch_links = robot.get_link_names(group=grasping_group)
+        # self.scene.attach_box(self.eef_link, box_name, touch_links = touch_links)
+        # rospy.loginfo(self.wait_for_state_update(box_name, self.scene, box_is_attached=True, box_is_known=False))
+        """
+        if dip:
+            print "Successfully dipped! z pos: ", current_pose.position.z
+            return True
+        else:
+            self.staticDip()
+
+
+    def goAndPick(self):
+
+        group = self.group
+        while self.target_location_x == -100:
+            rospy.sleep(0.05)
+        current_pose = group.get_current_pose().pose
+        allow_replanning = True
+        planning_time = 10
+        print "Attempting to reach {},{},{}".format(self.target_location_x,
+                                       self.target_location_y,
+                                       current_pose.position.z)
+        waiting = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], self.target_location_x,
+                                       self.target_location_y,  # Going to hover location .1 from the onion
+                                       current_pose.position.z,
+                                       allow_replanning, planning_time)
+        rospy.sleep(0.05)
+        # dip = self.staticDip()
+        # return dip
+
+
 
     def liftgripper(self):
         # approx centers of onions at 0.82, width of onion is 0.038 m. table is at 0.78
@@ -352,6 +409,7 @@ class PickAndPlace(object):
     # obstacles on the way to the start pose.
     def goto_home(self, tolerance=0.01, goal_tol=0.02, orientation_tol=0.02):
 
+        print("Attempting to reach home\n")
         group = self.group
         home_joint_angles = [-0.041662954890248294, -1.0258291091425074, 0.0293680414401436,
                              2.17518162913313, -0.06703022873354225, 0.3968371433926965, 1.7659649178699421]
@@ -564,7 +622,7 @@ class PickAndPlace(object):
 
         while diff:
             # measure after movement
-            current_joints = group.head_pan,ight_j0']-current_joints[0]) > tol or \
+            current_joints = abs(roll_home['right_j0']-current_joints[0]) > tol or \
                 abs(roll_home['right_j1']-current_joints[1]) > tol or \
                 abs(roll_home['right_j2']-current_joints[2]) > tol or \
                 abs(roll_home['right_j3']-current_joints[3]) > tol or \

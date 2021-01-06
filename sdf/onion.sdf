@@ -2,7 +2,7 @@
 <sdf version='1.6'>
   <model name='onion'>
     <link name='base_link'>
-      <pose frame=''>0 0 0 0 0 0</pose>
+      <pose frame=''>0 0 0 0 0 0</pose> <!-- make r = 1.5708 to make them upright -->
       <inertial>
         <pose frame=''>0 0 0 0 0 0</pose>
         <mass>0.005</mass>	<!-- From 0.14kg to 0.005kg -->
@@ -46,7 +46,7 @@
       <velocity_decay/>
       <self_collide>0</self_collide>
     </link>
-	<!--plugin name="model_push" filename="libmodel_push.so"/-->
+	<!-- <plugin name="model_push" filename="libmodel_push.so"/> -->
   </model>
 </sdf>
 

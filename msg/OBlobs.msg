@@ -1,5 +1,8 @@
-Header header
-uint32 image_width
-uint32 image_height
-uint32 blob_count
-Blob[] blobs
+# message type to describe 3-D position and color of the onion blocks
+# variable length array, length decided by topic /current_onion_blocks
+# to be published as a topic
+
+float64[] x  # x coordinate in the world
+float64[] y  # y coordinate in the world
+float64[] z  # z coordinate in the world
+float64[] color # Describes blemished or unblemished

@@ -13,6 +13,15 @@
 #include <gazebo_msgs/SpawnModel.h>
 #include <std_msgs/Int8MultiArray.h>
 #include <sawyer_irl_project/StringArray.h>
+#include <moveit_msgs/CollisionObject.h>
+#include <moveit_msgs/PlanningScene.h>
+#include "geometric_shapes/shape_operations.h"
+#include "geometric_shapes/shapes.h"
+#include "geometric_shapes/mesh_operations.h"
+#include <moveit/planning_scene_interface/planning_scene_interface.h>
+#include <moveit/move_group_interface/move_group_interface.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include "std_msgs/Int32.h"
 
 using namespace std;
 // int to string converter
@@ -29,14 +38,12 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "onion_blocks_spawner");
     ros::NodeHandle nh; //("~");
     int i = 0 /*index the onions*/, j = 0 /*position reference for onions*/;
-    int onion_gen = 0;
+    int onion_gen = 0, total_onions = 4;
     double initial_pose_x, initial_pose_y, height_spawning, spawning_interval,
         conveyor_center_x, belt_width, wrench_duration, randpos, object_width;
-    ;
     bool spawn_multiple;
-    string good_onion_path, bad_onion_path, OnionCenter_path, Onion0_path,
-        good_xmlStr, bad_xmlStr, model_name;
-    int8_t color_index; // 0 is good, 1 is bad
+    string good_onion_path, bad_onion_path, good_xmlStr, bad_xmlStr, model_name;
+    int8_t color_index; // 0 is bad, 1 is good
     ifstream good_inXml, bad_inXml;
     stringstream good_strStream, bad_strStream;
     nh.getParam("/initial_pose_x", initial_pose_x);
@@ -48,7 +55,7 @@ int main(int argc, char **argv)
     nh.getParam("/spawn_multiple", spawn_multiple);
     nh.getParam("/object_width", object_width);
     // get file path of onions from parameter server
-    bool get_good_onion_path, get_bad_onion_path, get_OnionCenter_path, get_Onion0_path;
+    bool get_good_onion_path, get_bad_onion_path;
     get_good_onion_path = nh.getParam("/good_onion_path", good_onion_path);
     get_bad_onion_path = nh.getParam("/bad_onion_path", bad_onion_path);
 
@@ -103,11 +110,16 @@ int main(int argc, char **argv)
     std_msgs::Int8MultiArray current_onions_msg;
     current_onions_msg.data.clear();
 
+    moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
+    moveit::planning_interface::MoveGroupInterface group("right_arm");
+    std::vector<moveit_msgs::CollisionObject> collision_objects;
+    collision_objects.resize(total_onions);
+
     ros::Duration(1).sleep();
     while (ros::ok())
     {
 
-        while (i < 4)
+        while (i < total_onions)
         {
             string index_string = intToString(i);
             ++j;
@@ -137,9 +149,9 @@ int main(int argc, char **argv)
             {
                 cout << "Generating good onion";
                 color_index = 1;
-                model_name = "good_onion_" + index_string; // initialize model_name
+                model_name = "onion_" + index_string; // initialize model_name
                 spawn_model_srv_msg.request.model_name = model_name;
-                spawn_model_srv_msg.request.robot_namespace = "good_onion_" + index_string;
+                spawn_model_srv_msg.request.robot_namespace = "onion_" + index_string;
                 spawn_model_srv_msg.request.model_xml = good_xmlStr;
             }
 
@@ -147,11 +159,32 @@ int main(int argc, char **argv)
             {
                 cout << "Generating bad onion";
                 color_index = 0;
-                model_name = "bad_onion_" + index_string; // initialize model_name
+                model_name = "onion_" + index_string; // initialize model_name
                 spawn_model_srv_msg.request.model_name = model_name;
-                spawn_model_srv_msg.request.robot_namespace = "bad_onion_" + index_string;
+                spawn_model_srv_msg.request.robot_namespace = "onion_" + index_string;
                 spawn_model_srv_msg.request.model_xml = bad_xmlStr;
             }
+
+            collision_objects[i].id = model_name;
+            collision_objects[i].header.frame_id = "world";
+            /* Define a box to add to the world. */
+            shape_msgs::SolidPrimitive primitive;
+            primitive.type = primitive.BOX;
+            primitive.dimensions.resize(3);
+            primitive.dimensions[0] = 0.05;
+            primitive.dimensions[1] = 0.05;
+            primitive.dimensions[2] = 0.05;
+
+            /* A pose for the box (specified relative to frame_id) */
+            geometry_msgs::Pose box_pose;
+            box_pose.orientation.w = 1.0;
+            box_pose.position.x =  spawn_model_srv_msg.request.initial_pose.position.x;
+            box_pose.position.y = spawn_model_srv_msg.request.initial_pose.position.y;
+            box_pose.position.z = -0.09;
+
+            collision_objects[i].primitives.push_back(primitive);
+            collision_objects[i].primitive_poses.push_back(box_pose);
+            collision_objects[i].operation = collision_objects[i].ADD;
 
             // call spawn model service
             bool call_service = spawn_model_client.call(spawn_model_srv_msg);
@@ -182,6 +215,8 @@ int main(int argc, char **argv)
             // loop end, increase index by 1
             i++;
         }
+        planning_scene_interface.applyCollisionObjects(collision_objects);
+        ros::Duration(0.1).sleep();
         current_onions_publisher.publish(current_onions_msg);
         modelnames_publisher.publish(modelnames_msg);
         //ros::Duration(5).sleep();
