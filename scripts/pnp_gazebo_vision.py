@@ -17,216 +17,430 @@ from sawyer_irl_project.msg import OBlobs
 from gazebo_ros_link_attacher.srv import Attach, AttachRequest, AttachResponse
 import numpy as np
 import _thread
-# sys.path.append('/home/psuresh/catkin_ws/src/sanet_onionsorting/scripts')
-# from rgbd_imgpoint_to_tf import Camera
+import threading
+import message_filters
+from smach import *
+from smach_ros import *
+from smach_msgs.msg import *
+import copy
+
 # Global initializations
 pnp = PickAndPlace()
 done_onions = []
 flag = False
-nOnionLoc = 4
-nEEFLoc = 4
-nPredict = 3
-nlistIDStatus = 3
-nS = nOnionLoc*nEEFLoc*nPredict*nlistIDStatus
-nA = 7
-policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/expert_policy_pick.csv', delimiter=' ')
+total_onions = 4
+attach_srv = None
+detach_srv = None
 
-def sid2vals(s, nOnionLoc=4, nEEFLoc=4, nPredict=3, nlistIDStatus=3):
-    sid = s
-    onionloc = int(mod(sid, nOnionLoc))
-    sid = (sid - onionloc)/nOnionLoc
-    eefloc = int(mod(sid, nEEFLoc))
-    sid = (sid - eefloc)/nEEFLoc
-    predic = int(mod(sid, nPredict))
-    sid = (sid - predic)/nPredict
-    listidstatus = int(mod(sid, nlistIDStatus))
-    return [onionloc, eefloc, predic, listidstatus]
+class Get_info(State):
+    def __init__(self):
+        State.__init__(self, outcomes=['updated', 'not_updated', 'timed_out'],
+                    input_keys = ['x','y','z','color','counter'],
+                    output_keys = ['x','y','z','color','counter'])
+        self.x = []
+        self.y = []
+        self.z = []
+        self.color = []
+        # rospy.Subscriber("/object_location", OBlobs, self.callback_vision)
+        self.is_updated = False
+        self.callback_vision(rospy.wait_for_message("/object_location", OBlobs))
 
-
-def vals2sid(ol, eefl, pred, listst, nOnionLoc=4, nEEFLoc=4, nPredict=3, nlistIDStatus=3):
-    return(ol + nOnionLoc * (eefl + nEEFLoc * (pred + nPredict * listst)))
-
-
-def getState(onionName, predic):
-    global pnp
-    print("Getting state")
-    current_pose = pnp.group.get_current_pose().pose
-    if current_pose.position.x > 0.5 and current_pose.position.x < 0.9 and current_pose.position.y > -0.5 and current_pose.position.y < 0.5 and current_pose.position.z > 0 and current_pose.position.z < 0.2:
-        pnp.eefLoc = 0  # On Conveyor
-    elif current_pose.position.x > 0.4 and current_pose.position.x < 0.5 and current_pose.position.y > -0.1 and current_pose.position.y < 0.15 and current_pose.position.z > 0.44 and current_pose.position.z < 0.6:
-        pnp.eefLoc = 1  # In Front
-    elif current_pose.position.x > 0 and current_pose.position.x < 0.15 and current_pose.position.y > 0.5 and current_pose.position.y < 0.8:
-        pnp.eefLoc = 2  # In Bin
-    elif current_pose.position.x > 0.45 and current_pose.position.x < 0.9 and current_pose.position.y > -0.5 and current_pose.position.y < 0.5 and current_pose.position.z > 0.15 and current_pose.position.z < 0.5:
-        pnp.eefLoc = 3  # In the Hover plane
-    else:
-        print("Couldn't find valid eef state!")
-        print("EEF coordinates: ", current_pose)
-    rospy.wait_for_service('/gazebo/get_model_state')
-    try:
-        model_coordinates = rospy.ServiceProxy(
-            '/gazebo/get_model_state', GetModelState)
-        print("Onion name is: ", onionName)
-        onion_coordinates = model_coordinates(onionName, "").pose
-    except rospy.ServiceException, e:
-        print "Service call failed: %s" % e
-
-    if onion_coordinates.position.x > 0.5 and onion_coordinates.position.x < 0.9 and onion_coordinates.position.y > -0.6 and onion_coordinates.position.y < 0.3 and onion_coordinates.position.z > 0.8 and onion_coordinates.position.z < 0.9:
-        pnp.onionLoc =  0    # On Conveyor
-        print("OnionLoc is: On conveyor {0}".format(pnp.onionLoc))
-    elif onion_coordinates.position.x > 0.15 and onion_coordinates.position.x < 0.3 and onion_coordinates.position.z > 1 and onion_coordinates.position.z < 2:
-        pnp.onionLoc =  1    # In Front
-        print("OnionLoc is: In Front {0}".format(pnp.onionLoc))
-    elif onion_coordinates.position.x > 0 and onion_coordinates.position.x < 0.15 and onion_coordinates.position.y > 0.5 and onion_coordinates.position.y < 0.8:
-        pnp.onionLoc =  2    # In Bin
-        print("OnionLoc is: In Bin {0}".format(pnp.onionLoc))
-    elif onion_coordinates.position.x > 0.35 and onion_coordinates.position.x < 0.9 and onion_coordinates.position.z > 0.9 and onion_coordinates.position.z < 1.5:
-        pnp.onionLoc =  3    # In Hover Plane
-        print("OnionLoc is: In Hover plane {0}".format(pnp.onionLoc))
-    elif onion_coordinates.position.x > 0.5 and onion_coordinates.position.x < 0.9 and onion_coordinates.position.y > 0.3 and onion_coordinates.position.y < 0.6 and onion_coordinates.position.z > 0.8 and onion_coordinates.position.z < 0.9:
-        pnp.onionLoc =  0    # Placed on Conveyor   # we removed the placed on conv location
-        print("OnionLoc is: Placed on conveyor {0}".format(pnp.onionLoc))
-    else:
-        print("Couldn't find valid onion state!")
-        print("Onion coordinates: ", onion_coordinates)
-
-    pnp.prediction = predic
-    print("EEfloc is: ", pnp.eefLoc)
-    print("prediction is: ", predic)
-    if len(pnp.bad_onions) > 0:
-        pnp.listIDstatus = 1
-    elif len(pnp.bad_onions) == 0:
-        pnp.listIDstatus = 0
-    else:
-        pnp.listIDstatus = 2
-    print("List status is: ", pnp.listIDstatus)
-
-    return vals2sid(ol=pnp.onionLoc, eefl=pnp.eefLoc, pred=pnp.prediction, listst=pnp.listIDstatus)
-
-
-
-def callback_vision_poses(msg):
-    global pnp, policy
-    if len(msg.color) == 0:
-        print("No onions found by vision!")
-        return
-    total_onions = 4
-    max_index = len(msg.color)
-    # attach and detach service
-    attach_srv = rospy.ServiceProxy('/link_attacher_node/attach', Attach)
-    attach_srv.wait_for_service()
-    detach_srv = rospy.ServiceProxy('/link_attacher_node/detach', Attach)
-    detach_srv.wait_for_service()
-    pnp.req.model_name_1 = None
-    pnp.req.link_name_1 = "base_link"
-    pnp.req.model_name_2 = "sawyer"
-    pnp.req.link_name_2 = "right_l6"
-    pnp.target_location_x = msg.x[pnp.onion_index]
-    pnp.target_location_y = msg.y[pnp.onion_index]
-    pnp.target_location_z = msg.z[pnp.onion_index]
-    color = int(msg.color[pnp.onion_index])
-    # pnp.bad_onions = [i for i in range(pnp.onion_index, max_index) if (msg.color[i] == 0)]
-    # print("Bad onion indices are: ", pnp.bad_onions)
+    def callback_vision(self, msg):
+        # print '\nCallback vision\n'
+        while None in [msg.x,msg.y,msg.z,msg.color]:
+            rospy.sleep(0.1)
+        self.x = msg.x
+        self.y = msg.y
+        self.z = msg.z
+        self.color = msg.color
+        self.is_updated = True
     
-    for i in range(total_onions):
-        if len(done_onions) == len(msg.color):
-            return
-        if i in done_onions:
-            pass
+    def execute(self, userdata):
+        # rospy.loginfo('Executing state: Get_info')
+        if userdata.counter >= 500:
+            userdata.counter = 0
+            return 'timed_out'
+
+        if self.is_updated == True:
+            userdata.x = self.x
+            userdata.y = self.y
+            userdata.z = self.z
+            userdata.color = self.color
+            userdata.counter = 0
+            rospy.sleep(0.05)
+            return 'updated'
         else:
-            onion_guess = "onion_" + str(i)
+            userdata.counter += 1
+            return 'not_updated'
 
-            rospy.wait_for_service('/gazebo/get_model_state')
-            try:
-                model_coordinates = rospy.ServiceProxy(
-                    '/gazebo/get_model_state', GetModelState)
-                print 'Onion name guessed: ', onion_guess
-                onion_coordinates = model_coordinates(onion_guess, "").pose
-            except rospy.ServiceException, e:
-                print "Service call failed: %s" % e
+class Claim(State):
+    def __init__(self):
+        State.__init__(self, outcomes=['updated', 'not_updated', 'timed_out','not_found', 'completed'],
+                    input_keys = ['x','y','z','color','counter'],
+                    output_keys = ['x','y','z','color','counter'])
+        self.is_updated = False
 
-            if pnp.target_location_y - 0.05 <= onion_coordinates.position.y <= pnp.target_location_y + 0.05:
-                if pnp.target_location_x - 0.05 <= onion_coordinates.position.x <= pnp.target_location_x + 0.05:
-                    pnp.req.model_name_1 = onion_guess
-                    done_onions.append(i)
-                    break
+    def execute(self, userdata):        
+        global pnp, total_onions, attach_srv, detach_srv, done_onions
+        while len(userdata.x) == 0:
+            rospy.sleep(0.1)
+        # rospy.loginfo('Executing state: Claim')
+        if userdata.counter >= 50:
+            userdata.counter = 0
+            return 'timed_out'
+        if len(userdata.color) == 0:
+            return 'not_found'
+        max_index = len(userdata.color)
+        # attach and detach service
+        attach_srv = rospy.ServiceProxy('/link_attacher_node/attach', Attach)
+        attach_srv.wait_for_service()
+        detach_srv = rospy.ServiceProxy('/link_attacher_node/detach', Attach)
+        detach_srv.wait_for_service()
+        pnp.req.model_name_1 = None
+        pnp.req.link_name_1 = "base_link"
+        pnp.req.model_name_2 = "sawyer"
+        pnp.req.link_name_2 = "right_l6"
+        pnp.target_location_x = userdata.x[pnp.onion_index]
+        pnp.target_location_y = userdata.y[pnp.onion_index]
+        pnp.target_location_z = userdata.z[pnp.onion_index]
+        # pnp.bad_onions = [i for i in range(pnp.onion_index, max_index) if (oi.color[i] == 0)]
+        # print("Bad onion indices are: ", pnp.bad_onions)
+        
+        for i in range(total_onions):
+            if len(done_onions) == total_onions:
+                return 'completed'
+            if i in done_onions:
+                pass
+            else:
+                onion_guess = "onion_" + str(i)
 
-    if pnp.req.model_name_1 == None:
-        return
-    else:
-        print "Onion name set as: ", pnp.req.model_name_1
-    pnp.goto_home(tolerance=0.1, goal_tol=0.1, orientation_tol=0.1)
-    # s = getState(pnp.req.model_name_1, 2)   # Sending unknown prediction until viewed
-    # a = 3   # Pick
-    # policy[s] = a
-    status = pnp.goAndPick()
-    rospy.sleep(0.01)
-    pnp.scene.remove_world_object(onion_guess)
-    pnp.staticDip()
-    # if(status):
-    attach_srv.call(pnp.req)
-    rospy.sleep(0.1)
-    pnp.liftgripper()
-    # s = getState(pnp.req.model_name_1, 2)   # Sending unknown prediction until viewed
-    # a = 0   # Inspect after picking
-    # policy[s] = a
-    rospy.sleep(0.01)
-    pnp.view(0.3)
-    rospy.sleep(0.01)
-    pnp.rotategripper(0.3)
-    rospy.sleep(0.01)
-    if color:
-        # s = getState(pnp.req.model_name_1, color)
-        # a = 1   # Place on conveyor
-        # policy[s] = a
-        pnp.placeOnConveyor()
-    else:
-        # s = getState(pnp.req.model_name_1, color)
-        # a = 2   # Place in bin
-        # policy[s] = a
-        pnp.goto_bin()
-    rospy.sleep(0.01)
-    detach_srv.call(pnp.req)
-    # s = getState(pnp.req.model_name_1, 2)   # Sending unknown prediction until viewed again
-    # a = 4   # Claim new onion
-    # policy[s] = a
-    if pnp.onion_index < len(msg.x) - 1:
-        pnp.onion_index = pnp.onion_index + 1
-    else:
-        print("No more onions to sort!!")
-        # rospy.signal_shutdown("Shutting down node, work is done")
-        pass
-    # np.savetxt('modified_policy'+str(pnp.onion_index)+'.csv',policy, delimiter = ',')
-    return
+                rospy.wait_for_service('/gazebo/get_model_state')
+                try:
+                    model_coordinates = rospy.ServiceProxy(
+                        '/gazebo/get_model_state', GetModelState)
+                    # print 'Onion name guessed: ', onion_guess
+                    onion_coordinates = model_coordinates(onion_guess, "").pose
+                except rospy.ServiceException, e:
+                    print "Service call failed: %s" % e
 
-##################################### Now to Main ##################################################
+                if pnp.target_location_y - 0.05 <= onion_coordinates.position.y <= pnp.target_location_y + 0.05:
+                    if pnp.target_location_x - 0.05 <= onion_coordinates.position.x <= pnp.target_location_x + 0.05:
+                        pnp.req.model_name_1 = onion_guess
+                        done_onions.append(i)
+                        self.is_updated = True
+                        break
+
+        if self.is_updated == False:
+            userdata.counter += 1
+            return 'not_updated'
+        else:
+            print "Onion name set as: ", pnp.req.model_name_1
+            userdata.counter = 0
+            rospy.sleep(0.05)
+            return 'updated'
+
+class Approach(State):
+    def __init__(self):
+        State.__init__(self, outcomes=['success', 'failed', 'timed_out','not_found'],
+                    input_keys = ['x','y','z','color','counter'],
+                    output_keys = ['x','y','z','color','counter'])
+
+    def execute(self, userdata): 
+        global pnp, total_onions
+        # rospy.loginfo('Executing state: Approach')
+        if userdata.counter >= 50:
+            userdata.counter = 0
+            return 'timed_out'
+
+        if userdata.x[pnp.onion_index] != pnp.target_location_x or \
+            userdata.y[pnp.onion_index] != pnp.target_location_y or \
+                userdata.z[pnp.onion_index] != pnp.target_location_z:
+            home = pnp.goto_home(tolerance=0.1, goal_tol=0.1, orientation_tol=0.1)
+            rospy.sleep(0.05)
+            return 'not_found'
+        else:
+            # s = getState(pnp.req.model_name_1, 2)   # Sending unknown prediction until viewed
+            # a = 3   # Pick
+            # policy[s] = a
+            home = pnp.goto_home(tolerance=0.1, goal_tol=0.1, orientation_tol=0.1)
+            rospy.sleep(0.05)
+            if home:
+                status = pnp.goAndPick()
+                rospy.sleep(0.05)
+                if status:
+                    userdata.counter = 0
+                    return 'success'
+                else:
+                    userdata.counter += 1
+                    return 'failed'
+            else:
+                userdata.counter += 1
+                return 'failed'
+            # grasps = pnp.make_grasps()   # generate a list of grasps
+            # result = False
+            # n_attempts = 0
+            # robot = pnp.robot
+            # right_arm = pnp.group
+            # repeat until will succeed
+            # while result == False:
+            #     result = pnp.group.pick(pnp.req.model_name_1, grasps)      
+            #     n_attempts += 1
+            #     print "Attempts: ", n_attempts
+            #     rospy.sleep(0.2)
+
+class Pick(State):
+    def __init__(self):
+        State.__init__(self, outcomes=['success', 'failed', 'timed_out','not_found'],
+                    input_keys = ['x','y','z','color','counter'],
+                    output_keys = ['x','y','z','color','counter'])
+
+    def execute(self, userdata): 
+        global pnp, total_onions, attach_srv, detach_srv
+        # rospy.loginfo('Executing state: Pick')
+        if userdata.counter >= 50:
+            userdata.counter = 0
+            return 'timed_out'
+
+        if userdata.x[pnp.onion_index] != pnp.target_location_x or \
+            userdata.y[pnp.onion_index] != pnp.target_location_y or \
+                userdata.z[pnp.onion_index] != pnp.target_location_z:
+            return 'not_found'
+        else:
+            dip = pnp.staticDip()
+            rospy.sleep(0.05)
+            if dip:
+                userdata.counter = 0
+                return 'success'
+            else:
+                userdata.counter += 1
+                return 'failed'
+
+class Attach_object(State):
+    def __init__(self):
+        State.__init__(self, outcomes=['success', 'failed', 'timed_out','not_found'],
+                    input_keys = ['x','y','z','color','counter'],
+                    output_keys = ['x','y','z','color','counter'])
+
+    def execute(self, userdata): 
+        global pnp, total_onions, attach_srv, detach_srv
+        # rospy.loginfo('Executing state: Pick')
+        if userdata.counter >= 50:
+            userdata.counter = 0
+            return 'timed_out'
+
+        if userdata.x[pnp.onion_index] != pnp.target_location_x or \
+            userdata.y[pnp.onion_index] != pnp.target_location_y or \
+                userdata.z[pnp.onion_index] != pnp.target_location_z:
+            return 'not_found'
+        else:           
+            at = attach_srv.call(pnp.req)
+            rospy.sleep(0.1)
+            if at:
+                userdata.counter = 0
+                return 'success'
+            else:
+                userdata.counter += 1
+                return 'failed'
+
+class Liftup(State):
+    def __init__(self):
+        State.__init__(self, outcomes=['success', 'failed', 'timed_out'],
+                        input_keys = ['counter'],
+                        output_keys = ['counter'])
+
+    def execute(self, userdata): 
+        global pnp, total_onions, attach_srv, detach_srv
+        # rospy.loginfo('Executing state: Pick')
+        if userdata.counter >= 50:
+            userdata.counter = 0
+            return 'timed_out'
+        else:
+            lift = pnp.liftgripper()
+            rospy.sleep(0.05)
+            if lift:
+                userdata.counter = 0
+                return 'success'
+            else:
+                detach_srv.call(pnp.req)
+                userdata.counter += 1
+                return 'failed'
+
+class View(State):
+    def __init__(self):
+        State.__init__(self, outcomes=['success', 'failed', 'timed_out'],
+                        input_keys = ['counter'],
+                        output_keys = ['counter'])
+
+    def execute(self, userdata): 
+        global pnp, total_onions, attach_srv, detach_srv
+        # rospy.loginfo('Executing state: View')
+        if userdata.counter >= 50:
+            userdata.counter = 0
+            return 'timed_out'
+
+        view = pnp.view(0.3)
+        rospy.sleep(0.01)
+        if view:
+            rotate = pnp.rotategripper(0.3)
+            rospy.sleep(0.01)
+            if rotate:
+                userdata.counter = 0
+                return 'success'
+            else:
+                userdata.counter += 1
+                return 'failed'
+        else:
+            userdata.counter += 1
+            return 'failed'
+
+class Place(State):
+    def __init__(self):
+        State.__init__(self, outcomes=['success', 'failed', 'timed_out'],
+                        input_keys = ['color', 'counter'],
+                        output_keys = ['color', 'counter'])
+
+    def execute(self, userdata): 
+        global pnp
+        # rospy.loginfo('Executing state: Place')
+        if userdata.counter >= 50:
+            userdata.counter = 0
+            return 'timed_out'
+
+        color = int(userdata.color[pnp.onion_index])
+        if color:
+            # s = getState(pnp.req.model_name_1, color)
+            # a = 1   # Place on conveyor
+            # policy[s] = a
+            place = pnp.placeOnConveyor()
+        else:
+            # s = getState(pnp.req.model_name_1, color)
+            # a = 2   # Place in bin
+            # policy[s] = a
+            place = pnp.goto_bin()
+        rospy.sleep(0.01)
+        if place:
+            userdata.counter = 0
+            return 'success'
+        else:
+            userdata.counter += 1
+            return 'failed'
+
+class Detach_object(State):
+    def __init__(self):
+        State.__init__(self, outcomes=['success', 'failed', 'timed_out'],
+                        input_keys = ['counter'],
+                        output_keys = ['counter'])
+
+    def execute(self, userdata): 
+        global pnp, detach_srv
+        # rospy.loginfo('Executing state: Place')
+        if userdata.counter >= 50:
+            userdata.counter = 0
+            return 'timed_out'
+        else:
+            detach = detach_srv.call(pnp.req)
+            if detach:
+                userdata.counter = 0
+                # s = getState(pnp.req.model_name_1, 2)   # Sending unknown prediction until viewed again
+                # a = 4   # Claim new onion
+                # policy[s] = a
+                if pnp.onion_index < total_onions - 1:
+                    pnp.onion_index = pnp.onion_index + 1
+                return 'success'
+            else:
+                userdata.counter += 1
+                return 'failed'
 
 def main():
-    print("I'm in main!")
+    # print("I'm in main!")
     try:
         if len(sys.argv) < 2:
             sortmethod = "pick"   # Default sort method
         else:
             sortmethod = sys.argv[1]
+        # Create a SMACH state machine
+        sm = StateMachine(outcomes=['TIMED_OUT', 'SUCCEEDED'])
+        sm.userdata.sm_x = []
+        sm.userdata.sm_y = []
+        sm.userdata.sm_z = []
+        sm.userdata.sm_color = []
+        sm.userdata.sm_counter = 0
+        
+        # Open the container
+        with sm:
+            # Add states to the container
+            StateMachine.add('GETINFO', Get_info(), 
+                            transitions={'updated':'CLAIM', 
+                                        'not_updated':'GETINFO',
+                                        'timed_out': 'TIMED_OUT'},
+                            remapping={'x':'sm_x', 'y': 'sm_y', 'z': 'sm_z',
+                                'color':'sm_color','counter':'sm_counter'})
+            StateMachine.add('CLAIM', Claim(), 
+                            transitions={'updated':'APPROACH', 
+                                        'not_updated':'CLAIM',
+                                        'timed_out': 'TIMED_OUT',
+                                        'not_found': 'GETINFO',
+                                        'completed': 'SUCCEEDED'},
+                            remapping={'x':'sm_x', 'y': 'sm_y', 'z': 'sm_z',
+                                'color':'sm_color','counter':'sm_counter'})
+            StateMachine.add('APPROACH', Approach(), 
+                            transitions={'success':'PICK', 
+                                        'failed':'APPROACH',
+                                        'timed_out': 'TIMED_OUT',
+                                        'not_found': 'GETINFO'},
+                            remapping={'x':'sm_x', 'y': 'sm_y', 'z': 'sm_z',
+                                'color':'sm_color','counter':'sm_counter'})
+            StateMachine.add('PICK', Pick(), 
+                            transitions={'success':'PICK_SUB', 
+                                        'failed':'PICK',
+                                        'timed_out': 'TIMED_OUT',
+                                        'not_found': 'GETINFO'},
+                            remapping={'x':'sm_x', 'y': 'sm_y', 'z': 'sm_z',
+                                'color':'sm_color','counter':'sm_counter'})
+            ###################### Sub states - Pick #######################                    
+            sm_sub = StateMachine(outcomes=['TIMED_OUT', 'SUCCEEDED'])
+            with sm_sub:
+                StateMachine.add('ATTACH', Attach_object(),
+                            transitions={'success':'LIFTUP', 
+                                        'failed':'ATTACH',
+                                        'timed_out': 'TIMED_OUT',
+                                        'not_found': 'TIMED_OUT'},
+                            remapping={'x':'sm_x', 'y': 'sm_y', 'z': 'sm_z',
+                                'color':'sm_color','counter':'sm_counter'})
+                StateMachine.add('LIFTUP', Liftup(),
+                            transitions={'success':'SUCCEEDED', 
+                                        'failed':'LIFTUP',
+                                        'timed_out': 'TIMED_OUT'},
+                            remapping={'counter':'sm_counter'})
 
-        # if(sortmethod == "pick"):
-        #     print("Pick method selected")
-        #     rospy.Subscriber("current_onions_blocks",
-        #                      Int8MultiArray, callback_onion_pick)
-        # elif(sortmethod == "roll"):
-        #     print("Roll method selected")
-        #     rospy.Subscriber("current_onions_blocks",
-        #                      Int8MultiArray, callback_onion_roll)
-        while not rospy.is_shutdown():
-            # rospy.Subscriber("onions_blocks_poses", onions_blocks_poses, callback_poses)
-            # _thread.start_new_thread( system, ('rosrun sanet_onionsorting yolo_service.py gazebo',))
-            # _thread.start_new_thread( system, ('rosrun sanet_onionsorting rgbd_imgpoint_to_tf.py',))
-            rospy.Subscriber("/object_location", OBlobs, callback_vision_poses)
-        #########################################################################################
-        # callback_onion_pick(rospy.wait_for_message("current_onions_blocks", Int8MultiArray))  #
-        # If you're using this method, it will only listen once until it hears something,      #
-        # this may cause trouble later, watch out!                                            #
-        #######################################################################################
+            StateMachine.add('PICK_SUB', sm_sub,
+                            transitions={'SUCCEEDED':'VIEW',
+                                        'TIMED_OUT': 'GETINFO'})
+            ##################################################################                            
+            StateMachine.add('VIEW', View(), 
+                            transitions={'success':'PLACE', 
+                                        'failed':'VIEW',
+                                        'timed_out': 'TIMED_OUT'},
+                            remapping={'counter':'sm_counter'})
+            StateMachine.add('PLACE', Place(), 
+                            transitions={'success':'PLACE_SUB', 
+                                        'failed':'PLACE',
+                                        'timed_out': 'TIMED_OUT'},
+                            remapping={'color': 'sm_color','counter':'sm_counter'})
+            ###################### Sub states - Place #######################                    
+            sm_sub1 = StateMachine(outcomes=['TIMED_OUT', 'SUCCEEDED'])
+            with sm_sub:
+                StateMachine.add('DETACH', Detach_object(),
+                            transitions={'success':'SUCCEEDED', 
+                                        'failed':'DETACH',
+                                        'timed_out': 'TIMED_OUT'})
+            StateMachine.add('PLACE_SUB', sm_sub1,
+                            transitions={'SUCCEEDED':'GETINFO',
+                                        'TIMED_OUT': 'TIMED_OUT'})
+            ##################################################################  
+
+        # Execute SMACH plan
+        outcome = sm.execute()
 
     except rospy.ROSInterruptException:
         return
@@ -236,7 +450,7 @@ def main():
 
 
 if __name__ == '__main__':
-    print("Calling Main!")
+    # print("Calling Main!")
     try:
         main()
     except rospy.ROSInterruptException:

@@ -12,7 +12,7 @@
   <param name="ObjectPoseZ_RANGE_LOWER_LIMIT" value="0.78" type="double"/>
   <param name="initial_pose_y_to_RANGE_LIMIT" value="-0.05" type="double"/>
   <param name="initial_pose_x" value="0.9" type="double"/>	<!-- x = 0.9 -->
-  <param name="initial_pose_y" value="0" type="double"/>	<!-- y = -0.59 -->
+  <param name="initial_pose_y" value="-0.1" type="double"/>	<!-- y = -0.59 -->
   <param name="conveyor_center_x" value="0.75" type="double"/>
   <!-- <param name="belt_width" value="0.38" type="double"/> -->
   <param name="belt_width" value="0.3" type="double"/>
@@ -34,7 +34,7 @@
   <node name="onion_blocks_spawner" pkg="sawyer_irl_project" type="onion_blocks_spawner" output="screen">
   </node>
 
-  <node name="onion_blocks_poses_publisher" pkg="sawyer_irl_project" type="onion_blocks_poses_publisher" output="screen" />
+  <!--node name="onion_blocks_poses_publisher" pkg="sawyer_irl_project" type="onion_blocks_poses_publisher" output="screen" /-->
 
   <include file="$(find sawyer_moveit_config)/launch/sawyer_moveit.launch">
     <arg name="electric_gripper" value="$(arg electric_gripper)"/>

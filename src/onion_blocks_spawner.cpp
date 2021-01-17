@@ -126,12 +126,12 @@ int main(int argc, char **argv)
             if (i % 2 == 0)
             {
                 spawn_model_srv_msg.request.initial_pose.position.x = initial_pose_x - j * 0.05; //width of sphere is 0.02, well within 0.05
-                spawn_model_srv_msg.request.initial_pose.position.y = initial_pose_y + j * 0.05; //width of sphere is 0.02, well within 0.05
+                spawn_model_srv_msg.request.initial_pose.position.y = initial_pose_y + j * 0.1; //width of sphere is 0.02, well within 0.05
             }
             else
             {
                 spawn_model_srv_msg.request.initial_pose.position.x = initial_pose_x - j * 0.05;
-                spawn_model_srv_msg.request.initial_pose.position.y = initial_pose_y;
+                spawn_model_srv_msg.request.initial_pose.position.y = initial_pose_y - j * 0.1;
             }
             ROS_INFO_STREAM("x position of new onion: "
                             << spawn_model_srv_msg.request.initial_pose.position.x);
@@ -171,9 +171,9 @@ int main(int argc, char **argv)
             shape_msgs::SolidPrimitive primitive;
             primitive.type = primitive.BOX;
             primitive.dimensions.resize(3);
-            primitive.dimensions[0] = 0.05;
-            primitive.dimensions[1] = 0.05;
-            primitive.dimensions[2] = 0.05;
+            primitive.dimensions[0] = 0.052;
+            primitive.dimensions[1] = 0.052;
+            primitive.dimensions[2] = 0.052;
 
             /* A pose for the box (specified relative to frame_id) */
             geometry_msgs::Pose box_pose;

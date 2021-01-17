@@ -37,7 +37,8 @@
     </inertial>
   </link>
 
-  <!-- Box height is 0.7 m. top center of box w.r.t base of sawyer is at (0.1, 0.6, -0.2) in moveit -->
+  <!-- Box height is 0.7 m. top center of box w.r.t base of sawyer is at (0.1, 0.6, -0.2) in moveit.
+  So in order to get the box to floor height, move it down by -(0.2+0.7) -->
 
   <gazebo reference="onion_bin">
     <material>Gazebo/Green</material>

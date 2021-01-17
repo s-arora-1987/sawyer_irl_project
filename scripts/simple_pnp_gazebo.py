@@ -206,7 +206,7 @@ def main():
                          onions_blocks_poses, callback_poses)
         #########################################################################################
         # callback_onion_pick(rospy.wait_for_message("current_onions_blocks", Int8MultiArray))  #
-        # If you're using this method, it will only listen once until it hears something,      #
+        # If you're using this method, it will onpnp.req.model_name_1 = Nonely listen once until it hears something,      #
         # this may cause trouble later, watch out!                                            #
         #######################################################################################
 
