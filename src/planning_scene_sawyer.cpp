@@ -33,7 +33,7 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   shape_msgs::Mesh mesh;
   shapes::ShapeMsg mesh_msg;  
   shapes::constructMsgFromShape(m, mesh_msg);
-  mesh = boost::get<shape_msgs::Mesh>(mesh_msg);RRTstarkConfigDefault
+  mesh = boost::get<shape_msgs::Mesh>(mesh_msg);
   collision_objects[0].mesh_poses[0].position.y = -0.75;
   collision_objects[0].mesh_poses[0].position.z = -0.9;
   collision_objects[0].mesh_poses[0].orientation.w= 1.0; 
