@@ -79,12 +79,12 @@ void modelStatesCallback(const gazebo_msgs::ModelStates &current_model_states /*
             // get index of ith onions
             string indexed_model_name;
             if (g_current_onions_blocks[i] == 1)
-            { //If color variable is 0, good onion else bad
-                indexed_model_name = "good_onion_" + intToString(i);
+            { //If color variable is 1, good onion else bad
+                indexed_model_name = "onion_" + intToString(i);
             }
             else
             {
-                indexed_model_name = "bad_onion_" + intToString(i);
+                indexed_model_name = "onion_" + intToString(i);
             }
             int index = -1;
             int model_quantity = current_model_states.name.size(); // number of models measured
@@ -128,7 +128,7 @@ void modelStatesCallback(const gazebo_msgs::ModelStates &current_model_states /*
                             }
                             //hard code, or could prompt, or could have command-line arg here:
                             model_state_srv_msg.request.model_state.model_name = indexed_model_name;
-                            model_state_srv_msg.request.model_state.pose.position.x = initial_pose_x;
+                            model_state_srv_msg.request.model_state.pose.position.x = initial_pose_x - 0.1;
                             model_state_srv_msg.request.model_state.pose.position.y = initial_pose_y - i * 0.009; //Just creating a small difference b/w their positions
                             model_state_srv_msg.request.model_state.pose.position.z = height_spawning;
                             setModelState.call(model_state_srv_msg);
@@ -146,10 +146,7 @@ void modelStatesCallback(const gazebo_msgs::ModelStates &current_model_states /*
                 }
                 if (onions_poses_completed)
                 {
-                    // only pass data to globals when they are completed
-                    g_x.resize(g_onions_quantity);
-                    g_y.resize(g_onions_quantity);
-                    g_z.resize(g_onions_quantity);
+                    // only pass data to globals when they are bad
                     g_x = onions_x;
                     g_y = onions_y;
                     g_z = onions_z;
@@ -191,7 +188,7 @@ int main(int argc, char **argv)
         {
             // only publish when onions positions are updated
             // no need to publish repeated data
-            g_onions_poses_updated = false; // set flag to false
+            g_onions_poses_updated = false; // set flag to falsbade
             // there is tiny possibility that g_x is not in the length of g_onions_quantity
             int local_onions_quantity = g_x.size(); // so get length of g_x
             current_poses_msg.x.resize(local_onions_quantity);

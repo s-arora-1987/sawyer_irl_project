@@ -16,9 +16,8 @@ from gazebo_ros_link_attacher.srv import Attach, AttachRequest, AttachResponse
 import numpy as np
 
 ''' Picked/AtHome - means Sawyer is in hover plane at home position
-    Placed - means placed back on conveyor after inspecting and finding status as good
     onionLoc = {0: 'OnConveyor', 1: 'InFront',
-        2: 'InBin', 3: 'Picked/AtHome', 4: 'Placed'}
+        2: 'InBin', 3: 'Picked/AtHome'}
     eefLoc = {0: 'OnConveyor', 1: 'InFront', 2: 'InBin', 3: 'Picked/AtHome'}
     predictions = {0: 'Bad', 1: 'Good', 2: 'Unknown'}
     listIDstatus = {0: 'Empty', 1: 'Not Empty', 2: 'Unavailable'}
@@ -27,13 +26,14 @@ import numpy as np
 
 # Global initializations
 flag = False
+good_onion = False
 pnp = PickAndPlace()
 idx = -1
 policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/learned_policy.csv', delimiter=' ')
 # policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/expert_policy.csv', delimiter=' ')
 # policy = np.genfromtxt('/home/psuresh/catkin_ws/src/sawyer_irl_project/scripts/test_expert_policy.csv', delimiter=' ')
 
-def sid2vals(s, nOnionLoc=5, nEEFLoc=4, nPredict=3, nlistIDStatus=3):
+def sid2vals(s, nOnionLoc=4, nEEFLoc=4, nPredict=3, nlistIDStatus=3):
     sid = s
     onionloc = int(mod(sid, nOnionLoc))
     sid = (sid - onionloc)/nOnionLoc
@@ -86,7 +86,7 @@ def getState(onionName, predic):
         pnp.onionLoc =  3    # In Hover Plane
         print("OnionLoc is: In Hover plane {0}".format(pnp.onionLoc))
     elif onion_coordinates.position.x > 0.5 and onion_coordinates.position.x < 0.9 and onion_coordinates.position.y > 0.3 and onion_coordinates.position.y < 0.6 and onion_coordinates.position.z > 0.8 and onion_coordinates.position.z < 0.9:
-        pnp.onionLoc =  4    # Placed on Conveyor
+        pnp.onionLoc =  0    # Placed on Conveyor   # we removed the placed on conv location
         print("OnionLoc is: Placed on conveyor {0}".format(pnp.onionLoc))
     else:
         print("Couldn't find valid onion state!")
@@ -148,7 +148,7 @@ def executePolicyAct(action, onionName, attach_srv, detach_srv, max_index):
             pnp.onion_index = -1
             pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
             print("Reached the end of onion list")
-            sys.exit(0)
+            rospy.signal_shutdown("Shutting down node, work is done")
         else:
             pnp.onion_index = pnp.onion_index + 1
             print("Updated onion index is:", pnp.onion_index)
@@ -169,7 +169,7 @@ def executePolicyAct(action, onionName, attach_srv, detach_srv, max_index):
             pnp.onion_index = -1
             pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
             print("Reached the end of onion list")
-            sys.exit(0)
+            rospy.signal_shutdown("Shutting down node, work is done")
         else:
             idx += 1
             pnp.onion_index = pnp.bad_onions[idx]
@@ -198,11 +198,11 @@ def callback_poses(onions_poses_msg):
 
 
 def callback_exec_policy(color_indices_msg):
-    global pnp, policy
+    global pnp, policy, good_onion
     max_index = len(color_indices_msg.data)
     pnp.bad_onions = []
-    if (color_indices_msg.data[pnp.onion_index] == 0):
-        pnp.req.model_name_1 = "bad_onion_" + str(pnp.onion_index)
+    if (color_indices_msg.data[pnp.onion_index] == 1):
+        pnp.req.model_name_1 = "onion_" + str(pnp.onion_index)
         print "Onion name set in IF as: ", pnp.req.model_name_1
         if(pnp.onion_index is max_index):
             pnp.onion_index = -1
@@ -211,7 +211,7 @@ def callback_exec_policy(color_indices_msg):
         if pnp.onion_index not in pnp.bad_onions:
             pnp.onion_index += 1
             return
-        pnp.req.model_name_1 = "good_onion_" + str(pnp.onion_index)
+        pnp.req.model_name_1 = "onion_" + str(pnp.onion_index)
         print "Onion name set in ELSE as: ", pnp.req.model_name_1
 
     # attach and detach service
@@ -242,7 +242,7 @@ def callback_exec_policy(color_indices_msg):
                          attach_srv, detach_srv, max_index)
     else:
         print("Finished considering all onions. Stopping node!")
-        sys.exit(0)
+        rospy.signal_shutdown("Shutting down node, work is done")
 
 def main():
     global pnp

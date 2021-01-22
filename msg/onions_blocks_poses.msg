@@ -1,4 +1,4 @@
-# message type to describe 3-D position of the cylinder blocks
+# message type to describe 3-D position of the onion blocks
 # variable length array, length decided by topic /current_onion_blocks
 # to be published as a topic
 

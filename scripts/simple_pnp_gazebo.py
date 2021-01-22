@@ -17,12 +17,13 @@ from gazebo_ros_link_attacher.srv import Attach, AttachRequest, AttachResponse
 # Global initializations
 pnp = PickAndPlace()
 flag = False
+good_onion = False
 
 
 def callback_poses(onions_poses_msg):
-    global pnp
+    global pnp, good_onion
     onion_index = pnp.onion_index
-    if "good" in pnp.req.model_name_1:
+    if good_onion:
         # print("I'm waiting for a bad onion!")
         return
     if(onion_index == -1):
@@ -43,10 +44,11 @@ def callback_poses(onions_poses_msg):
 
 
 def callback_onion_pick(color_indices_msg):
-    global flag, pnp
+    global flag, pnp, good_onion
     max_index = len(color_indices_msg.data)
     if (color_indices_msg.data[pnp.onion_index] == 1):
-        pnp.req.model_name_1 = "good_onion_" + str(pnp.onion_index)
+        good_onion = True
+        pnp.req.model_name_1 = "onion_" + str(pnp.onion_index)
         print "Onion name set in IF as: ", pnp.req.model_name_1
         if(pnp.onion_index is not max_index - 1):
             pnp.onion_index = pnp.onion_index + 1
@@ -55,7 +57,8 @@ def callback_onion_pick(color_indices_msg):
             rospy.signal_shutdown("Shutting down node, work is done")
         return
     else:
-        pnp.req.model_name_1 = "bad_onion_" + str(pnp.onion_index)
+        good_onion = False
+        pnp.req.model_name_1 = "onion_" + str(pnp.onion_index)
         print "Onion name set in ELSE as: ", pnp.req.model_name_1
 
     # attach and detach service
@@ -95,8 +98,10 @@ def callback_onion_pick(color_indices_msg):
             rospy.sleep(0.01)
             pnp.rotategripper(0.3)
             rospy.sleep(0.01)
-            # pnp.goto_bin()
-            pnp.placeOnConveyor()
+            if (color_indices_msg.data[pnp.onion_index] == 1):
+                pnp.placeOnConveyor()
+            else:
+                pnp.goto_bin()
             rospy.sleep(0.01)
             detach_srv.call(pnp.req)
             pnp.num_onions = pnp.num_onions - 1
@@ -116,11 +121,12 @@ def callback_onion_pick(color_indices_msg):
 
 
 def callback_onion_roll(color_indices_msg):
-    global flag, pnp
+    global flag, pnp, good_onion
     max_index = len(color_indices_msg.data)
 
     if (color_indices_msg.data[pnp.onion_index] == 1):
-        pnp.req.model_name_1 = "good_onion_" + str(pnp.onion_index)
+        good_onion = True
+        pnp.req.model_name_1 = "onion_" + str(pnp.onion_index)
         print "Onion name set in IF as: ", pnp.req.model_name_1
         if(pnp.onion_index is not max_index - 1):
             pnp.onion_index = pnp.onion_index + 1
@@ -129,7 +135,8 @@ def callback_onion_roll(color_indices_msg):
             rospy.signal_shutdown("Shutting down node, work is done")
         return
     else:
-        pnp.req.model_name_1 = "bad_onion_" + str(pnp.onion_index)
+        good_onion = False
+        pnp.req.model_name_1 = "onion_" + str(pnp.onion_index)
         print "Onion name set in ELSE as: ", pnp.req.model_name_1
 
     # attach and detach service
@@ -199,7 +206,7 @@ def main():
                          onions_blocks_poses, callback_poses)
         #########################################################################################
         # callback_onion_pick(rospy.wait_for_message("current_onions_blocks", Int8MultiArray))  #
-        # If you're using this method, it will only listen once until it hears something,      #
+        # If you're using this method, it will onpnp.req.model_name_1 = Nonely listen once until it hears something,      #
         # this may cause trouble later, watch out!                                            #
         #######################################################################################
 

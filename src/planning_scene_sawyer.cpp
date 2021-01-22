@@ -16,44 +16,12 @@
 
 using namespace Eigen;
 
-//Trying to add dynamic collision objects as they are spawned. Yet to be cleaned up./////////////
-
-/*
- void callbackAddObject(const std_msgs::Int32::ConstPtr& msg){
-
-   std::string out_string;
-   std::stringstream ss;
-   ss << i;
-   out_string = ss.str();
-
-   shapes::Mesh* m = shapes::createMeshFromResource("file:///home/saurabharora/catkin_ws/src/sawyer_irl_project/meshes/custom_onion.STL"); 
-   shape_msgs::Mesh mesh;
-   shapes::ShapeMsg mesh_msg;  
-   shapes::constructMsgFromShape(m, mesh_msg);
-   mesh = boost::get<shape_msgs::Mesh>(mesh_msg);
- 
-   moveit_msgs::AttachedCollisionObject attached_object;
-   attached_object.link_name = modelname;
-   attached_object.object.header.frame_id = "world";
-   attached_object.object.id = "onion"+out_string;
-
-   moveit_msgs::PlanningScene planning_scene;
-   planning_scene.world.collision_objects.push_back(attached_object.object);
-   planning_scene.is_diff = true;
-   planning_scene_diff_publisher.publish(planning_scene);
- }
-*/
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& planning_scene_interface)
 {
   // Creating Environment
   // ^^^^^^^^^^^^^^^^^^^^
   // Create vector to hold num_objects number of collision objects.
-  int num_objects = 5;
+  int num_objects = 4;
   std::vector<moveit_msgs::CollisionObject> collision_objects;
   collision_objects.resize(num_objects);
 
@@ -66,11 +34,8 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   shapes::ShapeMsg mesh_msg;  
   shapes::constructMsgFromShape(m, mesh_msg);
   mesh = boost::get<shape_msgs::Mesh>(mesh_msg);
-  collision_objects[0].meshes.resize(1); 
-  collision_objects[0].mesh_poses.resize(1);  
-  collision_objects[0].mesh_poses[0].position.x = 0.75;
   collision_objects[0].mesh_poses[0].position.y = -0.75;
-  collision_objects[0].mesh_poses[0].position.z = -0.91488;
+  collision_objects[0].mesh_poses[0].position.z = -0.9;
   collision_objects[0].mesh_poses[0].orientation.w= 1.0; 
   collision_objects[0].mesh_poses[0].orientation.x= 0.0; 
   collision_objects[0].mesh_poses[0].orientation.y= 0.0;
@@ -80,30 +45,28 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   collision_objects[0].operation = collision_objects[0].ADD;
 
   
- //Add sawyer_lab as one stl mesh
-  collision_objects[1].id = "sawyer_lab";
+  // Add the railing2 above the conveyor.
+  collision_objects[1].id = "railing2";
   collision_objects[1].header.frame_id = "world";
+  /* Define a box to add to the world. */
+  shape_msgs::SolidPrimitive primitive1;
+  primitive1.type = primitive1.BOX;
+  primitive1.dimensions.resize(3);
+  primitive1.dimensions[0] = 0.01;
+  primitive1.dimensions[1] = 1.5;
+  primitive1.dimensions[2] = 0.01;
 
-  // Define the primitive and its dimensions. 
-  Vector3d b(1, 1, 1);
-  shapes::Mesh* m1 = shapes::createMeshFromResource("package://sawyer_irl_project/meshes/sawyer_lab.stl",b); 
-  ROS_INFO("Sawyer lab mesh loaded");
-  shape_msgs::Mesh mesh1;
-  shapes::ShapeMsg mesh_msg1;  
-  shapes::constructMsgFromShape(m1, mesh_msg1);
-  mesh1 = boost::get<shape_msgs::Mesh>(mesh_msg1);
-  collision_objects[1].meshes.resize(1);
-  collision_objects[1].mesh_poses.resize(1);  
-  collision_objects[1].mesh_poses[0].position.x = -0.8;
-  collision_objects[1].mesh_poses[0].position.y = -1.45;
-  collision_objects[1].mesh_poses[0].position.z = -0.91488;
-  collision_objects[1].mesh_poses[0].orientation.w= 1.0; 
-  collision_objects[1].mesh_poses[0].orientation.x= 0.0; 
-  collision_objects[1].mesh_poses[0].orientation.y= 0.0;
-  collision_objects[1].mesh_poses[0].orientation.z= 0.0;   
-  collision_objects[1].meshes.push_back(mesh1);
-  collision_objects[1].mesh_poses.push_back(collision_objects[1].mesh_poses[0]);
-  collision_objects[1].operation = collision_objects[1].ADD;
+  /* A pose for the box (specified relative to frame_id) */
+  geometry_msgs::Pose box_pose1;
+  box_pose1.orientation.w = 1.0;
+  box_pose1.position.x =  0.9;
+  box_pose1.position.y = 0.0;
+  box_pose1.position.z = -0.094;
+
+  collision_objects[1].primitives.push_back(primitive1);
+  collision_objects[1].primitive_poses.push_back(box_pose1);
+  collision_objects[1].operation = collision_objects[4].ADD;
+  ROS_INFO("Railing 2 loaded");
 
   // Add the onion_bin where the sorted onions will be kept.
   collision_objects[2].id = "onion_bin";
@@ -118,7 +81,7 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   collision_objects[2].mesh_poses.resize(1);  
   collision_objects[2].mesh_poses[0].position.x = 0.1;
   collision_objects[2].mesh_poses[0].position.y = 0.6;
-  collision_objects[2].mesh_poses[0].position.z = -0.91488;
+  collision_objects[2].mesh_poses[0].position.z = -0.9;
   collision_objects[2].mesh_poses[0].orientation.w= 1.0; 
   collision_objects[2].mesh_poses[0].orientation.x= 0.0; 
   collision_objects[2].mesh_poses[0].orientation.y= 0.0;
@@ -143,39 +106,67 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   box_pose.orientation.w = 1.0;
   box_pose.position.x =  0.6;
   box_pose.position.y = 0.0;
-  box_pose.position.z = -0.09488;
+  box_pose.position.z = -0.094;
 
   collision_objects[3].primitives.push_back(primitive);
   collision_objects[3].primitive_poses.push_back(box_pose);
   collision_objects[3].operation = collision_objects[3].ADD;
   ROS_INFO("Railing 1 loaded");
 
-  // Add the railing2 above the conveyor.
-  collision_objects[4].id = "railing2";
-  collision_objects[4].header.frame_id = "world";
-  /* Define a box to add to the world. */
-  shape_msgs::SolidPrimitive primitive1;
-  primitive1.type = primitive1.BOX;
-  primitive1.dimensions.resize(3);
-  primitive1.dimensions[0] = 0.01;
-  primitive1.dimensions[1] = 1.5;
-  primitive1.dimensions[2] = 0.01;
 
-  /* A pose for the box (specified relative to frame_id) */
-  geometry_msgs::Pose box_pose1;
-  box_pose1.orientation.w = 1.0;
-  box_pose1.position.x =  0.9;
-  box_pose1.position.y = 0.0;
-  box_pose1.position.z = -0.09488;
+//  //Add sawyer_lab as one stl mesh
+//   collision_objects[3].id = "sawyer_lab";
+//   collision_objects[3].header.frame_id = "world";
 
-  collision_objects[4].primitives.push_back(primitive1);
-  collision_objects[4].primitive_poses.push_back(box_pose1);
-  collision_objects[4].operation = collision_objects[4].ADD;
-  ROS_INFO("Railing 2 loaded");
+//   // Define the primitive and its dimensions. 
+//   Vector3d b(1, 1, 1);
+//   shapes::Mesh* m1 = shapes::createMeshFromResource("package://sawyer_irl_project/meshes/sawyer_lab.stl"); 
+//   ROS_INFO("Sawyer lab mesh loaded");
+//   shape_msgs::Mesh mesh1;
+//   shapes::ShapeMsg mesh_msg1;  
+//   shapes::constructMsgFromShape(m1, mesh_msg1);
+//   mesh1 = boost::get<shape_msgs::Mesh>(mesh_msg1);
+//   collision_objects[3].meshes.resize(1);
+//   collision_objects[3].mesh_poses.resize(1);  
+//   collision_objects[3].mesh_poses[0].position.x = -0.8;
+//   collision_objects[3].mesh_poses[0].position.y = -1.45;
+//   collision_objects[3].mesh_poses[0].position.z = -0.9;
+//   collision_objects[3].mesh_poses[0].orientation.w= 1.0; 
+//   collision_objects[3].mesh_poses[0].orientation.x= 0.0; 
+//   collision_objects[3].mesh_poses[0].orientation.y= 0.0;
+//   collision_objects[3].mesh_poses[0].orientation.z= 0.0;   
+//   collision_objects[3].meshes.push_back(mesh1);
+//   collision_objects[3].mesh_poses.push_back(collision_objects[1].mesh_poses[0]);
+//   collision_objects[3].operation = collision_objects[1].ADD;
+// // ================================================================================================================
+  // // Add the kinect camera model.
+  // collision_objects[5].id = "kinect_v2";
+  // collision_objects[5].header.frame_id = "world";
 
-  ros::Duration(1.0).sleep();
+  // /* Define a box to add to the world. */
+  // shape_msgs::SolidPrimitive primitive2;
+  // primitive2.type = primitive.BOX;
+  // primitive2.dimensions.resize(3);
+  // primitive2.dimensions[0] = 0.15;
+  // primitive2.dimensions[1] = 0.15;
+  // primitive2.dimensions[2] = 0.1;
+
+  // /* A pose for the box (specified relative to frame_id) */
+  // geometry_msgs::Pose box_pose2;
+  // box_pose2.orientation.w = 0.923879525508;
+  // box_pose2.orientation.y = 0.382683449273;
+  // box_pose2.position.x =  0.0;
+  // box_pose2.position.y = 0.0;
+  // box_pose2.position.z = 0.75;
+
+  // collision_objects[5].primitives.push_back(primitive2);
+  // collision_objects[5].primitive_poses.push_back(box_pose2);
+  // collision_objects[5].operation = collision_objects[5].ADD;
+  // ROS_INFO("Kinect_v2 mesh loaded");
+  // ros::Duration(1.0).sleep();
+
   planning_scene_interface.applyCollisionObjects(collision_objects);
-  sleep(4.0);
+  ros::Duration(1.0).sleep();
 }
 
 int main(int argc, char** argv)
