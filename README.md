@@ -70,6 +70,10 @@ The following are the steps to be followed to get this package working:
           
           git clone https://github.com/prasuchit/velocity_plugin.git
           
+          git clone https://github.com/thinclab/iai_kinect2
+          
+          git clone https://github.com/prasuchit/sanet_onionsorting.git
+          
    - Use the following command to update all your packages and drivers:
    
           sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade
@@ -124,6 +128,14 @@ The following are the steps to be followed to get this package working:
          roslaunch sawyer_irl_project robot.launch
           
          roslaunch sawyer_irl_project upload_gripper.launch
-   - For pick and place:
+         
+   - For obtaining coordinates using vision:
+          Refer to [this link](https://github.com/prasuchit/sanet_onionsorting/blob/master/README.md)
+          
+   - For regular pick and place:
         
          rosrun robotiq_2f_gripper_control simple_pnp.py    (Make sure all files in this folder are set to executable in file properties)
+         
+   - For pick and place using vision:
+   
+          TO BE UPDATED
