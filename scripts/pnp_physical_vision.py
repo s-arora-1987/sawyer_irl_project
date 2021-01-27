@@ -7,18 +7,13 @@ from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import String, Int8MultiArray
 from operator import mod
 import random
-from gazebo_msgs.msg import ModelState
-from gazebo_msgs.srv import GetModelState
 import sys
 from os import system
 import rospy
 from time import sleep
 from sawyer_irl_project.msg import OBlobs
-from gazebo_ros_link_attacher.srv import Attach, AttachRequest, AttachResponse
 import numpy as np
-import _thread
-import threading
-import message_filters
+from gripper_to_position import reset_gripper, activate_gripper, gripper_to_pos
 from smach import *
 from smach_ros import *
 from smach_msgs.msg import *
@@ -28,9 +23,7 @@ import copy
 pnp = PickAndPlace()
 done_onions = []
 flag = False
-total_onions = 4
-attach_srv = None
-detach_srv = None
+total_onions = 5
 
 class Get_info(State):
     def __init__(self):
@@ -46,7 +39,7 @@ class Get_info(State):
         self.callback_vision(rospy.wait_for_message("/object_location", OBlobs))
 
     def callback_vision(self, msg):
-        # print '\nCallback vision\n'
+        print '\nCallback vision\n'
         while None in [msg.x,msg.y,msg.z,msg.color]:
             rospy.sleep(0.1)
         self.x = msg.x
@@ -56,7 +49,7 @@ class Get_info(State):
         self.is_updated = True
     
     def execute(self, userdata):
-        # rospy.loginfo('Executing state: Get_info')
+        rospy.loginfo('Executing state: Get_info')
         if userdata.counter >= 500:
             userdata.counter = 0
             return 'timed_out'
@@ -81,7 +74,7 @@ class Claim(State):
         self.is_updated = False
 
     def execute(self, userdata):        
-        global pnp, total_onions, attach_srv, detach_srv, done_onions
+        global pnp, total_onions, done_onions
         while len(userdata.x) == 0:
             rospy.sleep(0.1)
         # rospy.loginfo('Executing state: Claim')
@@ -91,15 +84,15 @@ class Claim(State):
         if len(userdata.color) == 0:
             return 'not_found'
         max_index = len(userdata.color)
-        # attach and detach service
-        attach_srv = rospy.ServiceProxy('/link_attacher_node/attach', Attach)
-        attach_srv.wait_for_service()
-        detach_srv = rospy.ServiceProxy('/link_attacher_node/detach', Attach)
-        detach_srv.wait_for_service()
-        pnp.req.model_name_1 = None
-        pnp.req.link_name_1 = "base_link"
-        pnp.req.model_name_2 = "sawyer"
-        pnp.req.link_name_2 = "right_l6"
+        # # attach and detach service
+        # attach_srv = rospy.ServiceProxy('/link_attacher_node/attach', Attach)
+        # attach_srv.wait_for_service()
+        # detach_srv = rospy.ServiceProxy('/link_attacher_node/detach', Attach)
+        # detach_srv.wait_for_service()
+        # pnp.req.model_name_1 = None
+        # pnp.req.link_name_1 = "base_link"
+        # pnp.req.model_name_2 = "sawyer"
+        # pnp.req.link_name_2 = "right_l6"
         pnp.target_location_x = userdata.x[pnp.onion_index]
         pnp.target_location_y = userdata.y[pnp.onion_index]
         pnp.target_location_z = userdata.z[pnp.onion_index]
@@ -113,28 +106,31 @@ class Claim(State):
                 pass
             else:
                 onion_guess = "onion_" + str(i)
+                self.is_updated = True
 
-                rospy.wait_for_service('/gazebo/get_model_state')
-                try:
-                    model_coordinates = rospy.ServiceProxy(
-                        '/gazebo/get_model_state', GetModelState)
-                    # print 'Onion name guessed: ', onion_guess
-                    onion_coordinates = model_coordinates(onion_guess, "").pose
-                except rospy.ServiceException, e:
-                    print "Service call failed: %s" % e
+                # rospy.wait_for_service('/gazebo/get_model_state')
+                # try:
+                #     model_coordinates = rospy.ServiceProxy(
+                #         '/gazebo/get_model_state', GetModelState)
+                #     # print 'Onion name guessed: ', onion_guess
+                #     onion_coordinates = model_coordinates(onion_guess, "").posepnp.req.model_name_1
+                # except rospy.ServiceException, e:
+                #     print "Service call failed: %s" % e
 
-                if pnp.target_location_y - 0.05 <= onion_coordinates.position.y <= pnp.target_location_y + 0.05:
-                    if pnp.target_location_x - 0.05 <= onion_coordinates.position.x <= pnp.target_location_x + 0.05:
-                        pnp.req.model_name_1 = onion_guess
-                        done_onions.append(i)
-                        self.is_updated = True
-                        break
+                # if pnp.target_location_y - 0.05 <= onion_coordinates.position.y <= pnp.target_location_y + 0.05:
+                #     if pnp.target_location_x - 0.05 <= onion_coordinates.position.x <= pnp.target_location_x + 0.05:
+                #         pnp.req.model_name_1 = onion_guess
+                #         done_onions.append(i)
+                #         self.is_updated = True
+                #         break
 
         if self.is_updated == False:
             userdata.counter += 1
             return 'not_updated'
         else:
-            print "Onion name set as: ", pnp.req.model_name_1
+            print "Onion name set as: ", onion_guess
+            reset_gripper()
+            activate_gripper()
             userdata.counter = 0
             rospy.sleep(0.05)
             return 'updated'
@@ -166,6 +162,8 @@ class Approach(State):
             rospy.sleep(0.05)
             if home:
                 status = pnp.goAndPick()
+                # 255 = closed, 0 = open
+                gripper_to_pos(0, 60, 200, False)    # OPEN GRIPPER
                 rospy.sleep(0.05)
                 if status:
                     userdata.counter = 0
@@ -207,7 +205,7 @@ class Pick(State):
             return 'not_found'
         else:
             dip = pnp.staticDip()
-            rospy.sleep(0.05)
+            rospy.sleep(0.01)
             if dip:
                 userdata.counter = 0
                 return 'success'
@@ -215,7 +213,7 @@ class Pick(State):
                 userdata.counter += 1
                 return 'failed'
 
-class Attach_object(State):
+class Grasp_object(State):
     def __init__(self):
         State.__init__(self, outcomes=['success', 'failed', 'timed_out','not_found'],
                     input_keys = ['x','y','z','color','counter'],
@@ -228,19 +226,19 @@ class Attach_object(State):
             userdata.counter = 0
             return 'timed_out'
 
-        if userdata.x[pnp.onion_index] != pnp.target_location_x or \
-            userdata.y[pnp.onion_index] != pnp.target_location_y or \
-                userdata.z[pnp.onion_index] != pnp.target_location_z:
-            return 'not_found'
-        else:           
-            at = attach_srv.call(pnp.req)
-            rospy.sleep(0.1)
-            if at:
-                userdata.counter = 0
-                return 'success'
-            else:
-                userdata.counter += 1
-                return 'failed'
+        # if userdata.x[pnp.onion_index] != pnp.target_location_x or \
+        #     userdata.y[pnp.onion_index] != pnp.target_location_y or \
+        #         userdata.z[pnp.onion_index] != pnp.target_location_z:
+        #     return 'not_found'
+        # else:           
+        gr = gripper_to_pos(50, 60, 200, False)    # GRIPPER TO POSITION 50
+        rospy.sleep(0.1)
+        if gr:
+            userdata.counter = 0
+            return 'success'
+        else:
+            userdata.counter += 1
+            return 'failed'
 
 class Liftup(State):
     def __init__(self):
@@ -352,11 +350,13 @@ class Detach_object(State):
                 return 'failed'
 
 def main():
-    # print("I'm in main!")
     if len(sys.argv) < 2:
         sortmethod = "pick"   # Default sort method
     else:
         sortmethod = sys.argv[1]
+
+    # print("I'm in main!")
+
     # Create a SMACH state machine
     sm = StateMachine(outcomes=['TIMED_OUT', 'SUCCEEDED'])
     sm.userdata.sm_x = []
@@ -397,12 +397,17 @@ def main():
                                         'not_found': 'GETINFO'},
                             remapping={'x':'sm_x', 'y': 'sm_y', 'z': 'sm_z',
                                 'color':'sm_color','counter':'sm_counter'})
-            ###################### Sub states - Pick #######################                    
+            ##################### Sub states - Pick #######################                    
             sm_sub = StateMachine(outcomes=['TIMED_OUT', 'SUCCEEDED'])
+            sm_sub.userdata.sm_x = sm.userdata.sm_x
+            sm_sub.userdata.sm_y = sm.userdata.sm_y
+            sm_sub.userdata.sm_z = sm.userdata.sm_z
+            sm_sub.userdata.sm_color = sm.userdata.sm_color
+            sm_sub.userdata.sm_counter = sm.userdata.sm_counter
             with sm_sub:
-                StateMachine.add('ATTACH', Attach_object(),
+                StateMachine.add('GRASP', Grasp_object(),
                             transitions={'success':'LIFTUP', 
-                                        'failed':'ATTACH',
+                                        'failed':'GRASP',
                                         'timed_out': 'TIMED_OUT',
                                         'not_found': 'TIMED_OUT'},
                             remapping={'x':'sm_x', 'y': 'sm_y', 'z': 'sm_z',
@@ -414,30 +419,30 @@ def main():
                             remapping={'counter':'sm_counter'})
 
             StateMachine.add('PICK_SUB', sm_sub,
-                            transitions={'SUCCEEDED':'VIEW',
+                            transitions={'SUCCEEDED':'SUCCEEDED',
                                         'TIMED_OUT': 'GETINFO'})
             ##################################################################                            
-            StateMachine.add('VIEW', View(), 
-                            transitions={'success':'PLACE', 
-                                        'failed':'VIEW',
-                                        'timed_out': 'TIMED_OUT'},
-                            remapping={'counter':'sm_counter'})
-            StateMachine.add('PLACE', Place(), 
-                            transitions={'success':'PLACE_SUB', 
-                                        'failed':'PLACE',
-                                        'timed_out': 'TIMED_OUT'},
-                            remapping={'color': 'sm_color','counter':'sm_counter'})
-            ###################### Sub states - Place #######################                    
-            sm_sub1 = StateMachine(outcomes=['TIMED_OUT', 'SUCCEEDED'])
-            with sm_sub:
-                StateMachine.add('DETACH', Detach_object(),
-                            transitions={'success':'SUCCEEDED', 
-                                        'failed':'DETACH',
-                                        'timed_out': 'TIMED_OUT'})
-            StateMachine.add('PLACE_SUB', sm_sub1,
-                            transitions={'SUCCEEDED':'GETINFO',
-                                        'TIMED_OUT': 'TIMED_OUT'})
-            ##################################################################  
+            # StateMachine.add('VIEW', View(), 
+            #                 transitions={'success':'PLACE', 
+            #                             'failed':'VIEW',
+            #                             'timed_out': 'TIMED_OUT'},
+            #                 remapping={'counter':'sm_counter'})
+            # StateMachine.add('PLACE', Place(), 
+            #                 transitions={'success':'PLACE_SUB', 
+            #                             'failed':'PLACE',
+            #                             'timed_out': 'TIMED_OUT'},
+            #                 remapping={'color': 'sm_color','counter':'sm_counter'})
+            # ###################### Sub states - Place #######################                    
+            # sm_sub1 = StateMachine(outcomes=['TIMED_OUT', 'SUCCEEDED'])
+            # with sm_sub:
+            #     StateMachine.add('DETACH', Detach_object(),
+            #                 transitions={'success':'SUCCEEDED', 
+            #                             'failed':'DETACH',
+            #                             'timed_out': 'TIMED_OUT'})
+            # StateMachine.add('PLACE_SUB', sm_sub1,
+            #                 transitions={'SUCCEEDED':'GETINFO',
+            #                             'TIMED_OUT': 'TIMED_OUT'})
+            # ##################################################################  
 
         # Execute SMACH plan
         outcome = sm.execute()

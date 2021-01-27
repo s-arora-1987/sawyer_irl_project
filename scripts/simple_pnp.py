@@ -7,11 +7,8 @@ import geometry_msgs.msg
 from std_msgs.msg import String, Int8MultiArray
 from operator import mod
 import random
-from gazebo_msgs.msg import ModelState
-from gazebo_msgs.srv import GetModelState
 import sys
 import rospy
-from sawyer_irl_project.msg import onions_blocks_poses
 from gripper_to_position import reset_gripper, activate_gripper, gripper_to_pos
 import numpy as np
 
@@ -20,17 +17,27 @@ pnp = PickAndPlace()
 def main():
   try:
 
-    # pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
+    pnp.goto_home(0.3, goal_tol=0.01, orientation_tol=0.1)
   
     reset_gripper()
 
     activate_gripper()
 
   #   # 255 = closed, 0 = open
-    gripper_to_pos(0, 60, 200, False)    # OPEN GRIPPER
+    # gripper_to_pos(0, 60, 200, False)    # OPEN GRIPPER
 
-    rospy.sleep(1.0)
-    gripper_to_pos(255, 60, 200, False)    # GRIPPER TO POSITION 50
+    # rospy.sleep(1.0)
+    group = pnp.group
+    current_pose = group.get_current_pose().pose
+    allow_replanning = True
+    planning_time = 10
+    status = pnp.go_to_pose_goal(pnp.q[0], pnp.q[1], pnp.q[2], pnp.q[3], 0.75,
+                                       0,
+                                       current_pose.position.z,     
+                                       allow_replanning, planning_time)
+    rospy.sleep(0.1)
+    print "\n",group.get_current_pose().pose.position
+    # gripper_to_pos(255, 60, 200, False)    # GRIPPER TO POSITION 50
 
   except rospy.ROSInterruptException:
     return

@@ -35,7 +35,7 @@ class PickAndPlace(object):
         # (roll about an X-axis w.r.t home) / (subsequent pitch about the Y-axis) / (subsequent yaw about the Z-axis)
         rollx = -3.1415926535
         pitchy = 0.0
-        yawz = 0.0  # 1.57
+        yawz = 0.0    # -1.5707963
         # use q with moveit because giving quaternion.x doesn't work.
         q = quaternion_from_euler(rollx, pitchy, yawz)
         overhead_orientation_moveit = Quaternion(
@@ -97,7 +97,7 @@ class PickAndPlace(object):
         self.prediction = None
         self.listIDstatus = None
 
-    def all_close(self, goal, actual, tolerance):
+    def all_close(self, goal, actual, tolerance = 0.01):
         """
         Convenience method for testing if a list of values are within a tolerance of their counterparts in another list
         @param: goal: A list of floats, a Pose or a PoseStamped
@@ -190,8 +190,8 @@ class PickAndPlace(object):
         rospy.sleep(1.0)
         return True
 
-    def go_to_joint_goal(self, angles, allow_replanning=True, planning_time=5.0,
-                         goal_tol=0.02, orientation_tol=0.02):
+    def go_to_joint_goal(self, angles, allow_replanning=True, planning_time=10.0,
+                         goal_tol=0.01, orientation_tol=0.01):
 
         group = self.group
         # Allow some leeway in position(meters) and orientation (radians)
@@ -203,12 +203,12 @@ class PickAndPlace(object):
         group.stop()
         return True
 
-    def go_to_pose_goal(self, ox, oy, oz, ow, px, py, pz, allow_replanning=True, planning_time=5.0):
+    def go_to_pose_goal(self, ox, oy, oz, ow, px, py, pz, allow_replanning=True, planning_time=10.0):
 
         group = self.group
         # Allow some leeway in position(meters) and orientation (radians)
-        group.set_goal_position_tolerance(0.05)
-        group.set_goal_orientation_tolerance(0.05)
+        group.set_goal_position_tolerance(0.01)
+        group.set_goal_orientation_tolerance(0.01)
 
         pose_goal = geometry_msgs.msg.Pose()
         pose_goal.orientation.x = ox
@@ -228,7 +228,7 @@ class PickAndPlace(object):
         group.clear_pose_targets()
 
         current_pose = group.get_current_pose().pose
-        return self.all_close(pose_goal, current_pose, 0.05)
+        return self.all_close(pose_goal, current_pose, 0.01)
 
     def wait_for_state_update(box_name, scene, box_is_known=False, box_is_attached=False, timeout=5):
         """ This func is used when we need to add onion collision to moveit """
@@ -372,15 +372,15 @@ class PickAndPlace(object):
         constraint.position_constraints.append(position_constraint)
         group.set_path_constraints(constraint)
         allow_replanning = True
-        planning_time = 5
+        planning_time = 10
         # print "Now performing dip"
-        dip = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], self.target_location_x, # + 0.005,  # accounting for tolerance error
-                                   self.target_location_y, # - 0.005,  # accounting for tolerance error
-                                   current_pose.position.z - 0.035,  # This is where we dip
+        dip = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], self.target_location_x - 0.06, # + 0.005,  # accounting for tolerance error
+                                   self.target_location_y - 0.04, # - 0.005,  # accounting for tolerance error
+                                   current_pose.position.z - 0.025,  # This is where we dip
                                    allow_replanning, planning_time)
         rospy.sleep(0.05)
         if dip:
-            # print "Successfully dipped! z pos: ", current_pose.position.z
+            print "Successfully dipped! z pos: ", current_pose.position.z
             group.clear_path_constraints()
             return True
         else:
@@ -397,9 +397,9 @@ class PickAndPlace(object):
         # print "Attempting to reach {},{},{}".format(self.target_location_x,
         #                                             self.target_location_y,
         #                                             current_pose.position.z)
-        status = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], self.target_location_x,
-                                       self.target_location_y,
-                                       current_pose.position.z,      # - 0.045,
+        status = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], self.target_location_x - 0.06,
+                                       self.target_location_y - 0.04,
+                                       current_pose.position.z + 0.02,      # - 0.045,
                                        allow_replanning, planning_time)
         rospy.sleep(0.05)
         # dip = self.staticDip()
@@ -419,8 +419,8 @@ class PickAndPlace(object):
             rospy.sleep(0.05)
         current_pose = group.get_current_pose().pose
         allow_replanning = True
-        lifted = False
         planning_time = 10
+        lifted = False
         # print "Current z pose: ", current_pose.position.z
         while not lifted:
             lifted = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], self.target_location_x,
@@ -448,7 +448,7 @@ class PickAndPlace(object):
 
     # This method uses intera to move because we assume there are no
     # obstacles on the way to the start pose.
-    def goto_home(self, tolerance=0.01, goal_tol=0.02, orientation_tol=0.02):
+    def goto_home(self, tolerance=0.001, goal_tol=0.001, orientation_tol=0.001):
 
         # print("Attempting to reach home\n")
         group = self.group
@@ -496,7 +496,7 @@ class PickAndPlace(object):
         # print("reached home")
         return True
 
-    def view(self, tolerance=0.01, goal_tol=0.02, orientation_tol=0.02):
+    def view(self, tolerance=0.01, goal_tol=0.01, orientation_tol=0.01):
 
         home_joint_angles = {'right_j0': -0.041662954890248294,
                         'right_j1': -1.0258291091425074,
@@ -524,7 +524,7 @@ class PickAndPlace(object):
         # print("Current joint angles: \n", group.get_current_joint_values())
         return view
 
-    def rotategripper(self, tolerance=0.01, goal_tol=0.02, orientation_tol=0.02):
+    def rotategripper(self, tolerance=0.01, goal_tol=0.01, orientation_tol=0.01):
 
         clockwise = {'right_j0': 0.7716502133436203,
                      'right_j1': -0.25253308083711357,
@@ -550,7 +550,7 @@ class PickAndPlace(object):
 
         return done
 
-    def goto_bin(self, tolerance=0.1):
+    def goto_bin(self, tolerance=0.01):
         #0.0007738188961337045, 0.9942022319650565, -0.6642366352730953, 0.46938807849915687, 1.5498016537213086, -0.8777244285593966, 0.8579252090846943, 2.18012354574336
 
         group = self.group
@@ -568,10 +568,9 @@ class PickAndPlace(object):
         # print "Reached bin: ", reached
         # current_pose = group.get_current_pose().pose
         # print "current_pose: " + str((current_pose))
-        # rospy.sleep(50000000)
         return reached
 
-    def roll(self, tolerance=0.01, goal_tol=0.02, orientation_tol=0.02):
+    def roll(self, tolerance=0.01, goal_tol=0.01, orientation_tol=0.01):
 
         # print("Entered Roll")
         group = self.group
@@ -607,7 +606,7 @@ class PickAndPlace(object):
         # print("Finished rolling!")
         return True
 
-    def placeOnConveyor(self, tolerance=0.01, goal_tol=0.02, orientation_tol=0.02):
+    def placeOnConveyor(self, tolerance=0.01, goal_tol=0.01, orientation_tol=0.01):
 
         onConveyor = False
         allow_replanning = True

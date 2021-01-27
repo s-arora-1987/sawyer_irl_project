@@ -26,27 +26,48 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   collision_objects.resize(num_objects);
 
   // Add the first table where the object will originally be kept.
+  // collision_objects[0].id = "conveyor_table";
+  // collision_objects[0].header.frame_id = "world";
+  // shapes::Mesh* m = shapes::createMeshFromResource("package://sawyer_irl_project/meshes/conveyor_box.stl"); 
+  // shape_msgs::Mesh mesh;
+  // shapes::ShapeMsg mesh_msg;  
+  // shapes::constructMsgFromShape(m, mesh_msg);
+  // mesh = boost::get<shape_msgs::Mesh>(mesh_msg);
+  // collision_objects[0].mesh_poses[0].position.y = -0.75;
+  // collision_objects[0].mesh_poses[0].position.z = -0.9;
+  // collision_objects[0].mesh_poses[0].orientation.w = 1.0; 
+  // collision_objects[0].mesh_poses[0].orientation.x = 0.0; 
+  // collision_objects[0].mesh_poses[0].orientation.y = 0.0;
+  // collision_objects[0].mesh_poses[0].orientation.z = 0.0;   
+  // collision_objects[0].meshes.push_back(mesh);
+  // collision_objects[0].mesh_poses.push_back(collision_objects[0].mesh_poses[0]);
+  // collision_objects[0].operation = collision_objects[0].ADD;
+  // ROS_INFO("Conveyor box mesh loaded");
+
   collision_objects[0].id = "conveyor_table";
   collision_objects[0].header.frame_id = "world";
-  shapes::Mesh* m = shapes::createMeshFromResource("package://sawyer_irl_project/meshes/conveyor_box.stl"); 
-  ROS_INFO("Conveyor box mesh loaded");
-  shape_msgs::Mesh mesh;
-  shapes::ShapeMsg mesh_msg;  
-  shapes::constructMsgFromShape(m, mesh_msg);
-  mesh = boost::get<shape_msgs::Mesh>(mesh_msg);
-  collision_objects[0].mesh_poses[0].position.y = -0.75;
-  collision_objects[0].mesh_poses[0].position.z = -0.9;
-  collision_objects[0].mesh_poses[0].orientation.w= 1.0; 
-  collision_objects[0].mesh_poses[0].orientation.x= 0.0; 
-  collision_objects[0].mesh_poses[0].orientation.y= 0.0;
-  collision_objects[0].mesh_poses[0].orientation.z= 0.0;   
-  collision_objects[0].meshes.push_back(mesh);
-  collision_objects[0].mesh_poses.push_back(collision_objects[0].mesh_poses[0]);
-  collision_objects[0].operation = collision_objects[0].ADD;
+  /* Define a box to add to the world. */
+  shape_msgs::SolidPrimitive primitive;
+  primitive.type = primitive.BOX;
+  primitive.dimensions.resize(3);
+  primitive.dimensions[0] = 0.45;
+  primitive.dimensions[1] = 1.5;
+  primitive.dimensions[2] = 0.75;
 
+  /* A pose for the box (specified relative to frame_id) */
+  geometry_msgs::Pose box_pose;
+  box_pose.orientation.w = 1.0;
+  box_pose.position.x =  0.75;
+  box_pose.position.y = 0.0;
+  box_pose.position.z = -0.5;
+
+  collision_objects[0].primitives.push_back(primitive);
+  collision_objects[0].primitive_poses.push_back(box_pose);
+  collision_objects[0].operation = collision_objects[0].ADD;
+  ROS_INFO("Conveyor box loaded");
   
   // Add the railing2 above the conveyor.
-  collision_objects[1].id = "railing2";
+  collision_objects[1].id = "railing1";
   collision_objects[1].header.frame_id = "world";
   /* Define a box to add to the world. */
   shape_msgs::SolidPrimitive primitive1;
@@ -65,8 +86,8 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
 
   collision_objects[1].primitives.push_back(primitive1);
   collision_objects[1].primitive_poses.push_back(box_pose1);
-  collision_objects[1].operation = collision_objects[4].ADD;
-  ROS_INFO("Railing 2 loaded");
+  collision_objects[1].operation = collision_objects[1].ADD;
+  ROS_INFO("Railing 1 loaded");
 
   // Add the onion_bin where the sorted onions will be kept.
   collision_objects[2].id = "onion_bin";
@@ -91,25 +112,25 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   collision_objects[2].operation = collision_objects[2].ADD;
 
   // Add the railing1 above the conveyor.
-  collision_objects[3].id = "railing1";
+  collision_objects[3].id = "railing2";
   collision_objects[3].header.frame_id = "world";
   /* Define a box to add to the world. */
-  shape_msgs::SolidPrimitive primitive;
-  primitive.type = primitive.BOX;
-  primitive.dimensions.resize(3);
-  primitive.dimensions[0] = 0.01;
-  primitive.dimensions[1] = 1.5;
-  primitive.dimensions[2] = 0.01;
+  shape_msgs::SolidPrimitive primitive2;
+  primitive2.type = primitive.BOX;
+  primitive2.dimensions.resize(3);
+  primitive2.dimensions[0] = 0.01;
+  primitive2.dimensions[1] = 1.5;
+  primitive2.dimensions[2] = 0.01;
 
   /* A pose for the box (specified relative to frame_id) */
-  geometry_msgs::Pose box_pose;
-  box_pose.orientation.w = 1.0;
-  box_pose.position.x =  0.6;
-  box_pose.position.y = 0.0;
-  box_pose.position.z = -0.094;
+  geometry_msgs::Pose box_pose2;
+  box_pose2.orientation.w = 1.0;
+  box_pose2.position.x =  0.6;
+  box_pose2.position.y = 0.0;
+  box_pose2.position.z = -0.094;
 
-  collision_objects[3].primitives.push_back(primitive);
-  collision_objects[3].primitive_poses.push_back(box_pose);
+  collision_objects[3].primitives.push_back(primitive2);
+  collision_objects[3].primitive_poses.push_back(box_pose2);
   collision_objects[3].operation = collision_objects[3].ADD;
   ROS_INFO("Railing 1 loaded");
 
@@ -192,8 +213,8 @@ int main(int argc, char** argv)
   addCollisionObjects(planning_scene_interface);
   
   // Wait a bit for ROS things to initialize
-  ros::WallDuration(1.0).sleep();
-  ROS_INFO("Now launch ROS Moveit to start planning");
+  ros::WallDuration(2.0).sleep();
+  ROS_INFO("planning_scene node started successfully!");
   ros::waitForShutdown();
   return 0;
 }

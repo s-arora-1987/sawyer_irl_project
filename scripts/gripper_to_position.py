@@ -10,6 +10,7 @@ def reset_gripper():
     command.rACT = 0
     pub.publish(command)
     rospy.sleep(0.1)
+    return True
 
 def activate_gripper():
     pub = rospy.Publisher('/gripper/output', outputMsg.Robotiq2FGripper_robot_output, queue_size=1000)
@@ -21,6 +22,7 @@ def activate_gripper():
     command.rFR  = 150
     pub.publish(command)
     rospy.sleep(0.1)
+    return True
 
 
 def gripper_to_pos(position, force, speed, hp):
@@ -44,3 +46,4 @@ def gripper_to_pos(position, force, speed, hp):
         pub.publish(command)
         hp_g = True
     rospy.sleep(0.1)
+    return True
