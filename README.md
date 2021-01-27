@@ -4,6 +4,8 @@ Author: Prasanth Sengadu Suresh.
 Owned By: THINC Lab, Department of Computer Science,
           University of Georgia.
 
+Currently Managed By: Prasanth Sengadu Suresh.
+
 This package uses Inverse Reinforcement Learning -- Apprenticeship Learning/Learning from Demonstration to teach Sawyer Robot to perform vegetable sorting on a conveyor line alongside a Human Expert.
 
 This package is built upon the Sawyer/Intera ROS packages and uses Robotiq 2F-85 Gripper as the End Effector.
@@ -60,19 +62,19 @@ The following are the steps to be followed to get this package working:
       
           git clone --branch kinetic-devel https://github.com/thinclab/robotiq.git
       
-          git clone https://github.com/prasuchit/roboticsgroup_gazebo_plugins-1
+          git clone https://github.com/thinclab/roboticsgroup_gazebo_plugins-1
       
-          git clone https://github.com/prasuchit/gazebo_ros_link_attacher
+          git clone https://github.com/thinclab/gazebo_ros_link_attacher
       
-          git clone https://github.com/prasuchit/kinect_v2_udrf
+          git clone https://github.com/thinclab/kinect_v2_udrf
           
-          git clone https://github.com/prasuchit/sawyer_irl_project.git
+          git clone https://github.com/thinclab/sawyer_irl_project.git
           
-          git clone https://github.com/prasuchit/velocity_plugin.git
+          git clone https://github.com/thinclab/velocity_plugin.git
           
           git clone https://github.com/thinclab/iai_kinect2
           
-          git clone https://github.com/prasuchit/sanet_onionsorting.git
+          git clone https://github.com/thinclab/sanet_onionsorting.git
           
    - Use the following command to update all your packages and drivers:
    
@@ -121,20 +123,20 @@ The following are the steps to be followed to get this package working:
           
          rosrun robotiq_2f_gripper_control Robotiq2FGripperSimpleController.py 
          
-   - For Sawyer, do the following steps (In new tabs):
-        
-         roslaunch sawyer_moveit_config sawyer_moveit.launch
-        
-         roslaunch sawyer_irl_project robot.launch
+   - For Sawyer, do the following steps (In new tabs, in the same order):
           
          roslaunch sawyer_irl_project upload_gripper.launch
+         
+         roslaunch sawyer_irl_project robot.launch
+         
+         roslaunch sawyer_moveit_config sawyer_moveit.launch
          
    - For obtaining coordinates using vision:
           Refer to [this link](https://github.com/prasuchit/sanet_onionsorting/blob/master/README.md)
           
    - For regular pick and place:
         
-         rosrun robotiq_2f_gripper_control simple_pnp.py    (Make sure all files in this folder are set to executable in file properties)
+         rosrun sawyer_irl_project simple_pnp.py    (Make sure all files in this folder are set to executable in file properties)
          
    - For pick and place using vision:
    
