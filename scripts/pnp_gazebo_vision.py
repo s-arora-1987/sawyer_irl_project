@@ -201,12 +201,16 @@ class Pick(State):
             userdata.counter = 0
             return 'timed_out'
 
+        # print '\nPICK State: Userdata.x\n', userdata.x
+
+        # rospy.sleep(50)
+
         if userdata.x[pnp.onion_index] != pnp.target_location_x or \
             userdata.y[pnp.onion_index] != pnp.target_location_y or \
                 userdata.z[pnp.onion_index] != pnp.target_location_z:
             return 'not_found'
         else:
-            dip = pnp.staticDip()
+            dip = pnp.staticDip(z_pose = 0.08)
             rospy.sleep(0.05)
             if dip:
                 userdata.counter = 0
@@ -215,7 +219,7 @@ class Pick(State):
                 userdata.counter += 1
                 return 'failed'
 
-class Attach_object(State):
+class Grasp_object(State):
     def __init__(self):
         State.__init__(self, outcomes=['success', 'failed', 'timed_out','not_found'],
                     input_keys = ['x','y','z','color','counter'],
@@ -227,6 +231,10 @@ class Attach_object(State):
         if userdata.counter >= 50:
             userdata.counter = 0
             return 'timed_out'
+
+        # print userdata.x
+
+        # rospy.sleep(50)
 
         if userdata.x[pnp.onion_index] != pnp.target_location_x or \
             userdata.y[pnp.onion_index] != pnp.target_location_y or \
@@ -391,53 +399,40 @@ def main():
                             remapping={'x':'sm_x', 'y': 'sm_y', 'z': 'sm_z',
                                 'color':'sm_color','counter':'sm_counter'})
             StateMachine.add('PICK', Pick(), 
-                            transitions={'success':'PICK_SUB', 
+                            transitions={'success':'GRASP', 
                                         'failed':'PICK',
                                         'timed_out': 'TIMED_OUT',
                                         'not_found': 'GETINFO'},
                             remapping={'x':'sm_x', 'y': 'sm_y', 'z': 'sm_z',
                                 'color':'sm_color','counter':'sm_counter'})
-            ###################### Sub states - Pick #######################                    
-            sm_sub = StateMachine(outcomes=['TIMED_OUT', 'SUCCEEDED'])
-            with sm_sub:
-                StateMachine.add('ATTACH', Attach_object(),
-                            transitions={'success':'LIFTUP', 
-                                        'failed':'ATTACH',
-                                        'timed_out': 'TIMED_OUT',
-                                        'not_found': 'TIMED_OUT'},
-                            remapping={'x':'sm_x', 'y': 'sm_y', 'z': 'sm_z',
-                                'color':'sm_color','counter':'sm_counter'})
-                StateMachine.add('LIFTUP', Liftup(),
-                            transitions={'success':'SUCCEEDED', 
-                                        'failed':'LIFTUP',
-                                        'timed_out': 'TIMED_OUT'},
-                            remapping={'counter':'sm_counter'})
+            
+            StateMachine.add('GRASP', Grasp_object(),
+                        transitions={'success':'LIFTUP', 
+                                    'failed':'GRASP',
+                                    'timed_out': 'TIMED_OUT',
+                                    'not_found': 'TIMED_OUT'},
+                        remapping={'x':'sm_x', 'y': 'sm_y', 'z': 'sm_z',
+                            'color':'sm_color','counter':'sm_counter'})
+            StateMachine.add('LIFTUP', Liftup(),
+                        transitions={'success':'VIEW', 
+                                    'failed':'LIFTUP',
+                                    'timed_out': 'TIMED_OUT'},
+                        remapping={'counter':'sm_counter'})
 
-            StateMachine.add('PICK_SUB', sm_sub,
-                            transitions={'SUCCEEDED':'VIEW',
-                                        'TIMED_OUT': 'GETINFO'})
-            ##################################################################                            
             StateMachine.add('VIEW', View(), 
                             transitions={'success':'PLACE', 
                                         'failed':'VIEW',
                                         'timed_out': 'TIMED_OUT'},
                             remapping={'counter':'sm_counter'})
             StateMachine.add('PLACE', Place(), 
-                            transitions={'success':'PLACE_SUB', 
+                            transitions={'success':'DETACH', 
                                         'failed':'PLACE',
                                         'timed_out': 'TIMED_OUT'},
                             remapping={'color': 'sm_color','counter':'sm_counter'})
-            ###################### Sub states - Place #######################                    
-            sm_sub1 = StateMachine(outcomes=['TIMED_OUT', 'SUCCEEDED'])
-            with sm_sub:
-                StateMachine.add('DETACH', Detach_object(),
-                            transitions={'success':'SUCCEEDED', 
-                                        'failed':'DETACH',
-                                        'timed_out': 'TIMED_OUT'})
-            StateMachine.add('PLACE_SUB', sm_sub1,
-                            transitions={'SUCCEEDED':'GETINFO',
-                                        'TIMED_OUT': 'TIMED_OUT'})
-            ##################################################################  
+            StateMachine.add('DETACH', Detach_object(),
+                        transitions={'success':'SUCCEEDED', 
+                                    'failed':'DETACH',
+                                    'timed_out': 'TIMED_OUT'})
 
         # Execute SMACH plan
         outcome = sm.execute()

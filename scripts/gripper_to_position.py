@@ -46,4 +46,4 @@ def gripper_to_pos(position, force, speed, hp):
         pub.publish(command)
         hp_g = True
     rospy.sleep(0.1)
-    return True
+    return hp_g
