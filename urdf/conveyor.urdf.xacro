@@ -104,11 +104,14 @@ we want floating joints above the conveyor and w.r.t the frame will not do that 
 
   <joint name="frame_railing1_joint" type="fixed" >
         <origin xyz="0.6 0.0 0.82" rpy="0.0 0.0 0.0"/>
+        <!-- increased height for less onion hitting -->
+        <!-- <origin xyz="0.6 0.0 0.87" rpy="0.0 0.0 0.0"/> -->
         <parent link="world" />
         <child link="railing1"/>
   </joint>
   <joint name="frame_railing2_joint" type="fixed" >
-        <origin xyz="0.9 0.0 0.82" rpy="0.0 0.0 0.0"/>
+        <!-- <origin xyz="0.9 0.0 0.82" rpy="0.0 0.0 0.0"/> -->
+        <origin xyz="0.9 0.0 0.77" rpy="0.0 0.0 0.0"/>
         <parent link="world" />
         <child link="railing2"/>
   </joint>
@@ -895,7 +898,9 @@ we want floating joints above the conveyor and w.r.t the frame will not do that 
     
     <gazebo reference="belt">
         <material>Gazebo/FlatBlack</material>
-        <mu1>0.0000001</mu1>
+        <!-- <mu1>0.0000001</mu1> -->
+        <!-- <mu1>0.5</mu1> -->
+        <mu1>5</mu1>
         <mu2>10.0</mu2>
     </gazebo>
 

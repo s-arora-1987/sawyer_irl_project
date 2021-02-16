@@ -16,7 +16,7 @@ from time import sleep
 from sawyer_irl_project.msg import OBlobs
 from gazebo_ros_link_attacher.srv import Attach, AttachRequest, AttachResponse
 import numpy as np
-import _thread
+
 import threading
 import message_filters
 from smach import *
@@ -56,7 +56,7 @@ class Get_info(State):
         self.is_updated = True
     
     def execute(self, userdata):
-        # rospy.loginfo('Executing state: Get_info')
+        rospy.loginfo('Executing state: Get_info')
         if userdata.counter >= 500:
             userdata.counter = 0
             return 'timed_out'
@@ -68,21 +68,23 @@ class Get_info(State):
             userdata.color = self.color
             userdata.counter = 0
             rospy.sleep(0.05)
+            # print '\n after updated \n'
             return 'updated'
         else:
             userdata.counter += 1
+            # print '\n after not updated \n'
             return 'not_updated'
 
 class Claim(State):
     def __init__(self):
         State.__init__(self, outcomes=['updated', 'not_updated', 'timed_out','not_found', 'completed'],
-                    input_keys = ['x','y','z','color','counter'],
-                    output_keys = ['x','y','z','color','counter'])
+                input_keys = ['x','y','z','color','counter'],
+                output_keys = ['x','y','z','color','counter'])
         self.is_updated = False
 
     def execute(self, userdata):        
-        global pnp, total_onions, attach_srv, detach_srv, done_onions
-        while len(userdata.x) == 0:
+        global pnp, total_onions, attach_srv, detach_srv, done_onions 
+        while len(userdata.x) == 0: 
             rospy.sleep(0.1)
         # rospy.loginfo('Executing state: Claim')
         if userdata.counter >= 50:
@@ -91,6 +93,7 @@ class Claim(State):
         if len(userdata.color) == 0:
             return 'not_found'
         max_index = len(userdata.color)
+
         # attach and detach service
         attach_srv = rospy.ServiceProxy('/link_attacher_node/attach', Attach)
         attach_srv.wait_for_service()
@@ -109,17 +112,19 @@ class Claim(State):
         for i in range(total_onions):
             if len(done_onions) == total_onions:
                 return 'completed'
+            
             if i in done_onions:
                 pass
             else:
                 onion_guess = "onion_" + str(i)
-
                 rospy.wait_for_service('/gazebo/get_model_state')
+
                 try:
-                    model_coordinates = rospy.ServiceProxy(
-                        '/gazebo/get_model_state', GetModelState)
-                    # print 'Onion name guessed: ', onion_guess
-                    onion_coordinates = model_coordinates(onion_guess, "").pose
+                    model_coordinates = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState) 
+                    # print 'Onion name guessed: ', onion_guess 
+                    onion_coordinates = model_coordinates(onion_guess, "").pose 
+                    print "real world locations for all onions "+str(onion_coordinates) 
+
                 except rospy.ServiceException, e:
                     print "Service call failed: %s" % e
 
@@ -127,14 +132,17 @@ class Claim(State):
                     if pnp.target_location_x - 0.05 <= onion_coordinates.position.x <= pnp.target_location_x + 0.05:
                         pnp.req.model_name_1 = onion_guess
                         done_onions.append(i)
+                        pnp.scene.remove_world_object(pnp.req.model_name_1)
                         self.is_updated = True
                         break
+                    else: print("x doesn't match with ",onion_guess)
+                else: print("y doesnt match with ",onion_guess)
 
         if self.is_updated == False:
             userdata.counter += 1
             return 'not_updated'
         else:
-            print "Onion name set as: ", pnp.req.model_name_1
+            # print "Onion name set as: ", pnp.req.model_name_1
             userdata.counter = 0
             rospy.sleep(0.05)
             return 'updated'
@@ -152,17 +160,20 @@ class Approach(State):
             userdata.counter = 0
             return 'timed_out'
 
+        goal_tolerance = 0.1
+
         if userdata.x[pnp.onion_index] != pnp.target_location_x or \
             userdata.y[pnp.onion_index] != pnp.target_location_y or \
-                userdata.z[pnp.onion_index] != pnp.target_location_z:
-            home = pnp.goto_home(tolerance=0.1, goal_tol=0.1, orientation_tol=0.1)
+            userdata.z[pnp.onion_index] != pnp.target_location_z:
+            home = pnp.goto_home(tolerance=0.1, goal_tol=goal_tolerance, orientation_tol=0.1)
             rospy.sleep(0.05)
             return 'not_found'
+
         else:
             # s = getState(pnp.req.model_name_1, 2)   # Sending unknown prediction until viewed
             # a = 3   # Pick
             # policy[s] = a
-            home = pnp.goto_home(tolerance=0.1, goal_tol=0.1, orientation_tol=0.1)
+            home = pnp.goto_home(tolerance=0.1, goal_tol=goal_tolerance, orientation_tol=0.1)
             rospy.sleep(0.05)
             if home:
                 status = pnp.goAndPick()
@@ -176,6 +187,7 @@ class Approach(State):
             else:
                 userdata.counter += 1
                 return 'failed'
+
             # grasps = pnp.make_grasps()   # generate a list of grasps
             # result = False
             # n_attempts = 0
@@ -210,7 +222,7 @@ class Pick(State):
                 userdata.z[pnp.onion_index] != pnp.target_location_z:
             return 'not_found'
         else:
-            dip = pnp.staticDip(z_pose = 0.08)
+            dip = pnp.dip_incrementally(z_pose = 0.08)
             rospy.sleep(0.05)
             if dip:
                 userdata.counter = 0
@@ -286,8 +298,9 @@ class View(State):
             userdata.counter = 0
             return 'timed_out'
 
-        view = pnp.view(0.3)
+        view = pnp.view()
         rospy.sleep(0.01)
+        print "\n\n View(State) pnp.view() "+str(view)+"\n"
         if view:
             rotate = pnp.rotategripper(0.3)
             rospy.sleep(0.01)
@@ -315,6 +328,7 @@ class Place(State):
             return 'timed_out'
 
         color = int(userdata.color[pnp.onion_index])
+        color = 0
         if color:
             # s = getState(pnp.req.model_name_1, color)
             # a = 1   # Place on conveyor
@@ -328,10 +342,11 @@ class Place(State):
         rospy.sleep(0.01)
         if place:
             userdata.counter = 0
-            return 'success'
+            rospy.loginfo("Place SM successful: userdata.counter = 0")
+            return 'success' 
         else:
             userdata.counter += 1
-            return 'failed'
+            return 'failed' 
 
 class Detach_object(State):
     def __init__(self):
@@ -341,7 +356,7 @@ class Detach_object(State):
 
     def execute(self, userdata): 
         global pnp, detach_srv
-        # rospy.loginfo('Executing state: Place')
+        rospy.loginfo('Executing state Detach with counter '+str(userdata.counter))
         if userdata.counter >= 50:
             userdata.counter = 0
             return 'timed_out'
@@ -365,6 +380,7 @@ def main():
         sortmethod = "pick"   # Default sort method
     else:
         sortmethod = sys.argv[1]
+    
     # Create a SMACH state machine
     sm = StateMachine(outcomes=['TIMED_OUT', 'SUCCEEDED'])
     sm.userdata.sm_x = []
@@ -432,7 +448,8 @@ def main():
             StateMachine.add('DETACH', Detach_object(),
                         transitions={'success':'SUCCEEDED', 
                                     'failed':'DETACH',
-                                    'timed_out': 'TIMED_OUT'})
+                                    'timed_out': 'TIMED_OUT'},
+                        remapping={'color': 'sm_color','counter':'sm_counter'})
 
         # Execute SMACH plan
         outcome = sm.execute()

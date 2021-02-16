@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+	<node name="I2RL_policy" pkg="sawyer_irl_project" type="execute_policy_statemachines_gazebo.py" output="screen"/>
+</launch> 

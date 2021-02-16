@@ -80,9 +80,11 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   /* A pose for the box (specified relative to frame_id) */
   geometry_msgs::Pose box_pose1;
   box_pose1.orientation.w = 1.0;
-  box_pose1.position.x =  0.9;
+  box_pose1.position.x =  0.6;
   box_pose1.position.y = 0.0;
-  box_pose1.position.z = -0.09;
+  box_pose1.position.z = -0.094;
+  // increased height for less onion hitting
+  // box_pose1.position.z = -0.044;
 
   collision_objects[1].primitives.push_back(primitive1);
   collision_objects[1].primitive_poses.push_back(box_pose1);
@@ -125,9 +127,10 @@ void addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& pla
   /* A pose for the box (specified relative to frame_id) */
   geometry_msgs::Pose box_pose2;
   box_pose2.orientation.w = 1.0;
-  box_pose2.position.x =  0.6;
+  box_pose2.position.x =  0.9;
   box_pose2.position.y = 0.0;
-  box_pose2.position.z = -0.09;
+  box_pose2.position.z = -0.094;
+  // box_pose2.position.z = -0.044;
 
   collision_objects[3].primitives.push_back(primitive2);
   collision_objects[3].primitive_poses.push_back(box_pose2);

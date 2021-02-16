@@ -5,7 +5,9 @@
       <pose frame=''>0 0 0 0 0 0</pose> <!-- make r = 1.5708 to make them upright -->
       <inertial>
         <pose frame=''>0 0 0 0 0 0</pose>
-        <mass>0.005</mass>	<!-- From 0.14kg to 0.005kg -->
+        <!-- <mass>0.005</mass>	 -->
+        <!-- From 0.14kg to 0.005kg -->
+        <mass>0.1</mass>
         <inertia>
           <ixx>0.08333</ixx>
           <ixy>0</ixy>

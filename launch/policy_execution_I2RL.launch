@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>  
+<!-- 
+    Author: Saurabh Arora 
+    Please do not edit or replicate without permission 
+--> 
+<!-- Description: File to launch the node that runs a one session and execute the resultant policy on robot already spawned in gazebo -->
+<launch>
+	<node name="execute_I2RL_policy" pkg="sawyer_irl_project" type="execute_policy_statemachines_gazebo.py" output="screen"/>
+</launch> 
+    

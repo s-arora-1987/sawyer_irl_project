@@ -13,5 +13,7 @@
     <arg name="launchmoveit" value="false"/>	<!-- Moveit is being launched from the spawn onion launch file.
 						     So, as long as you are running that, make sure to set this to false -->
   </include>
+  
+  <include file="$(find kinect_v2)/launch/kinect_v2_full.launch"/> 
 
 </launch> 

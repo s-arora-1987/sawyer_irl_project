@@ -23,7 +23,7 @@ from sawyer_irl_project.msg import onions_blocks_poses
 from gazebo_ros_link_attacher.srv import Attach, AttachRequest, AttachResponse
 from moveit_msgs.msg import Constraints, OrientationConstraint, PositionConstraint
 import copy
-
+import time
 
 class PickAndPlace(object):
     def __init__(self, limb='right', tip_name="right_gripper_tip"):
@@ -317,12 +317,12 @@ class PickAndPlace(object):
                                        self.target_location_y + 0.02,  # accounting for tolerance error
                                        current_pose.position.z - 0.075,  # This is where we dip
                                        allow_replanning, planning_time,threshold)
-            rospy.sleep(0.05)
+            rospy.sleep(0.25)
 
             # print "Successfully dipped! z pos: ", current_pose.position.z
             return True
         else:
-            rospy.sleep(0.05)
+            rospy.sleep(0.25)
             # print "Current position of gripper (y,z): ", current_pose.position.y, current_pose.position.z
             # print "Current position of onion in (y): ", self.target_location_y
             dip = self.dip()
@@ -344,7 +344,7 @@ class PickAndPlace(object):
                                        self.target_location_y + 0.1,  # Going to hover location .1 from the onion
                                        current_pose.position.z,
                                        allow_replanning, planning_time, threshold)
-        rospy.sleep(0.05)
+        rospy.sleep(0.5)
         dip = self.dip()
         return dip
 
@@ -353,19 +353,19 @@ class PickAndPlace(object):
         while self.target_location_x == -100:
             rospy.sleep(0.05)
         current_pose = group.get_current_pose().pose
-        # position_constraint = PositionConstraint()
-        # position_constraint.target_point_offset.x = 0.1
-        # position_constraint.target_point_offset.y = 0.1
-        # position_constraint.target_point_offset.z = 0.5
-        # position_constraint.weight = 0.1
-        # position_constraint.link_name = group.get_end_effector_link()
-        # position_constraint.header.frame_id = group.get_planning_frame()
+        position_constraint = PositionConstraint()
+        position_constraint.target_point_offset.x = 0.1
+        position_constraint.target_point_offset.y = 0.1
+        position_constraint.target_point_offset.z = 0.5
+        position_constraint.weight = 0.1
+        position_constraint.link_name = group.get_end_effector_link()
+        position_constraint.header.frame_id = group.get_planning_frame()
         orientation_constraint = OrientationConstraint()
         orientation_constraint.orientation = Quaternion(x=self.q[0], y=self.q[1], z=self.q[2], w=self.q[3])
         orientation_constraint.absolute_x_axis_tolerance = 0.1
         orientation_constraint.absolute_y_axis_tolerance = 0.1
         orientation_constraint.absolute_z_axis_tolerance = 0.1
-        orientation_constraint.weight = 0.5
+        orientation_constraint.weight = 0.3
         orientation_constraint.link_name = group.get_end_effector_link()
         orientation_constraint.header.frame_id = group.get_planning_frame()
 
@@ -380,13 +380,56 @@ class PickAndPlace(object):
                                    self.target_location_y,  # accounting for tolerance error
                                    z_pose,  # This is where we dip
                                    allow_replanning, planning_time, tolerance)
-        rospy.sleep(0.05)
+        rospy.sleep(0.5)
         if dip:
             print "Successfully dipped! z pos: ", current_pose.position.z
             group.clear_path_constraints()
             return True
         else:
             self.staticDip()
+
+
+    def dip_incrementally(self,z_pose):
+        # time limited and incremental movement 
+        group = self.group
+
+        position_constraint = PositionConstraint()
+        position_constraint.target_point_offset.x = 0.05
+        position_constraint.target_point_offset.y = 0.05
+        position_constraint.target_point_offset.z = 0.5
+        position_constraint.weight = 0.9
+        position_constraint.link_name = group.get_end_effector_link()
+        position_constraint.header.frame_id = group.get_planning_frame()
+        constraint = Constraints()
+        constraint.position_constraints.append(position_constraint)
+        group.set_path_constraints(constraint)
+
+        current_pose = group.get_current_pose().pose
+        current_orientation = group.get_current_pose().pose.orientation
+        curr_q = [current_orientation.x,current_orientation.y,current_orientation.z,current_orientation.w]
+        allow_replanning = False
+        planning_time = 5
+
+        print "Now performing dip"
+        tolerance = 0.01
+        time_limit = 120
+        start_time = time.time()
+        while (current_pose.position.z-z_pose) > tolerance and (time.time()-start_time)<time_limit:
+
+            status = self.go_to_pose_goal(curr_q[0], curr_q[1], curr_q[2], curr_q[3], current_pose.position.x,
+                                       current_pose.position.y,  
+                                       current_pose.position.z - 0.01,  # This is where we dip
+                                       allow_replanning, planning_time, thresh=tolerance)
+            current_pose = group.get_current_pose().pose
+            rospy.sleep(0.25)
+
+        rospy.sleep(0.05)
+
+        dip = (current_pose.position.z-z_pose) < tolerance 
+        print("dip_incrementally: dip successful? "+str(dip))
+        group.clear_path_constraints()
+
+        return dip
 
     def goAndPick(self):
 
@@ -402,9 +445,9 @@ class PickAndPlace(object):
         threshold = 0.05
         status = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], self.target_location_x,
                                        self.target_location_y,
-                                       current_pose.position.z,      # - 0.045,
+                                       current_pose.position.z+0.1,      # - 0.045,
                                        allow_replanning, planning_time, threshold)
-        rospy.sleep(0.05)
+        rospy.sleep(1.0)
         # dip = self.staticDip()
         # return dip
         return status
@@ -417,21 +460,36 @@ class PickAndPlace(object):
         # moving from z=-.02 to z=-0.1
 
         # print "Attempting to lift gripper"
+
         group = self.group
         while self.target_location_x == -100:
             rospy.sleep(0.05)
+
+        position_constraint = PositionConstraint()
+        position_constraint.target_point_offset.x = 0.05
+        position_constraint.target_point_offset.y = 0.05
+        position_constraint.target_point_offset.z = 0.5
+        position_constraint.weight = 0.9
+        position_constraint.link_name = group.get_end_effector_link()
+        position_constraint.header.frame_id = group.get_planning_frame()
+        constraint = Constraints()
+        constraint.position_constraints.append(position_constraint)
+        group.set_path_constraints(constraint)
+
         current_pose = group.get_current_pose().pose
         allow_replanning = True
         planning_time = 10
         lifted = False
-        threshold = 0.05
-        # print "Current z pose: ", current_pose.position.z
+        threshold = 0.01
+        print "Current z pose: ", current_pose.position.z
         while not lifted:
             lifted = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], self.target_location_x,
                                            current_pose.position.y, current_pose.position.z + 0.25,
                                            allow_replanning, planning_time, threshold)
-            rospy.sleep(0.02)
-        # print "Successfully lifted gripper to z: ", current_pose.position.z
+            rospy.sleep(0.25)
+        
+        print "Successfully lifted gripper to z: ", current_pose.position.z
+        group.clear_path_constraints()
 
         return True
 ###################################################################################################################################
@@ -480,7 +538,7 @@ class PickAndPlace(object):
         while diff:
             self.go_to_joint_goal(home_joint_angles, True, 5.0, goal_tol=goal_tol,
                                   orientation_tol=orientation_tol)
-            rospy.sleep(0.05)
+            rospy.sleep(0.1)
             # measure after movement
             current_joints = group.get_current_joint_values()
 
@@ -493,7 +551,7 @@ class PickAndPlace(object):
                 abs(joint_angles['right_j6']-current_joints[6]) > tol
             if diff:
                 self.move_to_start(joint_angles)
-                rospy.sleep(0.05)
+                rospy.sleep(0.1)
 
             # print "diff:"+str(diff)
         # self.go_to_joint_goal(joint_angles)
@@ -520,8 +578,8 @@ class PickAndPlace(object):
 
         home = self.go_to_joint_goal(home_joint_angles)
         if home:
-            rospy.sleep(0.05)
             view = self.go_to_joint_goal(joint_angles)
+            rospy.sleep(0.5)
 
         # print("reached viewpoint")
         # print("Current pose: \n",group.get_current_pose())
@@ -538,8 +596,8 @@ class PickAndPlace(object):
                      'right_j5': -2.2600790124759307,
                      'right_j6': -2.608939978894689 + 3.1415926535}
         self.go_to_joint_goal(clockwise)
-        rospy.sleep(0.01)
-        # print("Clockwise rotation done!")
+        rospy.sleep(1.0)
+        print("Clockwise rotation done!")
 
         anticlockwise = {'right_j0': 0.7716502133436203,
                          'right_j1': -0.25253308083711357,
@@ -548,9 +606,10 @@ class PickAndPlace(object):
                          'right_j4': 2.969104448028304,
                          'right_j5': -2.2600790124759307,
                          'right_j6': -2.608939978894689}
+        
         done = self.go_to_joint_goal(anticlockwise)
-        rospy.sleep(0.01)
-        # print("Anticlockwise rotation done!")
+        rospy.sleep(1.0)
+        print("Anticlockwise rotation done!")
 
         return done
 
@@ -568,7 +627,7 @@ class PickAndPlace(object):
         while not reached:
             reached = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], 0.1, 0.6, 0.1,
                                            allow_replanning, planning_time, tolerance)
-            rospy.sleep(0.02)
+            rospy.sleep(1.0)
         # print "Reached bin: ", reached
         # current_pose = group.get_current_pose().pose
         # print "current_pose: " + str((current_pose))
@@ -587,10 +646,11 @@ class PickAndPlace(object):
                      'right_j5': -1.0555062690650612,
                      'right_j6': 1.9853856741032878}
         self.go_to_joint_goal(roll_home)
-        rospy.sleep(0.01)
+        rospy.sleep(0.5)
 
         while self.target_location_x == -100:
-            rospy.sleep(0.05)
+            rospy.sleep(0.5)
+
         new_q = [0.540493140463, -0.536832286794,
                  0.427068696193, -0.487124819425]
         current_pose = group.get_current_pose().pose
@@ -610,19 +670,19 @@ class PickAndPlace(object):
         # print("Finished rolling!")
         return True
 
-    def placeOnConveyor(self, tolerance=0.01, goal_tol=0.01, orientation_tol=0.01):
+    def placeOnConveyor(self, tolerance=0.05, goal_tol=0.01, orientation_tol=0.01):
 
         onConveyor = False
         allow_replanning = True
         planning_time = 2.5
         group = self.group
-        while not onConveyor:
-            onConveyor = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], 0.85, 0.3, 0.15,
-                                              allow_replanning, planning_time, tolerance)
-            rospy.sleep(0.02)
+        # while not onConveyor:
+        onConveyor = self.go_to_pose_goal(self.q[0], self.q[1], self.q[2], self.q[3], 0.85, 0.3, 0.15,
+                                            allow_replanning, planning_time, tolerance)
+        rospy.sleep(0.5)
         # current_pose = group.get_current_pose().pose
         # print "Current gripper pose: ", current_pose
         # print "Over the conveyor now!"
-        return
+        return True
 
 ############################################## END OF CLASS ##################################################
