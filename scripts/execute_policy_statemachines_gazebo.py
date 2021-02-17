@@ -33,7 +33,6 @@ from sortingMDP.model import sortingModelbyPSuresh4multipleInit_onlyPIP, \
     Pick, InspectAfterPicking
 from sorting_patrol_MDP_irl.srv import requestPolicy
 
-
 # Global initializations
 pnp = PickAndPlace()
 done_onions = []
