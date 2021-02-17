@@ -19,7 +19,6 @@ from time import sleep
 from sawyer_irl_project.msg import OBlobs
 from gazebo_ros_link_attacher.srv import Attach, AttachRequest, AttachResponse
 import numpy as np
-
 import threading
 import message_filters
 from smach import *
