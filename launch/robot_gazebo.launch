@@ -40,6 +40,7 @@
   <arg name="use_cylinder_end" default="false"/>
   <arg name="launchmoveit" default="true"/>
   <arg name="onion_bin" default="true"/>
+  <arg name="launchhandcamera" default="true"/>
 
  <!-- Load Parameters to the ROS Parameter Server -->
   <rosparam command="load" file="$(find sawyer_gazebo)/config/config.yaml" />
@@ -99,12 +100,14 @@
   </group>
 
   <!-- sawyer cameras launch file -->
-  <arg name="wrist_camera" default="right_hand_camera" />
-  <arg name="head_camera"  default="head_camera" />
-  <include file="$(find sawyer_gazebo)/launch/sawyer_sim_cameras.launch">
-      <arg name="wrist_camera" value="$(arg wrist_camera)" />
-      <arg name="head_camera" value="$(arg head_camera)" />
-  </include>
+  <group if="$(arg launchhandcamera)">
+    <arg name="wrist_camera" default="right_hand_camera" />
+    <arg name="head_camera"  default="head_camera" />
+    <include file="$(find sawyer_gazebo)/launch/sawyer_sim_cameras.launch">
+        <arg name="wrist_camera" value="$(arg wrist_camera)" />
+        <arg name="head_camera" value="$(arg head_camera)" />
+    </include>
+  </group>
 
   <!-- Publish a static transform between the world and the base of the robot -->
   <node pkg="rosbag" type="play" name="io_robot" args="-l $(find sawyer_gazebo)/share/bags/robot_io.bag" />

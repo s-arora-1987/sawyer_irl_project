@@ -40,6 +40,9 @@ int main(int argc, char **argv)
     ros::NodeHandle nh; //("~");
     int i = 0 /*index the onions*/, j = 0 /*position reference for onions*/;
     int onion_gen = 0, total_onions = 4;
+    int bad_good_mixed; // 0 all bad onions, 1 all good onions, 2 alternate
+    std::vector<double> coordinate_list;
+    
     double initial_pose_x, initial_pose_y, height_spawning, spawning_interval,
         conveyor_center_x, belt_width, wrench_duration, randpos, object_width,
         delta_x, delta_y;
@@ -59,6 +62,9 @@ int main(int argc, char **argv)
     // deltas along x and y as parameters 
     nh.getParam("/delta_x", delta_x);
     nh.getParam("/delta_y", delta_y);
+    nh.getParam("/bad_good_mixed", bad_good_mixed);
+    nh.getParam("/coordinate_list", coordinate_list);
+
     // get file path of onions from parameter server
     bool get_good_onion_path, get_bad_onion_path;
     get_good_onion_path = nh.getParam("/good_onion_path", good_onion_path);
@@ -126,6 +132,15 @@ int main(int argc, char **argv)
     uniform_real_distribution<double> distribution(-1.0,1.0);
     // double number = distribution(generator);
 
+    // specific to 4 onions, unblemished are more detectable when they are in front part of table
+    ROS_INFO_STREAM("\n list of hard coded coordinates: ");
+    for(unsigned i=0; i < coordinate_list.size(); i++) {
+        ROS_INFO_STREAM(coordinate_list[i]); 
+    }
+    // float xy[4][2] = {{0.88, -0.05},{0.72, -0.25},{0.88, 0.25},{0.72, 0.25}};
+    float xy[4][2] = {{coordinate_list[0], coordinate_list[1]},{coordinate_list[2], coordinate_list[3]},
+        {coordinate_list[4], coordinate_list[5]},{coordinate_list[6], coordinate_list[7]}}; 
+
     while (ros::ok())
     {
 
@@ -137,15 +152,20 @@ int main(int argc, char **argv)
             {
                 // spawn_model_srv_msg.request.initial_pose.position.x = initial_pose_x - j * 0.05; //width of sphere is 0.02, well within 0.05
                 // spawn_model_srv_msg.request.initial_pose.position.y = initial_pose_y + j * 0.1; //width of sphere is 0.02, well within 0.05
-                spawn_model_srv_msg.request.initial_pose.position.x = initial_pose_x - j * delta_x; 
-                spawn_model_srv_msg.request.initial_pose.position.y = initial_pose_y + j * delta_y; 
+                // spawn_model_srv_msg.request.initial_pose.position.x = initial_pose_x - j * delta_x; 
+                // spawn_model_srv_msg.request.initial_pose.position.y = initial_pose_y + j * delta_y; 
+                spawn_model_srv_msg.request.initial_pose.position.x = xy[i][0]; 
+                spawn_model_srv_msg.request.initial_pose.position.y = xy[i][1]; 
+
             }
             else
             {
                 // spawn_model_srv_msg.request.initial_pose.position.x = initial_pose_x - j * 0.05;
                 // spawn_model_srv_msg.request.initial_pose.position.y = initial_pose_y - j * 0.1;
-                spawn_model_srv_msg.request.initial_pose.position.x = initial_pose_x - j * delta_x;
-                spawn_model_srv_msg.request.initial_pose.position.y = initial_pose_y - j * delta_y;
+                // spawn_model_srv_msg.request.initial_pose.position.x = initial_pose_x - j * delta_x;
+                // spawn_model_srv_msg.request.initial_pose.position.y = initial_pose_y - j * delta_y;
+                spawn_model_srv_msg.request.initial_pose.position.x = xy[i][0]; 
+                spawn_model_srv_msg.request.initial_pose.position.y = xy[i][1]; 
             }
             ROS_INFO_STREAM("x position of new onion: "
                             << spawn_model_srv_msg.request.initial_pose.position.x);
@@ -162,8 +182,12 @@ int main(int argc, char **argv)
             // srand (time(NULL));
 
             /* generate random number between 1 and 10: */
-            onion_gen = std::rand() % 100;
-            // onion_gen = 3;
+            // onion_gen = std::rand() % 100;
+            if (bad_good_mixed == 0) onion_gen = 1;
+            
+            if (bad_good_mixed == 1) onion_gen = 2;
+
+            if (bad_good_mixed == 2) onion_gen = i;
 
             if ((onion_gen % 2) == 0)
             {
